@@ -4,9 +4,14 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
@@ -100,11 +105,24 @@ public class CorchyWindow extends Window {
 
 	@Override
 	protected Control createContents(Composite parent) {
+		final Image bottomBarImg = new Image(Display.getCurrent(), "/Users/fourdman/Projects/internal/hive/pikachu.git/com.mkalugin.corchy.ui/bottomBar.png");
+		final Image syncImg = new Image(Display.getCurrent(), "/Users/fourdman/Projects/internal/hive/pikachu.git/com.mkalugin.corchy.ui/sync.png");
 		Composite editorBlock = new Composite(parent, SWT.NULL);
 		createEditorAndOutline(editorBlock);
 		editorBlock.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).create());
 
-		Canvas bottomBar = new Canvas(parent, SWT.BORDER);
+		final Canvas bottomBar = new Canvas(parent, SWT.NONE);
+		bottomBar.addPaintListener(new PaintListener() {
+
+			public void paintControl(PaintEvent e) {
+				GC gc = e.gc;
+				gc.setClipping((Rectangle)null);
+				Pattern bottomBarPattern = new Pattern(Display.getCurrent(), bottomBarImg);
+				gc.setBackgroundPattern(bottomBarPattern);
+				gc.fillRectangle(bottomBar.getClientArea());
+			}
+			
+		});
 		bottomBar.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL,
 				SWT.END).grab(true, false).indent(0, 0)
 				.minSize(SWT.DEFAULT, 32).hint(SWT.DEFAULT, 32).span(2, 1).create());
@@ -115,7 +133,9 @@ public class CorchyWindow extends Window {
 		Button toggleDrawer = new Button(bottomBar, SWT.NONE | SWT.PUSH);
 		((NSButton) toggleDrawer.view)
 				.setBezelStyle(OS.NSTexturedRoundedBezelStyle);
-		toggleDrawer.setText("Button");		
+		((NSButton) toggleDrawer.view).setImagePosition(OS.NSImageOnly);
+		toggleDrawer.setImage(syncImg);
+		toggleDrawer.setSize(35, 25);
 		toggleDrawer.setLayoutData(GridDataFactory.defaultsFor(toggleDrawer)
 				.align(SWT.BEGINNING, SWT.BEGINNING).indent(0, 0).create());
 		toggleDrawer.addSelectionListener(new SelectionAdapter() {
