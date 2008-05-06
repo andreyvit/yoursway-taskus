@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Text;
 
+import com.mkalugin.corchy.internal.editor.CorchyEditor;
+
 public class CorchyWindow extends MainWindow {
 	
 	private static final String DIALOG_ID = "mainWindow";
@@ -34,7 +36,7 @@ public class CorchyWindow extends MainWindow {
 
 	@Override
 	protected void dispose() {
-		editor.dispose();
+//		editor.dispose();
 	}
 
 	@Override

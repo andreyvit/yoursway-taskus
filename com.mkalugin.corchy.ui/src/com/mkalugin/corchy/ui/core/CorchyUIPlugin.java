@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.ui.core;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 

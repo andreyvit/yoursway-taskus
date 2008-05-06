@@ -9,7 +9,7 @@
             thread="main"
             visible="true">
          <run
-               class="com.mkalugin.corchy.internal.ui.CorchyApplication">
+               class="com.mkalugin.corchy.ui.core.CorchyApplication">
          </run>
       </application>
    </extension>

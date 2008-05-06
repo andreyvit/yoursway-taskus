@@ -1,7 +1,9 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.ui.core;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+
+import com.mkalugin.corchy.internal.ui.CorchyWindow;
 
 public class CorchyApplication implements IApplication {
 

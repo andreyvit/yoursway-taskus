@@ -18,9 +18,6 @@ public class OutlineView {
 
 	private void createControl(Composite parent) {
 		viewer = new ListViewer(parent, SWT.V_SCROLL);
-//		Control control = viewer.getControl();
-//		control.setLayoutData(GridDataFactory.fillDefaults().align(SWT.BEGINNING,
-//				SWT.FILL).grab(true, true).hint(150, 0).create());
 		NSTableView tableView = (NSTableView) viewer.getControl().view;
 		tableView.setBackgroundColor(NSColor.colorWithDeviceRed((float)209.0/255, (float)215.0/255, (float)226.0/255, 1));
 		viewer.setContentProvider(new ArrayContentProvider());

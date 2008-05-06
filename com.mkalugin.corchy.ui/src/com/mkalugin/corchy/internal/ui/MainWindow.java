@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import com.mkalugin.corchy.ui.core.CorchyUIPlugin;
+
 public abstract class MainWindow extends Window {
 
 	private static final String KEY_WIDTH = "width";
