@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.mkalugin.pikachu.core
 Bundle-Version: 1.0.0
 Bundle-Vendor: Mikhail Kalugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Bundle-Activator: com.mkalugin.pikachu.core.PickachuCore
+Bundle-Activator: com.mkalugin.pikachu.core.PikachuCore
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0"
 Export-Package: com.mkalugin.pikachu.core,
  com.mkalugin.pikachu.core.bigmodel,
@@ -13,6 +13,3 @@ Export-Package: com.mkalugin.pikachu.core,
  com.mkalugin.pikachu.core.storage,
  com.mkalugin.pikachu.core.storage.git,
  com.mkalugin.pikachu.core.storage.memory
- 
- 
- 
