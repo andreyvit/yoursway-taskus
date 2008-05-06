@@ -12,5 +12,7 @@ Export-Package: com.mkalugin.pikachu.core,
  com.mkalugin.pikachu.core.model,
  com.mkalugin.pikachu.core.storage,
  com.mkalugin.pikachu.core.storage.git,
- com.mkalugin.pikachu.core.storage.memory,
- com.mkalugin.pikachu.core.userspace
+ com.mkalugin.pikachu.core.storage.memory
+ 
+ 
+ 

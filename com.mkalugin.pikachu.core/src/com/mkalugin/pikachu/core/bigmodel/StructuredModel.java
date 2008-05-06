@@ -7,30 +7,34 @@ import java.util.regex.Pattern;
 
 import com.mkalugin.pikachu.core.model.AbstractModel;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
-import com.mkalugin.pikachu.core.userspace.UserSpace;
-import com.mkalugin.pikachu.core.userspace.UserSpaceSnapshot;
+import com.mkalugin.pikachu.core.storage.Commit;
+import com.mkalugin.pikachu.core.storage.DataStorage;
+import com.mkalugin.pikachu.core.storage.StorageException;
+import com.mkalugin.pikachu.core.storage.StorageSnapshot;
 
-public class StructuredModel extends AbstractModel<StructuredSnapshot> implements ModelConsumer<UserSpaceSnapshot> {
-	
+public class StructuredModel extends AbstractModel<StructuredSnapshot> implements
+		ModelConsumer<StorageSnapshot> {
+
 	private static final Pattern pattern = Pattern.compile("^.*:$", Pattern.MULTILINE);
 
 	private StructuredSnapshot lastSnapshot;
-	private final UserSpace userSpace;
+	private final DataStorage userSpace;
 
-	public StructuredModel(UserSpace userSpace) {
+	public StructuredModel(DataStorage userSpace) {
 		this.userSpace = userSpace;
 		this.userSpace.registerConsumer(this);
 	}
 
-	public void consume(UserSpaceSnapshot snapshot) {
-		synchronized (lastSnapshot) {
-			lastSnapshot = buildNewSnapshot(snapshot);
+	protected void updateTo(StorageSnapshot source) {
+		String mainFile = source.contentsOfFile("data.txt");
+		pushSnapshot(source.timeStamp(), mainFile);
+	}
+
+	protected synchronized void pushSnapshot(long time, String mainFile) {
+		if (lastSnapshot == null || !mainFile.equals(lastSnapshot.content())) {
+			lastSnapshot = new StructuredSnapshot(time, mainFile, parse(mainFile));
 			notifyConsumers(lastSnapshot);
 		}
-	}
-	
-	protected StructuredSnapshot buildNewSnapshot(UserSpaceSnapshot source) {
-		return new StructuredSnapshot(source, parse(source.content()));
 	}
 
 	protected String[] parse(String content) {
@@ -41,5 +45,20 @@ public class StructuredModel extends AbstractModel<StructuredSnapshot> implement
 		}
 		return result.toArray(new String[result.size()]);
 	}
-	
+
+	public void consume(StorageSnapshot snapshot) {
+		updateTo(snapshot);
+	}
+
+	public void pushData(String data) throws StorageException {
+		Commit commit = userSpace.commit();
+		commit.add("data.txt", data);
+		commit.apply();
+		pushSnapshot(System.currentTimeMillis(), data);
+	}
+
+	public void synchronize() {
+
+	}
+
 }

@@ -1,15 +1,16 @@
 package com.mkalugin.pikachu.core.bigmodel;
 
 import com.mkalugin.pikachu.core.model.ModelSnapshot;
-import com.mkalugin.pikachu.core.userspace.UserSpaceSnapshot;
 
 public class StructuredSnapshot implements ModelSnapshot {
 
-	private final UserSpaceSnapshot userSpace;
+	private final long time;
+	private final String content;
 	private final String[] titles;
 
-	public StructuredSnapshot(UserSpaceSnapshot base, String[] titles) {
-		this.userSpace = base;
+	public StructuredSnapshot(long time, String content, String[] titles) {
+		this.time = time;
+		this.content = content;
 		this.titles = titles;
 	}
 
@@ -17,12 +18,12 @@ public class StructuredSnapshot implements ModelSnapshot {
 		return titles;
 	}
 	
-	public UserSpaceSnapshot userSpace() {
-		return userSpace;
+	public String content() {
+		return content;
 	}
 
 	public long timeStamp() {
-		return userSpace.timeStamp();
+		return time;
 	}
 
 }
