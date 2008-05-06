@@ -2,6 +2,7 @@ package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_BOTTOM_BAR;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.window.Window;
@@ -22,9 +23,14 @@ import org.eclipse.swt.widgets.Shell;
 
 public abstract class MainWindow extends Window {
 
-	private Point previousLocation = null;
-	private Point previousSize = null;
+	private static final String KEY_WIDTH = "width";
+	private static final String KEY_HEIGHT = "height";
+	private static final String KEY_Y = "y";
+	private static final String KEY_X = "x";
+	
 	private final boolean hasBottomBar;
+	
+	private IDialogSettings dialogSettings;
 	
 	public MainWindow(boolean hasBottomBar) {
 		super((Shell) null);
@@ -34,6 +40,8 @@ public abstract class MainWindow extends Window {
 	protected abstract String title();
 	
 	protected abstract void dispose();
+	
+	protected abstract String dialogId();
 
 	protected void createControls(Composite parent) {		
 	}
@@ -89,23 +97,44 @@ public abstract class MainWindow extends Window {
 
 	@Override
 	protected Point getInitialSize() {
-		if (restoreBounds())
-			return previousSize;
-		return new Point(500, 600);
+		loadDialogSettings();
+		try {
+			int width = dialogSettings.getInt(KEY_WIDTH);
+			int height = dialogSettings.getInt(KEY_HEIGHT);
+			return new Point(width, height);
+		} catch (NumberFormatException e) {
+			return new Point(500, 600);
+		}
 	}
 
 	@Override
 	protected Point getInitialLocation(Point initialSize) {
-		if (restoreBounds())
-			return previousLocation;
-		return super.getInitialLocation(initialSize);
+		loadDialogSettings();
+		try {
+			int x = dialogSettings.getInt(KEY_X);
+			int y = dialogSettings.getInt(KEY_Y);
+			return new Point(x, y);
+		} catch (NumberFormatException e) {
+			return super.getInitialLocation(initialSize);
+		}
 	}
 
 	private void saveState() {
+		loadDialogSettings();
+		Rectangle bounds = getShell().getBounds();
+		dialogSettings.put(KEY_X, bounds.x);
+		dialogSettings.put(KEY_Y, bounds.y);
+		dialogSettings.put(KEY_WIDTH, bounds.width);
+		dialogSettings.put(KEY_HEIGHT, bounds.height);
 	}
 
-	private boolean restoreBounds() {
-		return false;
+	private void loadDialogSettings() {
+		if (dialogSettings != null)
+			return;
+		dialogSettings = CorchyUIPlugin.instance().getDialogSettings().getSection(dialogId());
+		if (dialogSettings == null) {
+			dialogSettings = CorchyUIPlugin.instance().getDialogSettings().addNewSection(dialogId());			
+		}
 	}
 
 	

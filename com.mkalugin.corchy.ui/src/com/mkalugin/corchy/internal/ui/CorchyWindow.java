@@ -6,7 +6,6 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
 import org.eclipse.swt.internal.cocoa.OS;
@@ -15,7 +14,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
@@ -23,6 +21,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class CorchyWindow extends MainWindow {
 	
+	private static final String DIALOG_ID = "mainWindow";
+
 	private static final String APP_TITLE = "Corchy";
 
 	private CorchyEditor editor;
@@ -79,7 +79,6 @@ public class CorchyWindow extends MainWindow {
 				}
 			}
 		});
-		sash.setCursor(new Cursor(Display.getCurrent(), SWT.CURSOR_SIZEWE));
 
 		FormData editorData = new FormData();
 		editorData.left = new FormAttachment(sash, 0);
@@ -117,6 +116,11 @@ public class CorchyWindow extends MainWindow {
 		searchField.setText("Search");
 		searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END,
 				SWT.BEGINNING).indent(0, 0).create());
+	}
+
+	@Override
+	protected String dialogId() {
+		return DIALOG_ID;
 	}
 
 }
