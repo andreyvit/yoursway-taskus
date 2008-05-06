@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-Name: Core Tests Plug-in
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: Mikhail Kalugin
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: com.mkalugin.pikachu.core.tests
+Require-Bundle: com.mkalugin.pikachu.core;bundle-version="1.0.0",org.j
+ unit4;bundle-version="4.3.1",org.easymock
+Bundle-Version: 1.0.0
+
