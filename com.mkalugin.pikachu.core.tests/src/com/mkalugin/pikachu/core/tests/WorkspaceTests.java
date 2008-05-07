@@ -85,5 +85,31 @@ public class WorkspaceTests extends Assert {
 		space.pushData("hello");
 		verify(dataStorage, commit, consumer);
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void reactsToDataChange() throws Exception {
+		DataStorage dataStorage = createMock(DataStorage.class);
+		ModelConsumer<WorkspaceSnapshot> consumer = createMock(ModelConsumer.class);
+
+		Workspace workspace = new Workspace(dataStorage);
+		workspace.registerConsumer(consumer);
+
+		reset(consumer, dataStorage);
+
+		StorageSnapshot storageSnapshot = createMock(StorageSnapshot.class);
+		storageSnapshot.timeStamp();
+		expectLastCall().andReturn(42);
+		storageSnapshot.contentsOfFile("data.txt");
+		expectLastCall().andReturn("giraffe");
+		
+		consumer.consume((WorkspaceSnapshot) notNull());
+		
+		replay(consumer, storageSnapshot);
+		
+		workspace.consume(storageSnapshot);
+		
+		verify(consumer, storageSnapshot);
+	}
 
 }
