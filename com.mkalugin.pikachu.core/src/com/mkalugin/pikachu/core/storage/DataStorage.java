@@ -13,5 +13,7 @@ public interface DataStorage extends Model<StorageSnapshot> {
 	String getMemento();
 	
 	String getType();
+	
+	void flush() throws StorageException;
 
 }

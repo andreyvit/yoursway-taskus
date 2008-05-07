@@ -18,11 +18,13 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	private Document document;
 	private long lastUpdateTime;
 	private Workspace workspace;
+	private boolean consuming;
 
 	public CorchyEditor(Composite parent) {
 		createControls(parent);
 		workspace = CorchyApplication.workspace();
 		workspace.registerConsumer(this);
+		consuming = false;
 	}
 
 	private void createControls(Composite parent) {
@@ -35,6 +37,9 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 			}
 
 			public void documentChanged(DocumentEvent event) {
+				// do not react to our changes
+				if (consuming)
+					return;
 				saveDocument();
 			}
 
@@ -52,23 +57,22 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	}
 
 	private Document createDocument() {
-		return new Document("Hello\nWorld");
+		return new Document("");
 	}
 
 	public void setLayoutData(Object editorData) {
 		sourceViewer.getControl().setLayoutData(editorData);
 	}
 
-	public void consume(WorkspaceSnapshot snapshot) {
+	public synchronized void consume(WorkspaceSnapshot snapshot) {
+		consuming = true;
 		if (snapshot.timeStamp() < lastUpdateTime) {
 			saveDocument();
 			return;
 		}
-		String currentData = document.get();
 		String newContent = snapshot.content();
-		if (currentData.equals(newContent))
-			return;
 		document.set(newContent);
+		consuming = false;
 	}
 
 }

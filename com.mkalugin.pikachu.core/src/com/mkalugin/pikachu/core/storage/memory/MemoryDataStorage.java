@@ -112,4 +112,8 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 		return "com.mkalugin.pikachu.core.memoryStorageType";
 	}
 
+	public void flush() throws StorageException {
+		// nothing to do
+	}
+
 }

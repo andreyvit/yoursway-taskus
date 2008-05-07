@@ -8,6 +8,7 @@ import com.mkalugin.corchy.internal.ui.CorchyWindow;
 import com.mkalugin.pikachu.core.storage.DataStorage;
 import com.mkalugin.pikachu.core.storage.DataStorageBuilder;
 import com.mkalugin.pikachu.core.storage.DataStorageManager;
+import com.mkalugin.pikachu.core.storage.StorageException;
 import com.mkalugin.pikachu.core.storage.memory.MemoryDataStorage;
 import com.mkalugin.pikachu.core.workspace.Workspace;
 
@@ -37,7 +38,11 @@ public class CorchyApplication implements IApplication {
 
 	public static Workspace openWorkspaceWithStorage(DataStorage storage) {
 		if (workspace != null) {
-			workspace.flush();
+			try {
+				workspace.flush();
+			} catch (StorageException e) {
+				e.printStackTrace();
+			}
 		}
 		workspace = new Workspace(storage);
 		saveWorkspaceState();

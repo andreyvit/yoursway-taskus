@@ -15,6 +15,8 @@ import com.mkalugin.pikachu.core.storage.StorageSnapshot;
 public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		ModelConsumer<StorageSnapshot> {
 
+	private static final String DATA_TXT = "data.txt";
+
 	private static final Pattern pattern = Pattern.compile("^.*:$", Pattern.MULTILINE);
 
 	private WorkspaceSnapshot lastSnapshot;
@@ -28,7 +30,7 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	}
 
 	protected void updateTo(StorageSnapshot source) {
-		String mainFile = source.contentsOfFile("data.txt");
+		String mainFile = source.contentsOfFile(DATA_TXT);
 		if (mainFile == null)
 			mainFile = "";
 		pushSnapshot(source.timeStamp(), mainFile);
@@ -56,21 +58,23 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 
 	public void pushData(String data) throws StorageException {
 		Commit commit = dataStorage.commit();
-		commit.add("data.txt", data);
+		commit.add(DATA_TXT, data);
 		commit.apply();
 		pushSnapshot(System.currentTimeMillis(), data);
 	}
-	
+
 	public void registerConsumer(ModelConsumer<WorkspaceSnapshot> consumer) {
 		super.registerConsumer(consumer);
 		if (lastSnapshot != null)
 			consumer.consume(lastSnapshot);
 	}
-	
-	public void flush() {
+
+	public void flush() throws StorageException {
+		dataStorage.flush();
 	}
 
-	public void synchronize() {
+	public void synchronize() throws StorageException {
+		pushData(lastSnapshot.content() + "\nLast sync: " + System.currentTimeMillis() + "\n");
 	}
 
 	public DataStorage storage() {

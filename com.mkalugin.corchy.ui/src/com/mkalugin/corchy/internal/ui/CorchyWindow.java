@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyEditor;
 import com.mkalugin.corchy.ui.core.CorchyApplication;
+import com.mkalugin.pikachu.core.storage.StorageException;
 
 public class CorchyWindow extends MainWindow {
 	
@@ -37,6 +38,11 @@ public class CorchyWindow extends MainWindow {
 
 	@Override
 	protected void dispose() {
+		try {
+			CorchyApplication.workspace().flush();
+		} catch (StorageException e) {
+			//TODO
+		}
 		CorchyApplication.saveWorkspaceState();
 	}
 
@@ -111,6 +117,11 @@ public class CorchyWindow extends MainWindow {
 		syncButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				try {
+					CorchyApplication.workspace().synchronize();
+				} catch (StorageException e1) {
+					// TODO
+				}
 			}
 		});
 

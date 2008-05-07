@@ -3,6 +3,7 @@ package com.mkalugin.pikachu.core.storage.git;
 import com.mkalugin.pikachu.core.model.AbstractModel;
 import com.mkalugin.pikachu.core.storage.Commit;
 import com.mkalugin.pikachu.core.storage.DataStorage;
+import com.mkalugin.pikachu.core.storage.StorageException;
 import com.mkalugin.pikachu.core.storage.StorageSnapshot;
 import com.mkalugin.pikachu.core.storage.StorageVersion;
 
@@ -30,5 +31,8 @@ public class GitDataStorage extends AbstractModel<StorageSnapshot> implements Da
 	
 	public String getType() {
 		return "com.mkalugin.pikachu.core.gitStorage";
+	}
+
+	public void flush() throws StorageException {
 	}
 }
