@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension-point id="dataStorages" name="dataStorages" schema="schema/dataStorages.exsd"/>
+   <extension
+         point="com.mkalugin.pikachu.core.dataStorages">
+      <dataStorageType
+            class="com.mkalugin.pikachu.core.storage.memory.MemoryDataStorageBuilder"
+            id="com.mkalugin.pikachu.core.memoryStorageType">
+      </dataStorageType>
+   </extension>
+
+</plugin>

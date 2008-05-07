@@ -33,6 +33,19 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 			return time;
 		}
 
+		@Override
+		public String toString() {
+			StringBuilder result = new StringBuilder();
+			for (String key : data.keySet()) {
+				String value = data.get(key);
+				result.append(key);
+				result.append("\n");
+				result.append(new String(Base64.encode(value.getBytes())));
+				result.append("\n");
+			}
+			return result.toString();
+		}
+
 	}
 
 	private class SimpleCommit implements Commit {
@@ -65,9 +78,9 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 		currentCommit = null;
 	}
 
-	public Commit commit() throws StorageException {
+	public Commit commit() {
 		if (currentCommit != null)
-			throw new StorageException("Concurrent commit try");
+			return null;
 		currentCommit = new SimpleCommit();
 		return currentCommit;
 	}
@@ -84,16 +97,19 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 	public void registerConsumer(ModelConsumer<StorageSnapshot> consumer) {
 		super.registerConsumer(consumer);
 		if (!versions.isEmpty())
-			consumer.consume(versions.get(versions.size() - 1).snapshot());
+			consumer.consume(lastVersion().snapshot());
+	}
+
+	private StorageVersion lastVersion() {
+		return versions.get(versions.size() - 1);
 	}
 
 	public String getMemento() {
-		
-		return null;
+		return lastVersion().snapshot().toString();
 	}
 
 	public String getType() {
-		return "com.mkalugin.pikachu.core.memoryStorage";
+		return "com.mkalugin.pikachu.core.memoryStorageType";
 	}
-	
+
 }

@@ -18,15 +18,19 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	private static final Pattern pattern = Pattern.compile("^.*:$", Pattern.MULTILINE);
 
 	private WorkspaceSnapshot lastSnapshot;
-	private final DataStorage userSpace;
+	private final DataStorage dataStorage;
 
-	public Workspace(DataStorage userSpace) {
-		this.userSpace = userSpace;
-		this.userSpace.registerConsumer(this);
+	public Workspace(DataStorage dataStorage) {
+		if (dataStorage == null)
+			throw new NullPointerException("dataStorage is null");
+		this.dataStorage = dataStorage;
+		this.dataStorage.registerConsumer(this);
 	}
 
 	protected void updateTo(StorageSnapshot source) {
 		String mainFile = source.contentsOfFile("data.txt");
+		if (mainFile == null)
+			mainFile = "";
 		pushSnapshot(source.timeStamp(), mainFile);
 	}
 
@@ -51,16 +55,26 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	}
 
 	public void pushData(String data) throws StorageException {
-		Commit commit = userSpace.commit();
+		Commit commit = dataStorage.commit();
 		commit.add("data.txt", data);
 		commit.apply();
 		pushSnapshot(System.currentTimeMillis(), data);
+	}
+	
+	public void registerConsumer(ModelConsumer<WorkspaceSnapshot> consumer) {
+		super.registerConsumer(consumer);
+		if (lastSnapshot != null)
+			consumer.consume(lastSnapshot);
 	}
 	
 	public void flush() {
 	}
 
 	public void synchronize() {
+	}
+
+	public DataStorage storage() {
+		return dataStorage;
 	}
 
 }

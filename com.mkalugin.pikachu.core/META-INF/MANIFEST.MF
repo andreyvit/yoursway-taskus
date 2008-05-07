@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pickachu's heart
-Bundle-SymbolicName: com.mkalugin.pikachu.core
+Bundle-SymbolicName: com.mkalugin.pikachu.core;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Vendor: Mikhail Kalugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

@@ -21,10 +21,6 @@ public class CorchyApplication implements IApplication {
 		return workspace;
 	}
 
-	private static Workspace defaultWorkspace() {
-		return new Workspace(new MemoryDataStorage());
-	}
-
 	private static Workspace openLast() {
 		IPreferenceStore preferenceStore = CorchyUIPlugin.instance().getPreferenceStore();
 		String lastWorkspace = preferenceStore.getString("workspaceStorageType");
@@ -36,7 +32,7 @@ public class CorchyApplication implements IApplication {
 				return new Workspace(dataStorage);
 			}
 		}
-		return defaultWorkspace();
+		return openWorkspaceWithStorage(new MemoryDataStorage());
 	}
 
 	public static Workspace openWorkspaceWithStorage(DataStorage storage) {
@@ -44,10 +40,14 @@ public class CorchyApplication implements IApplication {
 			workspace.flush();
 		}
 		workspace = new Workspace(storage);
-		IPreferenceStore preferenceStore = CorchyUIPlugin.instance().getPreferenceStore();
-		preferenceStore.setValue("workspaceStorageType", storage.getType());
-		preferenceStore.setValue("workspaceMemento", storage.getMemento());
+		saveWorkspaceState();
 		return workspace;
+	}
+	
+	public static void saveWorkspaceState() {
+		IPreferenceStore preferenceStore = CorchyUIPlugin.instance().getPreferenceStore();
+		preferenceStore.setValue("workspaceStorageType", workspace.storage().getType());
+		preferenceStore.setValue("workspaceMemento", workspace.storage().getMemento());
 	}
 
 	public Object start(IApplicationContext context) throws Exception {

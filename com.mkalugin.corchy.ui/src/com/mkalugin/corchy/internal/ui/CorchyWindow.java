@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyEditor;
+import com.mkalugin.corchy.ui.core.CorchyApplication;
 
 public class CorchyWindow extends MainWindow {
 	
@@ -36,7 +37,7 @@ public class CorchyWindow extends MainWindow {
 
 	@Override
 	protected void dispose() {
-//		editor.dispose();
+		CorchyApplication.saveWorkspaceState();
 	}
 
 	@Override

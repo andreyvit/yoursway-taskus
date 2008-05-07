@@ -9,7 +9,7 @@ import org.eclipse.core.runtime.Platform;
 
 public class DataStorageManager {
 
-	private static final String EXT_POINT = "com.mkalugin.pikachu.dataStorage";
+	private static final String EXT_POINT = "com.mkalugin.pikachu.core.dataStorages";
 
 	private static Map<String, DataStorageBuilder> builders = new HashMap<String, DataStorageBuilder>();
 
