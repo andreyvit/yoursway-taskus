@@ -13,14 +13,14 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.mkalugin.pikachu.core.bigmodel.StructuredModel;
-import com.mkalugin.pikachu.core.bigmodel.StructuredSnapshot;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.storage.Commit;
 import com.mkalugin.pikachu.core.storage.DataStorage;
 import com.mkalugin.pikachu.core.storage.StorageSnapshot;
+import com.mkalugin.pikachu.core.workspace.Workspace;
+import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
 
-public class StructuredModelTests extends Assert {
+public class WorkspaceTests extends Assert {
 
 	@SuppressWarnings("unchecked")
 	@Test
@@ -29,7 +29,7 @@ public class StructuredModelTests extends Assert {
 		dataStorage.registerConsumer((ModelConsumer<StorageSnapshot>) notNull());
 		replay(dataStorage);
 
-		new StructuredModel(dataStorage);
+		new Workspace(dataStorage);
 		verify(dataStorage);
 	}
 
@@ -38,10 +38,10 @@ public class StructuredModelTests extends Assert {
 		final boolean[] consumerCalled = new boolean[] { false };
 		DataStorage dataStorage = createMock(DataStorage.class);
 		StorageSnapshot snapshot = createMock(StorageSnapshot.class);
-		StructuredModel model = new StructuredModel(dataStorage);
-		model.registerConsumer(new ModelConsumer<StructuredSnapshot>() {
+		Workspace model = new Workspace(dataStorage);
+		model.registerConsumer(new ModelConsumer<WorkspaceSnapshot>() {
 
-			public void consume(StructuredSnapshot snapshot) {
+			public void consume(WorkspaceSnapshot snapshot) {
 				String[] ast = snapshot.ast();
 				assertTrue(Arrays.equals(new String[] {"foo:", "boo:"}, ast));
 				consumerCalled[0] = true;
@@ -67,10 +67,10 @@ public class StructuredModelTests extends Assert {
 	@Test
 	public void pushContents() throws Exception {
 		DataStorage dataStorage = createMock(DataStorage.class);
-		ModelConsumer<StructuredSnapshot> consumer = createMock(ModelConsumer.class);
+		ModelConsumer<WorkspaceSnapshot> consumer = createMock(ModelConsumer.class);
 		Commit commit = createMock(Commit.class);
 
-		StructuredModel space = new StructuredModel(dataStorage);
+		Workspace space = new Workspace(dataStorage);
 		space.registerConsumer(consumer);
 
 		reset(dataStorage);
@@ -79,7 +79,7 @@ public class StructuredModelTests extends Assert {
 		expectLastCall().andReturn(commit);
 		commit.add("data.txt", "hello");
 		commit.apply();
-		consumer.consume((StructuredSnapshot) notNull());
+		consumer.consume((WorkspaceSnapshot) notNull());
 		replay(dataStorage, commit, consumer);
 
 		space.pushData("hello");

@@ -1,14 +1,14 @@
-package com.mkalugin.pikachu.core.bigmodel;
+package com.mkalugin.pikachu.core.workspace;
 
 import com.mkalugin.pikachu.core.model.ModelSnapshot;
 
-public class StructuredSnapshot implements ModelSnapshot {
+public class WorkspaceSnapshot implements ModelSnapshot {
 
 	private final long time;
 	private final String content;
 	private final String[] titles;
 
-	public StructuredSnapshot(long time, String content, String[] titles) {
+	public WorkspaceSnapshot(long time, String content, String[] titles) {
 		this.time = time;
 		this.content = content;
 		this.titles = titles;

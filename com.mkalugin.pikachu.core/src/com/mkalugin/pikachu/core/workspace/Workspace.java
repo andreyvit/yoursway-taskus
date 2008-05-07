@@ -1,4 +1,4 @@
-package com.mkalugin.pikachu.core.bigmodel;
+package com.mkalugin.pikachu.core.workspace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +12,15 @@ import com.mkalugin.pikachu.core.storage.DataStorage;
 import com.mkalugin.pikachu.core.storage.StorageException;
 import com.mkalugin.pikachu.core.storage.StorageSnapshot;
 
-public class StructuredModel extends AbstractModel<StructuredSnapshot> implements
+public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		ModelConsumer<StorageSnapshot> {
 
 	private static final Pattern pattern = Pattern.compile("^.*:$", Pattern.MULTILINE);
 
-	private StructuredSnapshot lastSnapshot;
+	private WorkspaceSnapshot lastSnapshot;
 	private final DataStorage userSpace;
 
-	public StructuredModel(DataStorage userSpace) {
+	public Workspace(DataStorage userSpace) {
 		this.userSpace = userSpace;
 		this.userSpace.registerConsumer(this);
 	}
@@ -32,7 +32,7 @@ public class StructuredModel extends AbstractModel<StructuredSnapshot> implement
 
 	protected synchronized void pushSnapshot(long time, String mainFile) {
 		if (lastSnapshot == null || !mainFile.equals(lastSnapshot.content())) {
-			lastSnapshot = new StructuredSnapshot(time, mainFile, parse(mainFile));
+			lastSnapshot = new WorkspaceSnapshot(time, mainFile, parse(mainFile));
 			notifyConsumers(lastSnapshot);
 		}
 	}
