@@ -86,5 +86,14 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 		if (!versions.isEmpty())
 			consumer.consume(versions.get(versions.size() - 1).snapshot());
 	}
+
+	public String getMemento() {
+		
+		return null;
+	}
+
+	public String getType() {
+		return "com.mkalugin.pikachu.core.memoryStorage";
+	}
 	
 }

@@ -9,5 +9,9 @@ public interface DataStorage extends Model<StorageSnapshot> {
 	StorageVersion[] log() throws StorageException;
 
 	void revertTo(StorageVersion version) throws StorageException;
+	
+	String getMemento();
+	
+	String getType();
 
 }

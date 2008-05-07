@@ -23,5 +23,12 @@ public class GitDataStorage extends AbstractModel<StorageSnapshot> implements Da
 	public void revertTo(StorageVersion version) {
 		
 	}
+
+	public String getMemento() {
+		return null;
+	}
 	
+	public String getType() {
+		return "com.mkalugin.pikachu.core.gitStorage";
+	}
 }

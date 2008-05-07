@@ -56,9 +56,11 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		commit.apply();
 		pushSnapshot(System.currentTimeMillis(), data);
 	}
+	
+	public void flush() {
+	}
 
 	public void synchronize() {
-
 	}
 
 }
