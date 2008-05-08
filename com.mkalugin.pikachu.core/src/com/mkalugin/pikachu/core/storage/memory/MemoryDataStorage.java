@@ -119,4 +119,8 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 		// nothing to do
 	}
 
+	public String getDescription() {
+		return "(unsaved)";
+	}
+
 }

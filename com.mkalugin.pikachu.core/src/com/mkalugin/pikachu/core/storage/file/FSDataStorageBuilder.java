@@ -10,7 +10,7 @@ public class FSDataStorageBuilder implements DataStorageBuilder {
 
 	public DataStorage buildFrom(String memento) {
 		try {
-			return new FSDataStorage(new File(memento));
+			return new FSDataStorage(new File(memento), false);
 		} catch (StorageException e) {
 			throw new IllegalArgumentException(e);
 		}

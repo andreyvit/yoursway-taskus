@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mkalugin.pikachu.core.model.AbstractModel;
+import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.storage.Commit;
 import com.mkalugin.pikachu.core.storage.DataStorage;
 import com.mkalugin.pikachu.core.storage.StorageException;
@@ -56,9 +57,7 @@ public class FSDataStorage extends AbstractModel<StorageSnapshot> implements Dat
 					String newPath = filePath.substring(0, filePath.length() - suffix.length());
 					f.renameTo(new File(newPath));
 				}
-				FileStorageSnapshot snapshot = new FileStorageSnapshot(System.currentTimeMillis());
-				currentVersion = new StorageVersion(null, snapshot);
-				notifyConsumers(snapshot);
+				notifyConsumers(currentVersion.snapshot());
 			} catch (Exception e) {
 				throw new StorageException(e);
 			}
@@ -105,12 +104,17 @@ public class FSDataStorage extends AbstractModel<StorageSnapshot> implements Dat
 	private Object commitLock = new Object();
 	private StorageVersion currentVersion;
 
-	public FSDataStorage(File path) throws StorageException {
+	public FSDataStorage(File path, boolean allowToFormat) throws StorageException {
 		if (path == null)
 			throw new NullPointerException("path is null");
-		if (!validateLocation(path))
-			formatLocation(path);
+		if (!validateLocation(path)) {
+			if (allowToFormat)
+				formatLocation(path);
+			else 
+				throw new StorageException("Damaged storage or not a storage at all.");
+		}		
 		this.path = path;
+		updateCurrentVersion();
 	}
 
 	private boolean validateLocation(File location) {
@@ -154,5 +158,19 @@ public class FSDataStorage extends AbstractModel<StorageSnapshot> implements Dat
 	}
 
 	public void flush() throws StorageException {
+	}
+	
+	public void registerConsumer(ModelConsumer<StorageSnapshot> consumer) {
+		super.registerConsumer(consumer);
+		consumer.consume(currentVersion.snapshot());
+	}
+	
+	protected void updateCurrentVersion() {
+		FileStorageSnapshot snapshot = new FileStorageSnapshot(System.currentTimeMillis());
+		currentVersion = new StorageVersion(null, snapshot);
+	}
+
+	public String getDescription() {
+		return path.getAbsolutePath();
 	}
 }

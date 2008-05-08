@@ -28,13 +28,13 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	public Workspace(DataStorage storage) {
 		connectTo(storage);
 	}
-	
+
 	public void connectTo(DataStorage storage) {
 		if (storage == null)
 			throw new NullPointerException("storage is null");
 		if (dataStorage != null) {
 			dataStorage.unregisterConsumer(this);
-		}			
+		}
 		this.dataStorage = storage;
 		this.dataStorage.registerConsumer(this);
 	}
@@ -74,9 +74,7 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	public void pushData(String data) throws StorageException {
 		if (dataStorage == null)
 			throw new IllegalStateException("No data storage specified.");
-		Commit commit = dataStorage.commit();
-		commit.add(DATA_TXT, data);
-		commit.apply();
+		saveToStorage(dataStorage);
 		pushSnapshot(System.currentTimeMillis(), data);
 	}
 
@@ -100,4 +98,21 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		return dataStorage;
 	}
 
+	public void saveToStorage(DataStorage storage) throws StorageException {
+		if (storage == null)
+			throw new NullPointerException("storage is null");
+		Commit commit = null;
+		try {
+			commit = storage.commit();
+			if (commit == null)
+				throw new StorageException("Concurrent write attepmt.");
+			commit.add(DATA_TXT, lastSnapshot.content());
+			commit.apply();
+		} catch (StorageException e) {
+			if (commit != null)
+				commit.cancel();
+			throw new StorageException(e);
+		} 
+	}
+	
 }

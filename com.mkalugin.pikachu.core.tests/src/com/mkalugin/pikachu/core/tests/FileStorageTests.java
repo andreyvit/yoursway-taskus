@@ -10,7 +10,7 @@ public class FileStorageTests extends StorageConfomanceTests {
 	
 	@Override
 	protected DataStorage createStorage() throws Exception {
-		return new FSDataStorage(FileUtils.createTempFolder("filestorage", "test"));
+		return new FSDataStorage(FileUtils.createTempFolder("filestorage", "test"), true);
 	}
 	
 	@Test

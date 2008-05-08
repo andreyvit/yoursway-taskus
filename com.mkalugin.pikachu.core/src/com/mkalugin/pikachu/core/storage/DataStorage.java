@@ -14,6 +14,8 @@ public interface DataStorage extends Model<StorageSnapshot> {
 	
 	String getType();
 	
+	String getDescription();
+	
 	void flush() throws StorageException;
 
 }

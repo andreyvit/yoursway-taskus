@@ -2,6 +2,8 @@ package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
 
+import java.io.File;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -16,30 +18,40 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyEditor;
 import com.mkalugin.corchy.ui.core.CorchyApplication;
+import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.storage.StorageException;
+import com.mkalugin.pikachu.core.storage.file.FSDataStorage;
+import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
 
-public class CorchyWindow extends MainWindow {
+public class CorchyWindow extends MainWindow implements ModelConsumer<WorkspaceSnapshot> {
 
 	private static final String DIALOG_ID = "mainWindow";
 
 	private static final String APP_TITLE = "Corchy";
 
+	private static final String EXT = ".corchy";
+
 	private CorchyEditor editor;
 	private OutlineView outlineView;
+	private String title = null;
 
 	public CorchyWindow() {
 		super(true);
+		CorchyApplication.workspace().registerConsumer(this);
 	}
 
 	@Override
@@ -53,6 +65,8 @@ public class CorchyWindow extends MainWindow {
 
 	@Override
 	protected String title() {
+		if (title != null)
+			return title;
 		return APP_TITLE;
 	}
 
@@ -178,13 +192,55 @@ public class CorchyWindow extends MainWindow {
 		MenuBuilder builder = new MenuBuilder(menu);
 		builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
 			public void run() {
-				
+				DirectoryDialog fileDialog = new DirectoryDialog(getShell(), SWT.OPEN);
+				while (true) {
+					String result = fileDialog.open();
+					if (result == null)
+						break;
+					try {
+						FSDataStorage dataStorage = new FSDataStorage(new File(result), false);
+						CorchyApplication.openWorkspaceWithStorage(dataStorage);
+						break;
+					} catch (Exception e) {
+						MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.CANCEL);
+						messageBox.setMessage("Impossible to open");
+						messageBox.setText("Failed to open file " + result + " due to:\n"
+								+ e.getLocalizedMessage()
+								+ "\nPlease select other file or click 'cancel'.");
+						int open = messageBox.open();
+						if (open == SWT.CANCEL)
+							break;
+					}
+				}
 			}
 		});
 		builder.item("Save as...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
 			public void run() {
-				// TODO Auto-generated method stub
-
+				FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
+				fileDialog.setFilterExtensions(new String[] { EXT });
+				fileDialog.setFileName("Unnamed." + EXT);
+				while (true) {
+					String result = fileDialog.open();
+					if (result == null)
+						break;
+					if (!result.endsWith(EXT))
+						result += EXT;
+					try {
+						FSDataStorage dataStorage = new FSDataStorage(new File(result), true);
+						CorchyApplication.workspace().saveToStorage(dataStorage);						
+						CorchyApplication.openWorkspaceWithStorage(dataStorage);
+						break;
+					} catch (Exception e) {
+						MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.CANCEL);
+						messageBox.setMessage("Impossible to save");
+						messageBox.setText("Failed to save to file " + result + " due to:\n"
+								+ e.getLocalizedMessage()
+								+ "\nPlease select other file or click 'cancel'.");
+						int open = messageBox.open();
+						if (open == SWT.CANCEL)
+							break;
+					}
+				}
 			}
 		});
 
@@ -256,6 +312,13 @@ public class CorchyWindow extends MainWindow {
 	@Override
 	protected String dialogId() {
 		return DIALOG_ID;
+	}
+
+	public void consume(WorkspaceSnapshot snapshot) {
+		title = APP_TITLE + " - " + CorchyApplication.workspace().storage().getDescription();
+		Shell shell = getShell();
+		if (shell != null)
+			shell.setText(title);
 	}
 
 }

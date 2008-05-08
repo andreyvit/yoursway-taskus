@@ -1,5 +1,4 @@
 package com.mkalugin.corchy.ui.core;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
