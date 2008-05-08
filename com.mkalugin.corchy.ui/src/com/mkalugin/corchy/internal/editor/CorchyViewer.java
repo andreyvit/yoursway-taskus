@@ -6,6 +6,7 @@ package com.mkalugin.corchy.internal.editor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
@@ -15,6 +16,7 @@ class CorchyViewer extends SourceViewer {
 	
 	CorchyViewer(Composite parent) {
 		super(parent, null, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+		configure(new SourceViewerConfiguration());
 	}
 
 	@Override
