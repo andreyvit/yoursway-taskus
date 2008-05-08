@@ -316,7 +316,7 @@ public class CorchyWindow extends MainWindow implements ModelConsumer<WorkspaceS
 
 	public void consume(WorkspaceSnapshot snapshot) {
 		title = APP_TITLE + " - " + CorchyApplication.workspace().storage().getDescription();
-		Display display = Display.getCurrent();
+		Display display = Display.getDefault();
 		if (display == null)
 			return;
 		display.asyncExec(new Runnable() {

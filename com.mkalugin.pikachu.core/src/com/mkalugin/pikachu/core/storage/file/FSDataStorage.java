@@ -57,7 +57,6 @@ public class FSDataStorage extends AbstractModel<StorageSnapshot> implements Dat
 					String newPath = filePath.substring(0, filePath.length() - suffix.length());
 					f.renameTo(new File(newPath));
 				}
-				notifyConsumers(currentVersion.snapshot());
 			} catch (Exception e) {
 				throw new StorageException(e);
 			}

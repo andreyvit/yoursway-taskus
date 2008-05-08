@@ -40,7 +40,7 @@ public class OutlineView implements ModelConsumer<WorkspaceSnapshot> {
 	}
 
 	public void consume(final WorkspaceSnapshot snapshot) {
-		Display.getCurrent().asyncExec(new Runnable() {
+		Display.getDefault().asyncExec(new Runnable() {
 
 			public void run() {
 				String[] ast = snapshot.ast();
