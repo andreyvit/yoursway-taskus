@@ -8,6 +8,12 @@
             class="com.mkalugin.pikachu.core.storage.memory.MemoryDataStorageBuilder"
             id="com.mkalugin.pikachu.core.memoryStorageType">
       </dataStorageType>
+      <dataStorageType
+            class="com.mkalugin.pikachu.core.storage.file.FSDataStorageBuilder"
+            id="com.mkalugin.pikachu.core.fileStorageType">
+      </dataStorageType>
    </extension>
+   
+   
 
 </plugin>

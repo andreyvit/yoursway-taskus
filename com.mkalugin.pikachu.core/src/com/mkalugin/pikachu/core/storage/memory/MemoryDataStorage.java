@@ -60,7 +60,7 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 			MemoryStorageSnapshot snapshot = new MemoryStorageSnapshot(System.currentTimeMillis(),
 					data);
 			StorageVersion lastVersion = (versions.isEmpty()) ? null : versions.iterator().next();
-			versions.add(new StorageVersion("", lastVersion, snapshot));
+			versions.add(new StorageVersion(lastVersion, snapshot));
 			notifyConsumers(snapshot);
 			currentCommit = null;
 		}
@@ -79,10 +79,12 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 	}
 
 	public Commit commit() {
-		if (currentCommit != null)
-			return null;
-		currentCommit = new SimpleCommit();
-		return currentCommit;
+		synchronized (currentCommit) {
+			if (currentCommit != null)
+				return null;
+			currentCommit = new SimpleCommit();
+			return currentCommit;
+		}
 	}
 
 	public StorageVersion[] log() throws StorageException {

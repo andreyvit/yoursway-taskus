@@ -30,7 +30,12 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 	}
 
 	protected void updateTo(StorageSnapshot source) {
-		String mainFile = source.contentsOfFile(DATA_TXT);
+		String mainFile = null;
+		try {
+			mainFile = source.contentsOfFile(DATA_TXT);
+		} catch (StorageException e) {
+			// TODO
+		}
 		if (mainFile == null)
 			mainFile = "";
 		pushSnapshot(source.timeStamp(), mainFile);

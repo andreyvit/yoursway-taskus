@@ -2,7 +2,7 @@ package com.mkalugin.pikachu.core.storage;
 
 public interface Commit {
 
-	void add(String path, String content);
+	void add(String path, String content) throws StorageException;
 
 	void cancel();
 
