@@ -16,7 +16,6 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 
 	private SourceViewer sourceViewer;
 	private Document document;
-	private long lastUpdateTime;
 	private Workspace workspace;
 	private boolean consuming;
 
@@ -37,9 +36,6 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 			}
 
 			public void documentChanged(DocumentEvent event) {
-				// do not react to our changes
-				if (consuming)
-					return;
 				saveDocument();
 			}
 
@@ -47,10 +43,11 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	}
 
 	private void saveDocument() {
-		String source = document.get();
-		lastUpdateTime = System.currentTimeMillis();
+		// do not fall into infinite recursion due to ws changes
+		if (consuming)
+			return;
 		try {
-			workspace.pushData(source);
+			workspace.pushData(document.get());
 		} catch (StorageException e) {
 			// TODO
 		}
@@ -63,11 +60,11 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	public void setLayoutData(Object editorData) {
 		sourceViewer.getControl().setLayoutData(editorData);
 	}
-	
+
 	public boolean isActive() {
 		return sourceViewer.getControl().isFocusControl();
 	}
-	
+
 	public void undo() {
 		if (sourceViewer.getUndoManager().undoable())
 			sourceViewer.getUndoManager().undo();
@@ -77,15 +74,10 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 		if (sourceViewer.getUndoManager().redoable())
 			sourceViewer.getUndoManager().redo();
 	}
-	
+
 	public synchronized void consume(WorkspaceSnapshot snapshot) {
 		consuming = true;
-		if (snapshot.timeStamp() < lastUpdateTime) {
-			saveDocument();
-			return;
-		}
-		String newContent = snapshot.content();
-		document.set(newContent);
+		document.set(snapshot.content());
 		consuming = false;
 	}
 

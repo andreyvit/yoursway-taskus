@@ -98,7 +98,7 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		return dataStorage;
 	}
 
-	public void saveToStorage(DataStorage storage) throws StorageException {
+	public synchronized void saveToStorage(DataStorage storage) throws StorageException {
 		if (storage == null)
 			throw new NullPointerException("storage is null");
 		Commit commit = null;

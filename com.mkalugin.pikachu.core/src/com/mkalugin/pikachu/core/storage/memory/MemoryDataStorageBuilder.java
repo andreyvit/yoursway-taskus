@@ -1,5 +1,7 @@
 package com.mkalugin.pikachu.core.storage.memory;
 
+import java.io.UnsupportedEncodingException;
+
 import org.eclipse.core.runtime.Assert;
 
 import com.mkalugin.pikachu.core.storage.Commit;
@@ -17,7 +19,12 @@ public class MemoryDataStorageBuilder implements DataStorageBuilder {
 			String[] lines = memento.split("\n");
 			for (int i = 0; i < lines.length - 1; i += 2) {
 				String filename = lines[i];
-				String data = new String(Base64.decode(lines[i + 1].getBytes()));
+				String data;
+				try {
+					data = new String(Base64.decode(lines[i + 1].getBytes()), "utf-8");
+				} catch (UnsupportedEncodingException e) {
+					throw new RuntimeException(e);
+				}
 				commit.add(filename, data);
 			}
 			commit.apply();		
