@@ -29,7 +29,7 @@ public class CorchyApplication implements IApplication {
 		if (lastWorkspace != null && lastWorkspace.length() > 0) {
 			DataStorageBuilder builder = DataStorageManager.getBuilderFor(lastWorkspace);
 			if (builder != null) {
-				DataStorage dataStorage = builder.buildFrom(lastWorkspaceMemento);
+				DataStorage dataStorage = builder.buildFrom(lastWorkspaceMemento);				
 				return new Workspace(dataStorage);
 			}
 		}
@@ -44,15 +44,20 @@ public class CorchyApplication implements IApplication {
 				e.printStackTrace();
 			}
 		}
-		workspace = new Workspace(storage);
-		saveWorkspaceState();
+		workspace.connectTo(storage);
+		saveLastStorageInfo(storage);
 		return workspace;
 	}
 	
-	public static void saveWorkspaceState() {
+	public static void saveLastStorageInfo(DataStorage storage) {
 		IPreferenceStore preferenceStore = CorchyUIPlugin.instance().getPreferenceStore();
-		preferenceStore.setValue("workspaceStorageType", workspace.storage().getType());
-		preferenceStore.setValue("workspaceMemento", workspace.storage().getMemento());
+		preferenceStore.setValue("workspaceStorageType", storage.getType());
+		preferenceStore.setValue("workspaceMemento", storage.getMemento());
+	}
+	
+	public static void saveLastStorageInfo() {
+		if (workspace != null)
+			saveLastStorageInfo(workspace.storage());
 	}
 
 	public Object start(IApplicationContext context) throws Exception {

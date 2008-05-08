@@ -41,9 +41,8 @@ public class CorchyWindow extends MainWindow {
 		try {
 			CorchyApplication.workspace().flush();
 		} catch (StorageException e) {
-			//TODO
 		}
-		CorchyApplication.saveWorkspaceState();
+		CorchyApplication.saveLastStorageInfo();
 	}
 
 	@Override
