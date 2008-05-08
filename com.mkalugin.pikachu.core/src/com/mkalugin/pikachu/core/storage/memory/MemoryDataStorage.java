@@ -1,6 +1,7 @@
 package com.mkalugin.pikachu.core.storage.memory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +34,7 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 			return time;
 		}
 
-		@Override
-		public String toString() {
+		public String encode() {
 			StringBuilder result = new StringBuilder();
 			for (String key : data.keySet()) {
 				String value = data.get(key);
@@ -57,11 +57,7 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 		}
 
 		public void apply() throws StorageException {
-			MemoryStorageSnapshot snapshot = new MemoryStorageSnapshot(System.currentTimeMillis(),
-					data);
-			StorageVersion lastVersion = (versions.isEmpty()) ? null : versions.iterator().next();
-			versions.add(new StorageVersion(lastVersion, snapshot));
-			notifyConsumers(snapshot);
+			notifyConsumers(addVersionWithData(data).snapshot());
 			currentCommit = null;
 		}
 
@@ -77,6 +73,7 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 
 	public MemoryDataStorage() {
 		currentCommit = null;
+		addVersionWithData(Collections.<String,String>emptyMap());
 	}
 
 	public Commit commit() {
@@ -103,12 +100,12 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 			consumer.consume(lastVersion().snapshot());
 	}
 
-	private StorageVersion lastVersion() {
+	private StorageVersion lastVersion() {		
 		return versions.get(versions.size() - 1);
 	}
 
 	public String getMemento() {
-		return lastVersion().snapshot().toString();
+		return ((MemoryStorageSnapshot) lastVersion().snapshot()).encode();
 	}
 
 	public String getType() {
@@ -121,6 +118,15 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 
 	public String getDescription() {
 		return "(unsaved)";
+	}
+	
+	private StorageVersion addVersionWithData(Map<String, String> data) {
+		MemoryStorageSnapshot snapshot = new MemoryStorageSnapshot(System.currentTimeMillis(),
+				data);
+		StorageVersion lastVersion = (versions.isEmpty()) ? null : versions.iterator().next();
+		StorageVersion newVersion = new StorageVersion(lastVersion, snapshot);
+		versions.add(newVersion);
+		return newVersion;
 	}
 
 }

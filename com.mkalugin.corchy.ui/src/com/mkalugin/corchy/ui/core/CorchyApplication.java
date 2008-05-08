@@ -44,6 +44,8 @@ public class CorchyApplication implements IApplication {
 			} catch (StorageException e) {
 				e.printStackTrace();
 			}
+		} else {
+			workspace = new Workspace();
 		}
 		workspace.connectTo(storage);
 		saveLastStorageInfo(storage);

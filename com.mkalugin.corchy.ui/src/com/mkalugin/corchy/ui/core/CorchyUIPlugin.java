@@ -7,7 +7,10 @@ import java.io.IOException;
 
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
 
 public class CorchyUIPlugin extends AbstractUIPlugin {
 
@@ -16,6 +19,8 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 	private static CorchyUIPlugin instance;
 
 	private DialogSettings dialogSettings = null;
+
+	private PreferenceStore preferenceStore;
 
 	public CorchyUIPlugin() {
 		instance = this;
@@ -52,7 +57,6 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 				if (in != null)
 					in.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -72,6 +76,37 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 			// spec'ed to ignore problems
 		} catch (IllegalStateException e) {
 			// spec'ed to ignore problems
+		}
+	}
+
+	@Override
+	public IPreferenceStore getPreferenceStore() {
+		if (preferenceStore == null) {
+			preferenceStore = new PreferenceStore(
+					new File(preferencesDir(), "CorchyUIPlugin.prefs").getAbsolutePath());
+			try {
+				preferenceStore.load();
+			} catch (IOException e) {
+				return new PreferenceStore();
+			}
+		}
+		return preferenceStore;
+	}
+
+	public void savePreferenceStore() {
+		try {
+			if (preferenceStore != null)
+				preferenceStore.save();
+		} catch (IOException e) {
+		}
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		try {
+			savePreferenceStore();
+		} finally {
+			super.stop(context);
 		}
 	}
 

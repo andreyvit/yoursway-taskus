@@ -17,7 +17,7 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 
 	private static final String DATA_TXT = "data.txt";
 
-	private static final Pattern pattern = Pattern.compile("^.*:$", Pattern.MULTILINE);
+	private static final Pattern pattern = Pattern.compile("^(.*):$", Pattern.MULTILINE);
 
 	private WorkspaceSnapshot lastSnapshot;
 	private DataStorage dataStorage = null;
@@ -62,7 +62,7 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 		List<String> result = new ArrayList<String>();
 		Matcher matcher = pattern.matcher(content);
 		while (matcher.find()) {
-			result.add(matcher.group(0));
+			result.add(matcher.group(1));
 		}
 		return result.toArray(new String[result.size()]);
 	}
