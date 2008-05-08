@@ -63,7 +63,21 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	public void setLayoutData(Object editorData) {
 		sourceViewer.getControl().setLayoutData(editorData);
 	}
+	
+	public boolean isActive() {
+		return sourceViewer.getControl().isFocusControl();
+	}
+	
+	public void undo() {
+		if (sourceViewer.getUndoManager().undoable())
+			sourceViewer.getUndoManager().undo();
+	}
 
+	public void redo() {
+		if (sourceViewer.getUndoManager().redoable())
+			sourceViewer.getUndoManager().redo();
+	}
+	
 	public synchronized void consume(WorkspaceSnapshot snapshot) {
 		consuming = true;
 		if (snapshot.timeStamp() < lastUpdateTime) {

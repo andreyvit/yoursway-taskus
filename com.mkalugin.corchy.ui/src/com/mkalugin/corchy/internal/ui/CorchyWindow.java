@@ -4,6 +4,7 @@ import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
@@ -14,9 +15,14 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyEditor;
@@ -24,7 +30,7 @@ import com.mkalugin.corchy.ui.core.CorchyApplication;
 import com.mkalugin.pikachu.core.storage.StorageException;
 
 public class CorchyWindow extends MainWindow {
-	
+
 	private static final String DIALOG_ID = "mainWindow";
 
 	private static final String APP_TITLE = "Corchy";
@@ -96,8 +102,120 @@ public class CorchyWindow extends MainWindow {
 		editor.setLayoutData(editorData);
 	}
 
+	Menu createEditMenu(Shell shell) {
+		Menu bar = shell.getMenuBar();
+		Menu menu = new Menu(bar);
+
+		MenuBuilder builder = new MenuBuilder(menu);
+
+		builder.item("Undo", SWT.MOD1 + 'Z', new Runnable() {
+			public void run() {
+				if (editor.isActive()) {
+					editor.undo();
+				}
+			}
+		});
+		builder.item("Redo", SWT.MOD1 + 'Y', new Runnable() {
+			public void run() {
+				if (editor.isActive()) {
+					editor.redo();
+				}
+			}
+		});
+		builder.separator();
+		builder.item("Cut", SWT.MOD1 + 'X', new Runnable() {
+			public void run() {
+				Control focusControl = Display.getCurrent().getFocusControl();
+				if (focusControl instanceof StyledText) {
+					((StyledText) focusControl).cut();
+				}
+				if (focusControl instanceof Text) {
+					((Text) focusControl).cut();
+				}
+			}
+		});
+		builder.item("Copy", SWT.MOD1 + 'C', new Runnable() {
+			public void run() {
+				Control focusControl = Display.getCurrent().getFocusControl();
+				if (focusControl instanceof StyledText) {
+					((StyledText) focusControl).copy();
+				}
+				if (focusControl instanceof Text) {
+					((Text) focusControl).copy();
+				}
+			}
+		});
+		builder.item("Paste", SWT.MOD1 + 'V', new Runnable() {
+			public void run() {
+				Control focusControl = Display.getCurrent().getFocusControl();
+				if (focusControl instanceof StyledText) {
+					((StyledText) focusControl).paste();
+				}
+				if (focusControl instanceof Text) {
+					((Text) focusControl).paste();
+				}
+			}
+		});
+		builder.item("Select All", SWT.MOD1 + 'A', new Runnable() {
+			public void run() {
+				Control focusControl = Display.getCurrent().getFocusControl();
+				if (focusControl instanceof StyledText) {
+					((StyledText) focusControl).selectAll();
+				}
+				if (focusControl instanceof Text) {
+					((Text) focusControl).selectAll();
+				}
+			}
+		});
+
+		return menu;
+	}
+
+	Menu createFileMenu(final Shell shell) {
+		Menu bar = shell.getMenuBar();
+		Menu menu = new Menu(bar);
+
+		MenuBuilder builder = new MenuBuilder(menu);
+		builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
+			public void run() {
+				
+			}
+		});
+		builder.item("Save as...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
+			public void run() {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		builder.separator();
+
+		builder.item("Synchronize with remotes", new Runnable() {
+			public void run() {
+				performSync();
+			}
+		});
+
+		return menu;
+	}
+
+	void createMenuBar(Shell shell) {
+		Menu bar = new Menu(shell, SWT.BAR);
+		shell.setMenuBar(bar);
+
+		MenuItem fileItem = new MenuItem(bar, SWT.CASCADE);
+		fileItem.setText("File");
+		fileItem.setMenu(createFileMenu(shell));
+
+		MenuItem editItem = new MenuItem(bar, SWT.CASCADE);
+		editItem.setText("Edit");
+		editItem.setMenu(createEditMenu(shell));
+	}
+
 	@Override
 	protected void createControls(Composite parent) {
+		createMenuBar(getShell());
+
 		Composite editorBlock = new Composite(parent, SWT.NULL);
 		createEditorAndOutline(editorBlock);
 		editorBlock.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(
@@ -116,11 +234,7 @@ public class CorchyWindow extends MainWindow {
 		syncButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					CorchyApplication.workspace().synchronize();
-				} catch (StorageException e1) {
-					// TODO
-				}
+				performSync();
 			}
 		});
 
@@ -129,6 +243,14 @@ public class CorchyWindow extends MainWindow {
 		searchField.setText("Search");
 		searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END,
 				SWT.BEGINNING).indent(0, 0).create());
+	}
+
+	protected void performSync() {
+		try {
+			CorchyApplication.workspace().synchronize();
+		} catch (StorageException e1) {
+			// TODO
+		}
 	}
 
 	@Override

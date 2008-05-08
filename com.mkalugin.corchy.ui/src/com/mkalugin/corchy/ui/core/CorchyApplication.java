@@ -3,6 +3,7 @@ package com.mkalugin.corchy.ui.core;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.internal.ui.CorchyWindow;
 import com.mkalugin.pikachu.core.storage.DataStorage;
@@ -61,6 +62,8 @@ public class CorchyApplication implements IApplication {
 	}
 
 	public Object start(IApplicationContext context) throws Exception {
+		Display.setAppName("Corchy");
+		
 		CorchyWindow corchyWindow = new CorchyWindow();
 		corchyWindow.setBlockOnOpen(true);
 		corchyWindow.open();
