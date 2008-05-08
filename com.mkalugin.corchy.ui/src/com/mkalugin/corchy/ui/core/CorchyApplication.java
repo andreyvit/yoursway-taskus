@@ -56,6 +56,8 @@ public class CorchyApplication implements IApplication {
 		IPreferenceStore preferenceStore = CorchyUIPlugin.instance().getPreferenceStore();
 		preferenceStore.setValue("workspaceStorageType", storage.getType());
 		preferenceStore.setValue("workspaceMemento", storage.getMemento());
+		// flush the changes
+		CorchyUIPlugin.instance().savePreferenceStore();
 	}
 	
 	public static void saveLastStorageInfo() {

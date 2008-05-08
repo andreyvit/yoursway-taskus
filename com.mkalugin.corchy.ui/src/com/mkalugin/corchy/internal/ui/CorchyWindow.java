@@ -227,7 +227,7 @@ public class CorchyWindow extends MainWindow implements ModelConsumer<WorkspaceS
 						result += EXT;
 					try {
 						FSDataStorage dataStorage = new FSDataStorage(new File(result), true);
-						CorchyApplication.workspace().saveToStorage(dataStorage);						
+						CorchyApplication.workspace().saveToStorage(dataStorage);
 						CorchyApplication.openWorkspaceWithStorage(dataStorage);
 						break;
 					} catch (Exception e) {
@@ -316,9 +316,17 @@ public class CorchyWindow extends MainWindow implements ModelConsumer<WorkspaceS
 
 	public void consume(WorkspaceSnapshot snapshot) {
 		title = APP_TITLE + " - " + CorchyApplication.workspace().storage().getDescription();
-		Shell shell = getShell();
-		if (shell != null)
-			shell.setText(title);
+		Display display = Display.getCurrent();
+		if (display == null)
+			return;
+		display.asyncExec(new Runnable() {
+			public void run() {
+				Shell shell = getShell();
+				if (shell != null)
+					shell.setText(title);
+			}
+		});
+
 	}
 
 }

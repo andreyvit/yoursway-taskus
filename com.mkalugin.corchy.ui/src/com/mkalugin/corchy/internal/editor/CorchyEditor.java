@@ -5,10 +5,10 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.ui.core.CorchyApplication;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
-import com.mkalugin.pikachu.core.storage.StorageException;
 import com.mkalugin.pikachu.core.workspace.Workspace;
 import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
 
@@ -46,11 +46,7 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 		// do not fall into infinite recursion due to ws changes
 		if (consuming)
 			return;
-		try {
-			workspace.pushData(document.get());
-		} catch (StorageException e) {
-			// TODO
-		}
+		workspace.pushData(document.get());
 	}
 
 	private Document createDocument() {
@@ -77,7 +73,18 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 
 	public synchronized void consume(WorkspaceSnapshot snapshot) {
 		consuming = true;
-		document.set(snapshot.content());
+		String current = document.get();
+		final String fresh = snapshot.content();
+		if (!current.equals(fresh)){
+			Display.getCurrent().syncExec(new Runnable() {
+
+				public void run() {
+					document.set(fresh);
+				}
+				
+			});
+			
+		}
 		consuming = false;
 	}
 
