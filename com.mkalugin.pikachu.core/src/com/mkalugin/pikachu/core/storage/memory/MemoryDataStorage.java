@@ -73,13 +73,14 @@ public class MemoryDataStorage extends AbstractModel<StorageSnapshot> implements
 
 	private List<StorageVersion> versions = new ArrayList<StorageVersion>();
 	private Commit currentCommit;
+	private Object commitLock = new Object();
 
 	public MemoryDataStorage() {
 		currentCommit = null;
 	}
 
 	public Commit commit() {
-		synchronized (currentCommit) {
+		synchronized (commitLock) {
 			if (currentCommit != null)
 				return null;
 			currentCommit = new SimpleCommit();
