@@ -1,12 +1,18 @@
 /**
  * 
  */
-package com.kalugin.plugins.sync.api.synchronizer;
+package com.kalugin.plugins.sync.api.synchronizer.changes;
+
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 
 public class Addition extends Change {
     
+    private final SynchronizableTask task;
+    
     public Addition(SynchronizableTask task) {
-        super(task);
+        if (task == null)
+            throw new NullPointerException("task is null");
+        this.task = task;
     }
 
     @Override

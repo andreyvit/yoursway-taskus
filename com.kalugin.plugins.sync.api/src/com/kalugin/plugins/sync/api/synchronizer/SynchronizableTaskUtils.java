@@ -12,4 +12,12 @@ public class SynchronizableTaskUtils {
         
     };
     
+    public static final Function<SynchronizableTag, String> TAG_TO_NAME = new Function<SynchronizableTag, String>() {
+        
+        public String apply(SynchronizableTag tag) {
+            return tag.getName();
+        }
+        
+    };
+    
 }

@@ -1,8 +1,9 @@
-package com.kalugin.plugins.sync.api.synchronizer;
+package com.kalugin.plugins.sync.api.synchronizer.changes;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils.TAG_TO_NAME;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils;
 
 public class Changes {
     
@@ -62,6 +66,7 @@ public class Changes {
 
         public void common(SynchronizableTask oldItem, SynchronizableTask newItem) {
             checkRename(oldItem, newItem);
+            checkTagChanges(oldItem, newItem);
         }
 
         public void removed(SynchronizableTask item) {
@@ -77,6 +82,39 @@ public class Changes {
             String newerName = newerTask.getName();
             if (!olderName.equals(newerName))
                 changes.add(new Rename(newerTask));
+        }
+        
+        private void checkTagChanges(SynchronizableTask olderTask, SynchronizableTask newerTask) {
+            compare(olderTask.tags(), newerTask.tags(), TAG_TO_NAME, new TagChangesBuilder(newerTask, changes));
+        }
+        
+    }
+    
+    private static class TagChangesBuilder implements ChangesRequestor<SynchronizableTag> {
+        
+        private final Collection<Change> changes;
+        private final SynchronizableTask task;
+
+        public TagChangesBuilder(SynchronizableTask task, Collection<Change> changes) {
+            if (task == null)
+                throw new NullPointerException("task is null");
+            if (changes == null)
+                throw new NullPointerException("changes is null");
+            this.task = task;
+            this.changes = changes;
+        }
+
+        public void added(SynchronizableTag item) {
+            changes.add(new TagAddition(task, item));
+        }
+
+        public void common(SynchronizableTag oldItem, SynchronizableTag newItem) {
+            if (!newItem.valueEquals(oldItem))
+                changes.add(new TagValueChange(task, newItem));
+        }
+
+        public void removed(SynchronizableTag item) {
+            changes.add(new TagRemoval(task, item));
         }
         
     }

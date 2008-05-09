@@ -16,9 +16,9 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import com.kalugin.plugins.sync.api.synchronizer.Change;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
-import com.kalugin.plugins.sync.api.synchronizer.Changes;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Changes;
 import com.kalugin.plugins.sync.api.tests.AllTests;
 import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 

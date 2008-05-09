@@ -7,4 +7,5 @@ Bundle-Vendor: KALUGIN
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: com.google.collections;bundle-version="1.0.0"
 Export-Package: com.kalugin.plugins.sync.api,
- com.kalugin.plugins.sync.api.synchronizer
+ com.kalugin.plugins.sync.api.synchronizer,
+ com.kalugin.plugins.sync.api.synchronizer.changes

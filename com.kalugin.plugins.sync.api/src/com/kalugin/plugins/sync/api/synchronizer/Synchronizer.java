@@ -1,10 +1,12 @@
 package com.kalugin.plugins.sync.api.synchronizer;
 
 
-import static com.kalugin.plugins.sync.api.synchronizer.Changes.compare;
+import static com.kalugin.plugins.sync.api.synchronizer.changes.Changes.compare;
 
 import java.util.Collection;
 import java.util.List;
+
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public class Synchronizer {
     

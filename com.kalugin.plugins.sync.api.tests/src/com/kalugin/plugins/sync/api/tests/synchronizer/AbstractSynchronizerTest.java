@@ -21,13 +21,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.kalugin.plugins.sync.api.synchronizer.Change;
-import com.kalugin.plugins.sync.api.synchronizer.ChangeVisitor;
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizationResult;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
+import com.kalugin.plugins.sync.api.synchronizer.changes.ChangeVisitor;
 import com.kalugin.plugins.sync.api.tests.AllTests;
+import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl;
 import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 import com.yoursway.utils.YsFileUtils;
 
@@ -80,7 +82,7 @@ public class AbstractSynchronizerTest {
             fail("No verification method used.");
         }
     }
-
+    
     private String read(URL... entries) throws IOException {
         for (URL entry : entries)
             if (entry != null)
@@ -121,6 +123,26 @@ public class AbstractSynchronizerTest {
                     SynchronizableTask oldTask = idsToTasks.put(newerTask.getId(), newerTask);
                     if (oldTask == null)
                         throw new IllegalArgumentException("Task " + newerTask + " did not exist");
+                }
+                
+                public void visitTagAddition(SynchronizableTask task, SynchronizableTag tag) {
+                    getTask(task).addTag(tag);
+                }
+                
+                public void visitTagRemoval(SynchronizableTask task, SynchronizableTag tag) {
+                    getTask(task).removeTag(tag.getName());
+                }
+                
+                public void visitTagValueChange(SynchronizableTask task, SynchronizableTag newerTag) {
+                    getTask(task).removeTag(newerTag.getName()).addTag(newerTag);
+                }
+                
+                private SynchronizableTaskImpl getTask(SynchronizableTask task) {
+                    SynchronizableTaskImpl existingTask = (SynchronizableTaskImpl) idsToTasks.put(task
+                            .getId(), task);
+                    if (existingTask == null)
+                        throw new IllegalArgumentException("Task " + task + " did not exist");
+                    return existingTask;
                 }
                 
             });

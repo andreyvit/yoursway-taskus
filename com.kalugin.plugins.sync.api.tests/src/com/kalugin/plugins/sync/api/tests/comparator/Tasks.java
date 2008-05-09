@@ -2,7 +2,7 @@ package com.kalugin.plugins.sync.api.tests.comparator;
 
 import org.junit.Test;
 
-public class Simple extends AbstractComparatorTest {
+public class Tasks extends AbstractComparatorTest {
     
     @Test
     public void taskAdded() throws Exception {

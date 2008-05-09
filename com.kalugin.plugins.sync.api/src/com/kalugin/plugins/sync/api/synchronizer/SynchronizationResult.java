@@ -2,6 +2,8 @@ package com.kalugin.plugins.sync.api.synchronizer;
 
 import java.util.Collection;
 
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
+
 public class SynchronizationResult {
     
     private final Collection<Change> changesToApplyLocally;

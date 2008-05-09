@@ -1,0 +1,2 @@
+added @boz to aaa
+removed @foo from aaa

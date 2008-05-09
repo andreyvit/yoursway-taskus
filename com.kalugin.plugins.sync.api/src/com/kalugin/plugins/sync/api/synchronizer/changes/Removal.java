@@ -1,12 +1,18 @@
 /**
  * 
  */
-package com.kalugin.plugins.sync.api.synchronizer;
+package com.kalugin.plugins.sync.api.synchronizer.changes;
+
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 
 public class Removal extends Change {
 
+    private SynchronizableTask task;
+
     public Removal(SynchronizableTask task) {
-        super(task);
+        if (task == null)
+            throw new NullPointerException("task is null");
+        this.task = task;
     }
 
     @Override
