@@ -3,52 +3,88 @@ package com.kalugin.plugins.sync.api.synchronizer;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils.TASK_TO_ID;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TaskChangesBuilder {
+import com.google.common.base.Function;
 
-    public static Collection<Change> compare(List<SynchronizableTask> older, List<SynchronizableTask> newer) {
-        Map<TaskId, SynchronizableTask> idsToOlderTasks = uniqueIndex(older, TASK_TO_ID);
-        Map<TaskId, SynchronizableTask> idsToNewerTasks = uniqueIndex(newer, TASK_TO_ID);
+public class TaskChangesBuilder {
+    
+    private interface ChangesRequestor<T> {
         
-        Set<TaskId> oldSet = newHashSet(idsToOlderTasks.keySet());
-        Set<TaskId> newSet = newHashSet(idsToNewerTasks.keySet());
-        Collection<Change> result = newArrayList();
+        void added(T item);
+        
+        void removed(T item);
+        
+        void common(T oldItem, T newItem);
+        
+    }
+    
+    public static <T, Id> void compare(Collection<T> older, Collection<T> newer, Function<T, Id> identity, ChangesRequestor<T> requestor) {
+        Map<Id, T> idsToOlder = uniqueIndex(older, identity);
+        Map<Id, T> idsToNewer = uniqueIndex(newer, identity);
+        
+        Set<Id> oldSet = newHashSet(idsToOlder.keySet());
+        Set<Id> newSet = newHashSet(idsToNewer.keySet());
         
         // removals
-        Set<TaskId> removed = newHashSet(oldSet);
+        Set<Id> removed = newHashSet(oldSet);
         removed.removeAll(newSet);
-        
-        for (SynchronizableTask task : older)
-            if (removed.contains(task.getId()))
-                result.add(new Removal(task));
+        for (T item : older)
+            if (removed.contains(identity.apply(item)))
+                requestor.removed(item);
         
         // additions
         newSet.removeAll(oldSet);
-        for (SynchronizableTask task : newer)
-            if (newSet.contains(task.getId()))
-                result.add(new Addition(task));
+        for (T item : newer)
+            if (newSet.contains(identity.apply(item)))
+                requestor.added(item);
         
-        // renames
+        // changes
         oldSet.removeAll(removed);
-        for (SynchronizableTask olderTask : older) {
-            TaskId id = olderTask.getId();
+        for (T oldItem : older) {
+            Id id = identity.apply(oldItem);
             if (id != null && oldSet.contains(id))
-                compare(olderTask, idsToNewerTasks.get(id), result);
+                requestor.common(oldItem, idsToNewer.get(id));
         }
-        return result;
-    }
-
-    public static void compare(SynchronizableTask olderTask, SynchronizableTask newerTask, Collection<Change> result) {
-        String olderName = olderTask.getName();
-        String newerName = newerTask.getName();
-        if (!olderName.equals(newerName))
-            result.add(new Rename(newerTask));
     }
     
+    private static class TaskBuilder implements ChangesRequestor<SynchronizableTask> {
+        
+        private Collection<Change> changes = newArrayList();
+
+        public void added(SynchronizableTask item) {
+            changes.add(new Addition(item));
+        }
+
+        public void common(SynchronizableTask oldItem, SynchronizableTask newItem) {
+            checkRename(oldItem, newItem);
+        }
+
+        public void removed(SynchronizableTask item) {
+            changes.add(new Removal(item));
+        }
+        
+        public Collection<Change> getChanges() {
+            return changes;
+        }
+        
+        private void checkRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {
+            String olderName = olderTask.getName();
+            String newerName = newerTask.getName();
+            if (!olderName.equals(newerName))
+                changes.add(new Rename(newerTask));
+        }
+        
+    }
+    
+    public static Collection<Change> compare(List<SynchronizableTask> older, List<SynchronizableTask> newer) {
+        TaskBuilder builder = new TaskBuilder();
+        compare(older, newer, SynchronizableTaskUtils.TASK_TO_ID, builder);
+        return builder.getChanges();
+    }
+
 }
