@@ -56,6 +56,7 @@ public class CorchyWindow extends MainWindow implements ModelConsumer<WorkspaceS
 
 	@Override
 	protected void dispose() {
+		editor.dispose();
 		try {
 			CorchyApplication.workspace().flush();
 		} catch (StorageException e) {

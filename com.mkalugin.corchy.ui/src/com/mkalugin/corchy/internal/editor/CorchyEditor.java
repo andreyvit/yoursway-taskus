@@ -5,12 +5,14 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.TextStyle;
+import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.ui.core.CorchyApplication;
+import com.mkalugin.pikachu.core.ast.Project;
+import com.mkalugin.pikachu.core.ast.Tag;
+import com.mkalugin.pikachu.core.ast.ToDoItem;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.workspace.Workspace;
 import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
@@ -21,6 +23,7 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	private Document document;
 	private Workspace workspace;
 	private boolean consuming;
+	private DocumentStylesheet stylesheet;
 
 	public CorchyEditor(Composite parent) {
 		createControls(parent);
@@ -30,6 +33,7 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 	}
 
 	private void createControls(Composite parent) {
+		stylesheet = new DefaultDocumentStylesheet();
 		sourceViewer = new CorchyViewer(parent);
 		document = createDocument();
 		sourceViewer.setDocument(document);
@@ -78,29 +82,56 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 		consuming = true;
 		String current = document.get();
 		final String fresh = snapshot.content();
-		if (!current.equals(fresh)){
+		if (!current.equals(fresh)) {
 			Display.getDefault().syncExec(new Runnable() {
 
 				public void run() {
-					document.set(fresh);					
-					updateHighlighting(snapshot.ast());
+					document.set(fresh);
 				}
-				
+
 			});
-			
+
 		}
+		updateHighlighting(snapshot);
 		consuming = false;
 	}
 
-	protected void updateHighlighting(String[] ast) {
+	protected void updateHighlighting(WorkspaceSnapshot snapshot) {
 		TextPresentation presentation = new TextPresentation();
-		TextStyle style = new TextStyle();
-		style.font = new Font(Display.getCurrent(), "Helvetica", 18, 0);
-		StyleRange range = new StyleRange(style);
-		range.start = 2;
-		range.length = 4;
-		presentation.addStyleRange(range);
+		for (Project p : snapshot.projects()) {
+			highlight(presentation, p);
+		}
 		sourceViewer.changeTextPresentation(presentation, true);
 	}
 
+	protected void highlight(TextPresentation presentation, Project project) {
+		StyleRange range = new StyleRange();
+		range.start = project.titleStart();
+		range.length = project.titleLength();
+		range.rise = 5;		
+		stylesheet.styleProject(range);
+		presentation.addStyleRange(range);
+	}
+
+	protected void highlight(TextPresentation presentation, ToDoItem task) {
+		StyleRange range = new StyleRange();
+		range.start = task.startOffset();
+		range.length = task.length();
+		stylesheet.styleTask(range);
+		presentation.addStyleRange(range);
+
+	}
+
+	protected void highlight(TextPresentation presentation, Tag tag) {
+		StyleRange range = new StyleRange();
+		range.start = tag.startOffset();
+		range.length = tag.length();
+		stylesheet.styleTag(range);
+		presentation.addStyleRange(range);
+	}
+
+	public void dispose() {
+		stylesheet.dispose();
+	}
+	
 }

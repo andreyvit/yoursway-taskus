@@ -41,7 +41,8 @@ public class Workspace extends AbstractModel<WorkspaceSnapshot> implements
 
 	protected synchronized void addNewSnapshot(long time, String mainFile) {
 		if (lastSnapshot == null || !mainFile.equals(lastSnapshot.content())) {
-			lastSnapshot = new WorkspaceSnapshot(time, mainFile, parser.parse(mainFile));
+			lastSnapshot = new WorkspaceSnapshot(time, mainFile);
+			lastSnapshot.setProjects(parser.parse(lastSnapshot, mainFile));
 			notifyConsumers(lastSnapshot);
 		}
 	}
