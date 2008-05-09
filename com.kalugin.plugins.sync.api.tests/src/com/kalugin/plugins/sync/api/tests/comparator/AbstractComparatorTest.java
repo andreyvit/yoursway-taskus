@@ -18,7 +18,7 @@ import java.util.List;
 
 import com.kalugin.plugins.sync.api.synchronizer.Change;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
-import com.kalugin.plugins.sync.api.synchronizer.TaskChangesBuilder;
+import com.kalugin.plugins.sync.api.synchronizer.Changes;
 import com.kalugin.plugins.sync.api.tests.AllTests;
 import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 
@@ -41,7 +41,7 @@ public class AbstractComparatorTest {
         List<SynchronizableTask> oldTasks = readTasks(oldEntry, idAssigner);
         List<SynchronizableTask> newTasks = readTasks(newEntry, idAssigner);
         
-        Collection<Change> changes = TaskChangesBuilder.compare(oldTasks, newTasks);
+        Collection<Change> changes = Changes.compare(oldTasks, newTasks);
         
         String actual = sortedToStringWithNewLines(changes).trim();
         String expected = read(changesEntry).trim();

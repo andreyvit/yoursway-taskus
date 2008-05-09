@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.google.common.base.Function;
 
-public class TaskChangesBuilder {
+public class Changes {
     
     private interface ChangesRequestor<T> {
         
@@ -52,7 +52,7 @@ public class TaskChangesBuilder {
         }
     }
     
-    private static class TaskBuilder implements ChangesRequestor<SynchronizableTask> {
+    private static class TaskChangesBuilder implements ChangesRequestor<SynchronizableTask> {
         
         private Collection<Change> changes = newArrayList();
 
@@ -82,7 +82,7 @@ public class TaskChangesBuilder {
     }
     
     public static Collection<Change> compare(List<SynchronizableTask> older, List<SynchronizableTask> newer) {
-        TaskBuilder builder = new TaskBuilder();
+        TaskChangesBuilder builder = new TaskChangesBuilder();
         compare(older, newer, SynchronizableTaskUtils.TASK_TO_ID, builder);
         return builder.getChanges();
     }

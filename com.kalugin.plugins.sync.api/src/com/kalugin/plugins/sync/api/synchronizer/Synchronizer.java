@@ -1,7 +1,7 @@
 package com.kalugin.plugins.sync.api.synchronizer;
 
 
-import static com.kalugin.plugins.sync.api.synchronizer.TaskChangesBuilder.compare;
+import static com.kalugin.plugins.sync.api.synchronizer.Changes.compare;
 
 import java.util.Collection;
 import java.util.List;
