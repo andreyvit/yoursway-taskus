@@ -1,4 +1,4 @@
-package com.kalugin.plugins.sync.api.tests.synchronizer.mocks;
+package com.kalugin.plugins.sync.api.tests.utils;
 
 import static com.google.common.collect.Maps.newHashMap;
 

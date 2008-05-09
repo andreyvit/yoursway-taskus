@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import com.google.common.base.Functions;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.tests.internal.Activator;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.IdAssigner;
+import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl;
 import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.TaskIdImpl;
 import com.yoursway.utils.StringExtractor;
 import com.yoursway.utils.YsFileUtils;

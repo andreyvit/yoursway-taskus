@@ -2,7 +2,7 @@ package com.kalugin.plugins.sync.api.tests.synchronizer;
 
 import static com.google.common.collect.Maps.uniqueIndex;
 import static com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils.TASK_TO_ID;
-import static com.kalugin.plugins.sync.api.tests.utils.SynchronizableTaskImpl.createIdAssigner;
+import static com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl.createIdAssigner;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.optionalEntry;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.readTasks;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.requiredEntry;
@@ -28,7 +28,7 @@ import com.kalugin.plugins.sync.api.synchronizer.SynchronizationResult;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
 import com.kalugin.plugins.sync.api.tests.AllTests;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.IdAssigner;
+import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 import com.yoursway.utils.YsFileUtils;
 
 public class AbstractSynchronizerTest {

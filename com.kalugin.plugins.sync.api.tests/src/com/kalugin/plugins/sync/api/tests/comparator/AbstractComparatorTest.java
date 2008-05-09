@@ -1,6 +1,6 @@
 package com.kalugin.plugins.sync.api.tests.comparator;
 
-import static com.kalugin.plugins.sync.api.tests.utils.SynchronizableTaskImpl.createIdAssigner;
+import static com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl.createIdAssigner;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.read;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.readTasks;
 import static com.kalugin.plugins.sync.api.tests.utils.TestingUtils.requiredEntry;
@@ -20,7 +20,7 @@ import com.kalugin.plugins.sync.api.synchronizer.Change;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.TaskChangesBuilder;
 import com.kalugin.plugins.sync.api.tests.AllTests;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.IdAssigner;
+import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 
 public class AbstractComparatorTest {
 

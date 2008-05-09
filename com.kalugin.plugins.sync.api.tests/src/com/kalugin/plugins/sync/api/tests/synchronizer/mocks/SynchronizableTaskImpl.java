@@ -1,9 +1,8 @@
-package com.kalugin.plugins.sync.api.tests.utils;
+package com.kalugin.plugins.sync.api.tests.synchronizer.mocks;
 
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.IdAssigner;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.TaskIdImpl;
+import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 
 public class SynchronizableTaskImpl implements SynchronizableTask {
     
