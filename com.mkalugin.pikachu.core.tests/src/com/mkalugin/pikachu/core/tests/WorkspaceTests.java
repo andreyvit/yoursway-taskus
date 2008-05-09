@@ -6,13 +6,11 @@ import static org.easymock.EasyMock.notNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
-
-import java.util.Arrays;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.mkalugin.pikachu.core.ast.Project;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.storage.Commit;
 import com.mkalugin.pikachu.core.storage.DataStorage;
@@ -42,8 +40,8 @@ public class WorkspaceTests extends Assert {
 		model.registerConsumer(new ModelConsumer<WorkspaceSnapshot>() {
 
 			public void consume(WorkspaceSnapshot snapshot) {
-				String[] ast = snapshot.ast();
-				assertTrue(Arrays.equals(new String[] {"foo:", "boo:"}, ast));
+				Project[] ast = snapshot.projects();
+				assertEquals(2, ast.length);
 				consumerCalled[0] = true;
 			}
 
@@ -85,7 +83,7 @@ public class WorkspaceTests extends Assert {
 		space.pushData("hello");
 		verify(dataStorage, commit, consumer);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Test
 	public void reactsToDataChange() throws Exception {
@@ -102,13 +100,13 @@ public class WorkspaceTests extends Assert {
 		expectLastCall().andReturn(42);
 		storageSnapshot.contentsOfFile("data.txt");
 		expectLastCall().andReturn("giraffe");
-		
+
 		consumer.consume((WorkspaceSnapshot) notNull());
-		
+
 		replay(consumer, storageSnapshot);
-		
+
 		workspace.consume(storageSnapshot);
-		
+
 		verify(consumer, storageSnapshot);
 	}
 
