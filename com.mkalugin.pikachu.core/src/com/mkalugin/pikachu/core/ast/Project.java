@@ -6,12 +6,12 @@ public class Project {
 
 	private final int titleStart;
 	private final int titleLength;
-	private final int contentStart;
-	private final int contentLength;
+	private int contentStart;
+	private int contentLength;
 
 	private final WorkspaceSnapshot parent;
 
-	private final ToDoItem[] tasks;
+	private ToDoItem[] tasks;
 
 	public Project(WorkspaceSnapshot parent, int titleStart, int titleLength, int contentStart,
 			int contentLength, ToDoItem[] tasks) {
@@ -19,13 +19,25 @@ public class Project {
 			throw new NullPointerException("parent is null");
 		if (tasks == null)
 			throw new NullPointerException("tasks is null");
-		
+
 		this.contentLength = contentLength;
 		this.contentStart = contentStart;
 		this.parent = parent;
 		this.titleLength = titleLength;
 		this.titleStart = titleStart;
 		this.tasks = tasks;
+	}
+
+	public void setTasks(ToDoItem[] items) {
+		tasks = items;
+	}
+
+	public void setContentStart(int contentStart) {
+		this.contentStart = contentStart;
+	}
+
+	public void setContentLength(int contentLength) {
+		this.contentLength = contentLength;
 	}
 
 	public WorkspaceSnapshot parent() {
@@ -61,5 +73,5 @@ public class Project {
 	public String toString() {
 		return title();
 	}
-	
+
 }
