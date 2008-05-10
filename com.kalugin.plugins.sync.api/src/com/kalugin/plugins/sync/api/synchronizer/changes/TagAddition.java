@@ -27,7 +27,7 @@ public class TagAddition extends Change {
     
     @Override
     public String toString() {
-        return "added " + tag + " to " + task;
+        return "added " + tag + " to " + task.toStringWithoutTags();
     }
     
 }

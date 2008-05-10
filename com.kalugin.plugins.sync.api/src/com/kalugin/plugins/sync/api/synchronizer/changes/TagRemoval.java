@@ -27,7 +27,7 @@ public class TagRemoval extends Change {
     
     @Override
     public String toString() {
-        return "removed " + tag + " from " + task;
+        return "removed " + tag + " from " + task.toStringWithoutTags();
     }
     
 }

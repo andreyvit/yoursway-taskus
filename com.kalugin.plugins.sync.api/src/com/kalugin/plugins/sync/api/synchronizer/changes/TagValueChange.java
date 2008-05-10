@@ -27,7 +27,7 @@ public class TagValueChange extends Change {
     
     @Override
     public String toString() {
-        return "changed " + newTag + " in " + task;
+        return "changed " + newTag + " in " + task.toStringWithoutTags();
     }
     
 }

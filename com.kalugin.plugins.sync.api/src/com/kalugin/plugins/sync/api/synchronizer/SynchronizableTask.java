@@ -10,4 +10,6 @@ public interface SynchronizableTask {
     
     Collection<SynchronizableTag> tags();
 
+    String toStringWithoutTags();
+
 }

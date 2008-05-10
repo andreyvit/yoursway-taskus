@@ -2,7 +2,7 @@ package com.kalugin.plugins.sync.api.tests.synchronizer;
 
 import org.junit.Test;
 
-public class Simple extends AbstractSynchronizerTest {
+public class Tasks extends AbstractSynchronizerTest {
     
     @Test
     public void initiallyGetTasksFromRemote() throws Exception {
