@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.ui.core.CorchyApplication;
-import com.mkalugin.pikachu.core.ast.Project;
+import com.mkalugin.pikachu.core.astxxxxx.Project;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.workspace.Workspace;
 import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;

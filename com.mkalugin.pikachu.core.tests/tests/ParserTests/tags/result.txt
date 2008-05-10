@@ -1,0 +1,16 @@
+ADocument:
+-ATaskLine:
+--Leader
+--ATaskName foo
+--ATag:
+---ATagName uuu
+--ATag:
+---ATagName xxx
+---ATagValue 12
+--ATag:
+---ATagName zzz
+-ATaskLine:
+--Leader
+--ATaskName bar
+--ATag:
+---ATagName done

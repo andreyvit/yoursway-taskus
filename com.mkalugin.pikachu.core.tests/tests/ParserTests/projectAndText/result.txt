@@ -1,0 +1,20 @@
+ADocument:
+-AProjectName Project
+-AEmptyLine
+-ATextLine Foo.
+-AEmptyLine
+-ATaskLine:
+--Leader
+--ATaskName foo
+-ATaskLine:
+--Leader
+--ATaskName bar
+-AEmptyLine
+-AProjectName Another project
+-AEmptyLine
+-ATaskLine:
+--Leader
+--ATaskName xxx
+-ATaskLine:
+--Leader
+--ATaskName yyy

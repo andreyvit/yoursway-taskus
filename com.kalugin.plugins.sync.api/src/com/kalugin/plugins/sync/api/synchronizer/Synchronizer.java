@@ -1,6 +1,5 @@
 package com.kalugin.plugins.sync.api.synchronizer;
 
-
 import static com.kalugin.plugins.sync.api.synchronizer.changes.Changes.compare;
 
 import java.util.Collection;

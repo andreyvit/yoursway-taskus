@@ -2,17 +2,6 @@
 <?eclipse version="3.2"?>
 <plugin>
    <extension-point id="dataStorages" name="dataStorages" schema="schema/dataStorages.exsd"/>
-   <extension
-         point="com.mkalugin.pikachu.core.dataStorages">
-      <dataStorageType
-            class="com.mkalugin.pikachu.core.storage.memory.MemoryDataStorageBuilder"
-            id="com.mkalugin.pikachu.core.memoryStorageType">
-      </dataStorageType>
-      <dataStorageType
-            class="com.mkalugin.pikachu.core.storage.file.FSDataStorageBuilder"
-            id="com.mkalugin.pikachu.core.fileStorageType">
-      </dataStorageType>
-   </extension>
    
    
 

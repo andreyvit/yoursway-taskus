@@ -36,19 +36,19 @@ import com.yoursway.utils.YsFileUtils;
 public class AbstractSynchronizerTest {
     
     protected void go() throws Exception {
-        path = joinPath("tests/", calculatePath());
+        this.path = joinPath("tests/", calculatePath());
         run();
     }
     
     private void run() throws IOException {
         IdAssigner<String> idAssigner = createIdAssigner();
         
-        URL oldLocalTasksEntry = requiredEntry(joinPath(path, "0-local.txt"));
-        URL oldRemoteTasksEntry = requiredEntry(joinPath(path, "0-remote.txt"));
-        URL localTasksEntry = optionalEntry(joinPath(path, "1-local.txt"));
-        URL remoteTasksEntry = optionalEntry(joinPath(path, "1-remote.txt"));
-        URL expectedLocalTasksEntry = optionalEntry(joinPath(path, "R-local.txt"));
-        URL expectedRemoteTasksEntry = optionalEntry(joinPath(path, "R-remote.txt"));
+        URL oldLocalTasksEntry = requiredEntry(joinPath(path(), "0-local.txt"));
+        URL oldRemoteTasksEntry = requiredEntry(joinPath(path(), "0-remote.txt"));
+        URL localTasksEntry = optionalEntry(joinPath(path(), "1-local.txt"));
+        URL remoteTasksEntry = optionalEntry(joinPath(path(), "1-remote.txt"));
+        URL expectedLocalTasksEntry = optionalEntry(joinPath(path(), "R-local.txt"));
+        URL expectedRemoteTasksEntry = optionalEntry(joinPath(path(), "R-remote.txt"));
         
         List<SynchronizableTask> oldLocalTasks = readTasks(oldLocalTasksEntry, idAssigner);
         List<SynchronizableTask> oldRemoteTasks = readTasks(oldRemoteTasksEntry, idAssigner);
@@ -155,6 +155,10 @@ public class AbstractSynchronizerTest {
         String methodName = el.getMethodName();
         String packageAndClassName = removeBasePackageName(el.getClassName(), packageName(AllTests.class));
         String path = packageAndClassName.replaceAll("\\.", "/") + "/" + methodName;
+        return path;
+    }
+
+    private String path() {
         return path;
     }
     

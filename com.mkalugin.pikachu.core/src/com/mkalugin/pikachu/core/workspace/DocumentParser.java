@@ -1,58 +1,85 @@
 package com.mkalugin.pikachu.core.workspace;
 
-import java.util.ArrayList;
-import java.util.List;
+import static java.util.regex.Pattern.compile;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.mkalugin.pikachu.core.ast.Project;
-import com.mkalugin.pikachu.core.ast.Tag;
-import com.mkalugin.pikachu.core.ast.ToDoItem;
+import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.ast.AEmptyLine;
+import com.mkalugin.pikachu.core.ast.AMinus;
+import com.mkalugin.pikachu.core.ast.ANode;
+import com.mkalugin.pikachu.core.ast.AProjectLine;
+import com.mkalugin.pikachu.core.ast.AProjectName;
+import com.mkalugin.pikachu.core.ast.ATag;
+import com.mkalugin.pikachu.core.ast.ATagName;
+import com.mkalugin.pikachu.core.ast.ATagValue;
+import com.mkalugin.pikachu.core.ast.ATaskLine;
+import com.mkalugin.pikachu.core.ast.ATaskName;
+import com.mkalugin.pikachu.core.ast.ATextLine;
 
 public class DocumentParser {
-
-	private static final Pattern projectPattern = Pattern.compile("^(.+):\\s*$", Pattern.MULTILINE);
-	private static final Pattern todoPattern = Pattern.compile("^\\s*-\\s*(.+)\\s*$", Pattern.MULTILINE);
-
-	public DocumentParser() {
-	}
-
-	public Project[] parse(WorkspaceSnapshot parent, String source) {
-		List<Project> result = new ArrayList<Project>();
-		Matcher matcher = projectPattern.matcher(source);
-		Project previousProject = null;
-		while (matcher.find()) {
-			int start = matcher.start(1);
-			int end = matcher.end(1);
-			fillProjectContents(previousProject, source, start - 1);
-			Project project = new Project(parent, start, end - start + 1, 0, 0, new ToDoItem[0]);
-			result.add(project);
-			previousProject = project;
-		}
-		fillProjectContents(previousProject, source, source.length() - 1);
-		return result.toArray(new Project[result.size()]);
-	}
-
-	private void fillProjectContents(Project previousProject, String source, int contentEndOffset) {
-		if (previousProject != null) {
-			int contentStart = previousProject.titleStart()
-					+ previousProject.titleLength() + 1;
-			String content = source.substring(contentStart, contentEndOffset);
-			previousProject.setContentLength(content.length());
-			previousProject.setTasks(parseTasks(previousProject, contentStart, content));
-		}
-	}
-
-	private ToDoItem[] parseTasks(Project previousProject, int offset, String content) {
-		List<ToDoItem> result = new ArrayList<ToDoItem>();
-		Matcher matcher = todoPattern.matcher(content);
-		while (matcher.find()) {
-			int start = matcher.start(1);
-			int end = matcher.end(1);
-
-			result.add(new ToDoItem(previousProject, offset + start, end - start + 1, new Tag[0]));
-		}
-		return result.toArray(new ToDoItem[result.size()]);
-	}
-
+    
+    private static final Pattern TAG = compile("\\s@(\\w+)(?::([^\\s]+)|\\(([^)]*)\\))?");
+    
+    public ADocument parse(String source) {
+        int documentEnd = source.length();
+        ADocument document = new ADocument(0, documentEnd);
+        int lineStart = 0;
+        while (lineStart < documentEnd) {
+            int lineEnd = source.indexOf('\n', lineStart);
+            if (lineEnd < 0)
+                lineEnd = documentEnd;
+            int bodyEnd = ParsingUtils.adjustEndBySkippingWhitespaceBackward(lineStart, lineEnd, source);
+            int bodyStart = ParsingUtils.adjustStartBySkippingWhitespaceForward(lineStart, bodyEnd, source);
+            assert bodyStart <= bodyEnd;
+            document.addChild(parseLine(lineStart, lineEnd, bodyStart, bodyEnd, source));
+            lineStart = lineEnd + 1; // skip newline
+        }
+        return document;
+    }
+    
+    private ANode parseLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
+        if (bodyStart == bodyEnd)
+            return new AEmptyLine(lineStart, lineEnd);
+        else {
+            String line = source.subSequence(bodyStart, bodyEnd).toString();
+            if (line.endsWith(":"))
+                return parseProjectLine(lineStart, lineEnd, bodyStart, bodyEnd, source);
+            else if (line.startsWith("- "))
+                return parseTaskLine(lineStart, lineEnd, bodyStart, bodyEnd, source);
+            else
+                return parseRegularLine(lineStart, lineEnd, source);
+        }
+    }
+    
+    private ANode parseRegularLine(int lineStart, int lineEnd, CharSequence source) {
+        return ATextLine.extract(lineStart, lineEnd, source);
+    }
+    
+    private AProjectLine parseProjectLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd,
+            CharSequence source) {
+        return new AProjectLine(lineStart, lineEnd, AProjectName.extract(bodyStart, bodyEnd - 1, source));
+    }
+    
+    private ATaskLine parseTaskLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
+        ATaskLine task = new ATaskLine(lineStart, lineEnd);
+        task.addChild(new AMinus(bodyStart, bodyStart + 1));
+        
+        int nameStart = bodyStart + 2;
+        Matcher matcher = TAG.matcher(source);
+        matcher.region(nameStart, bodyEnd);
+        boolean found = matcher.find();
+        int nameEnd = (found ? matcher.start() : bodyEnd);
+        task.addChild(ATaskName.extract(nameStart, nameEnd, source));
+        if (found)
+            do {
+                ATagName nameNode = ATagName.extract(matcher.start(1), matcher.end(1), source);
+                String value = matcher.group(2);
+                ATagValue valueNode = (value == null ? null : ATagValue.extract(matcher.start(2), matcher.end(2), source));
+                task.addChild(new ATag(matcher.start(), matcher.end(), nameNode, valueNode));
+            } while (matcher.find());
+        return task;
+    }
+    
 }

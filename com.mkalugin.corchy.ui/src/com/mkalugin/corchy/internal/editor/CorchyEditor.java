@@ -9,9 +9,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.ui.core.CorchyApplication;
-import com.mkalugin.pikachu.core.ast.Project;
-import com.mkalugin.pikachu.core.ast.Tag;
-import com.mkalugin.pikachu.core.ast.ToDoItem;
+import com.mkalugin.pikachu.core.astxxxxx.Project;
+import com.mkalugin.pikachu.core.astxxxxx.Tag;
+import com.mkalugin.pikachu.core.astxxxxx.TaskHeadline;
 import com.mkalugin.pikachu.core.model.ModelConsumer;
 import com.mkalugin.pikachu.core.workspace.Workspace;
 import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
@@ -76,22 +76,33 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 		if (sourceViewer.getUndoManager().redoable())
 			sourceViewer.getUndoManager().redo();
 	}
+	
+	private boolean isVirgin = true;
 
 	public synchronized void consume(final WorkspaceSnapshot snapshot) {
 		consuming = true;
 		String current = document.get();
 		final String fresh = snapshot.content();
 		if (!current.equals(fresh)) {
-			Display.getDefault().syncExec(new Runnable() {
+			Display.getDefault().asyncExec(new Runnable() {
 
 				public void run() {
-					document.set(fresh);
+				    if (isVirgin) {
+				        document.set(fresh);
+				        isVirgin = false;
+				    }
 				}
 
 			});
 
 		}
-		updateHighlighting(snapshot);
+		Display.getDefault().asyncExec(new Runnable() {
+
+            public void run() {
+                updateHighlighting(snapshot);
+            }
+		    
+		});
 		consuming = false;
 	}
 
@@ -112,7 +123,7 @@ public class CorchyEditor implements ModelConsumer<WorkspaceSnapshot> {
 		presentation.addStyleRange(range);
 	}
 
-	protected void highlight(TextPresentation presentation, ToDoItem task) {
+	protected void highlight(TextPresentation presentation, TaskHeadline task) {
 		StyleRange range = new StyleRange();
 		range.start = task.startOffset();
 		range.length = task.length();
