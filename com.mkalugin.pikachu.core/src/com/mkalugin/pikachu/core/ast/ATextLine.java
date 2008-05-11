@@ -1,6 +1,6 @@
 package com.mkalugin.pikachu.core.ast;
 
-public class ATextLine extends ANode {
+public class ATextLine extends ANodeImpl implements ADocumentLevelNode {
     
     private final String data;
 
@@ -16,8 +16,12 @@ public class ATextLine extends ANode {
         return getClass().getSimpleName() + " " + data;
     }
 
-    public static ANode extract(int start, int end, CharSequence source) {
+    public static ATextLine extract(int start, int end, CharSequence source) {
         return new ATextLine(start, end, source.subSequence(start, end).toString());
+    }
+
+    public void accept(ADocumentLevelVisitor visitor) {
+        visitor.visitTextLine(this);
     }
     
 }

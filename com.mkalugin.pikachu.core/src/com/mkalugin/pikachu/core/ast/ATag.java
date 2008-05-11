@@ -4,7 +4,7 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
 
-public class ATag extends ANode {
+public class ATag extends ANodeImpl implements ATaskLevelNode {
 
 	private final ATagName name;
     private final ATagValue value;
@@ -16,17 +16,33 @@ public class ATag extends ANode {
         this.name = name;
         this.value = value;
 	}
+    
+    public ATagName getName() {
+        return name;
+    }
+    
+    public ATagValue getValue() {
+        return value;
+    }
 
 	@Override
 	public String toString() {
 		return containerToString(children());
 	}
 
-    private List<ANode> children() {
-        List<ANode> list = newArrayList((ANode) name);
+    private List<ANodeImpl> children() {
+        List<ANodeImpl> list = newArrayList((ANodeImpl) name);
 		if (value != null)
 		    list.add(value);
         return list;
+    }
+
+    public void accept(ATaskLevelVisitor visitor) {
+        visitor.visitTag(this);
+    }
+
+    public String nameAsString() {
+        return name.getText();
     }
 
 }

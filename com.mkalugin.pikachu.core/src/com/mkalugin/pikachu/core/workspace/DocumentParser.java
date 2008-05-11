@@ -6,9 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
 import com.mkalugin.pikachu.core.ast.AEmptyLine;
-import com.mkalugin.pikachu.core.ast.AMinus;
-import com.mkalugin.pikachu.core.ast.ANode;
+import com.mkalugin.pikachu.core.ast.ATaskLeader;
+import com.mkalugin.pikachu.core.ast.ANodeImpl;
 import com.mkalugin.pikachu.core.ast.AProjectLine;
 import com.mkalugin.pikachu.core.ast.AProjectName;
 import com.mkalugin.pikachu.core.ast.ATag;
@@ -39,7 +40,7 @@ public class DocumentParser {
         return document;
     }
     
-    private ANode parseLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
+    private ADocumentLevelNode parseLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
         if (bodyStart == bodyEnd)
             return new AEmptyLine(lineStart, lineEnd);
         else {
@@ -53,7 +54,7 @@ public class DocumentParser {
         }
     }
     
-    private ANode parseRegularLine(int lineStart, int lineEnd, CharSequence source) {
+    private ADocumentLevelNode parseRegularLine(int lineStart, int lineEnd, CharSequence source) {
         return ATextLine.extract(lineStart, lineEnd, source);
     }
     
@@ -64,7 +65,7 @@ public class DocumentParser {
     
     private ATaskLine parseTaskLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
         ATaskLine task = new ATaskLine(lineStart, lineEnd);
-        task.addChild(new AMinus(bodyStart, bodyStart + 1));
+        task.addChild(new ATaskLeader(bodyStart, bodyStart + 1));
         
         int nameStart = bodyStart + 2;
         Matcher matcher = TAG.matcher(source);

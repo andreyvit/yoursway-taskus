@@ -1,0 +1,7 @@
+MDocument:
+-MProject Project:
+--Task foo
+--Task bar
+-MProject Another project:
+--Task xxx
+--Task yyy
