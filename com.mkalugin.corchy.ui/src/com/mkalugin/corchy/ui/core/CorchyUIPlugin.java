@@ -5,14 +5,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jface.dialogs.DialogSettings;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceStore;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-public class CorchyUIPlugin extends AbstractUIPlugin {
+public class CorchyUIPlugin extends Plugin {
 
 	private static final String DIALOG_SETTINGS_FILE = "dialog_settings.xml"; //$NON-NLS-1$
 
@@ -21,11 +22,13 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 	private DialogSettings dialogSettings = null;
 
 	private PreferenceStore preferenceStore;
-
-	public CorchyUIPlugin() {
-		instance = this;
+	
+	@Override
+	public void start(BundleContext context) throws Exception {
+	    super.start(context);
+	    instance = this;
 	}
-
+	
 	public static CorchyUIPlugin instance() {
 		return instance;
 	}
@@ -79,7 +82,6 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 		}
 	}
 
-	@Override
 	public IPreferenceStore getPreferenceStore() {
 		if (preferenceStore == null) {
 			preferenceStore = new PreferenceStore(
@@ -106,6 +108,7 @@ public class CorchyUIPlugin extends AbstractUIPlugin {
 		try {
 			savePreferenceStore();
 		} finally {
+		    instance = null;
 			super.stop(context);
 		}
 	}

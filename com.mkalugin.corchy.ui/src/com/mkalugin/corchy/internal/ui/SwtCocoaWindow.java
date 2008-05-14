@@ -1,8 +1,11 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
+import static com.mkalugin.corchy.internal.ui.location.InitialShellPosition.SYSTEM_DEFAULT;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -18,9 +21,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
+import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
@@ -29,7 +34,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 
-public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
+public class SwtCocoaWindow implements DocumentWindow {
     
     private static final String DIALOG_ID = "mainWindow";
     
@@ -43,22 +48,42 @@ public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
     
     private DocumentWindowCallback callback;
     
-    public SwtCocoaWindow(Display display, DocumentWindowCallback callback) {
-        super(display, true);
-        
+    private Shell shell;
+    
+    private final DialogSettingsProvider preferenceStorageProvider;
+    
+    public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
+            DocumentWindowCallback callback, InitialShellPosition initialPosition) {
+        if (display == null)
+            throw new NullPointerException("display is null");
+        if (preferenceStorageProvider == null)
+            throw new NullPointerException("preferenceStorageProvider is null");
         if (callback == null)
             throw new NullPointerException("callback is null");
         this.callback = callback;
-        create();
+        this.preferenceStorageProvider = preferenceStorageProvider;
+        
+        shell = new Shell();
+        shell.setData(this);
+        shell.setText(computeTitle());
+        
+        BottomBarComposition composition = new BottomBarComposition(shell);
+        createControls(composition.body());
+        fillBottomBar(composition.bottomBar());
+        
+        new WindowLocationManager(shell, computePreferenceStorage(), new WindowLocationConfiguration()
+                .initialPosition(initialPosition).size(500, 600));
     }
     
-    @Override
-    protected void dispose() {
-        sourceView.dispose();
+    public Shell getShell() {
+        return shell;
     }
     
-    @Override
-    protected String title() {
+    private IDialogSettings computePreferenceStorage() {
+        return preferenceStorageProvider.forKey(callback.uniqueDocumentKeyForPreferencePersistance());
+    }
+    
+    private String computeTitle() {
         if (title != null)
             return title;
         return APP_TITLE;
@@ -110,16 +135,14 @@ public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
         sourceView.setLayoutData(editorData);
     }
     
-    @Override
-    protected void createControls(Composite parent) {
+    private void createControls(Composite parent) {
         Composite editorBlock = new Composite(parent, SWT.NULL);
         createEditorAndOutline(editorBlock);
         editorBlock.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
                 .create());
     }
     
-    @Override
-    protected void fillBottomBar(Composite bottomBar) {
+    private void fillBottomBar(Composite bottomBar) {
         // Sync button
         Button syncButton = new Button(bottomBar, SWT.NONE | SWT.PUSH);
         ((NSButton) syncButton.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
@@ -130,7 +153,7 @@ public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
         syncButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                performSync();
+                callback.startSynchronization();
             }
         });
         
@@ -139,24 +162,13 @@ public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
         searchField.setText("Search");
         searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING)
                 .indent(0, 0).create());
-    }
-    
-    protected void performSync() {
-        //		try {
-        //			CorchyApplication.workspace().synchronize();
-        //		} catch (StorageException e1) {
-        //			// TODO
-        //		}
-    }
-    
-    @Override
-    protected String dialogId() {
-        return DIALOG_ID;
+        
+        GridLayoutFactory.fillDefaults().numColumns(2).extendedMargins(8, 8, 4, 0).margins(0, 0)
+                .spacing(0, 0).generateLayout(bottomBar);
     }
     
     public void highlightUsing(ADocument document) {
         // TODO Auto-generated method stub
-        
     }
     
     public void setText(String text) {
@@ -164,7 +176,7 @@ public class SwtCocoaWindow extends MainWindow implements DocumentWindow {
     }
     
     public void openWindow() {
-        open();
+        shell.open();
     }
     
     public OutlineView bindOutlineView(OutlineViewCallback callback) {

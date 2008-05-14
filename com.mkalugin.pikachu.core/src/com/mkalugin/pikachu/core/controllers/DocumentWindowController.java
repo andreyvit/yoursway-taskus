@@ -15,6 +15,7 @@ public class DocumentWindowController implements DocumentWindowCallback {
     
     private final DocumentWindow window;
     private final Document model;
+    private String key;
 
     public DocumentWindowController(Document model, DocumentWindowFactory factory) {
         if (model == null)
@@ -23,6 +24,7 @@ public class DocumentWindowController implements DocumentWindowCallback {
         this.window = factory.createDocumentWindow(this);
         new OutlineViewController(window);
         new SourceViewController(window);
+        key = "untitled" + System.currentTimeMillis();
     }
 
     public void startSynchronization() {
@@ -56,6 +58,10 @@ public class DocumentWindowController implements DocumentWindowCallback {
     public void openDocumentWindow() {
         window.setText(model.getContent());
         window.openWindow();
+    }
+
+    public String uniqueDocumentKeyForPreferencePersistance() {
+        return key;
     }
     
 }
