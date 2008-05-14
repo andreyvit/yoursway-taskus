@@ -3,16 +3,11 @@ package com.mkalugin.pikachu.core.controllers;
 import java.io.File;
 import java.io.IOException;
 
+import com.mkalugin.pikachu.core.DocumentListener;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewFactory;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewFactory;
 import com.mkalugin.pikachu.core.model.Document;
 
 public class DocumentWindowController implements DocumentWindowCallback {
@@ -29,31 +24,31 @@ public class DocumentWindowController implements DocumentWindowCallback {
         window.setDocumentBinding(document.getBinding());
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
+        new DocumentSavingAgent(document);
     }
 
     public void startSynchronization() {
     }
-
-    static class OutlineViewController implements OutlineViewCallback {
-        
-        private final OutlineView outlineView;
-
-        public OutlineViewController(Document document, OutlineViewFactory factory) {
-            outlineView = factory.bindOutlineView(this);
-        }
-        
-    }
     
-    static class SourceViewController implements SourceViewCallback {
+    static class DocumentSavingAgent implements DocumentListener {
         
-        private SourceView sourceView;
-
-        public SourceViewController(Document document, SourceViewFactory factory) {
-            sourceView = factory.bindSourceView(this);
+        private final Document document;
+        
+        public DocumentSavingAgent(Document document) {
+            this.document = document;
+            document.addListener(this);
         }
 
-        public void setText(String text) {
-            
+        public void bindingChanged() {
+        }
+
+        public void contentChanged(Object sender) {
+            try {
+                document.save();
+            } catch (IOException e) {
+                // FIXME handle saving errors more gracefully
+                e.printStackTrace(System.err);
+            }
         }
         
     }

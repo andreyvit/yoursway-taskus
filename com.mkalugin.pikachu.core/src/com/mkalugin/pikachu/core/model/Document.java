@@ -39,19 +39,25 @@ public class Document {
         listeners.remove(listener);
     }
     
-    public String getContent() {
+    public synchronized String getContent() {
         return content;
     }
     
-    public void setContent(String content) {
+    public synchronized void setContent(String content, Object sender) {
+        if (content == null)
+            throw new NullPointerException("content is null");
+        if (this.content.equals(content))
+            return;
         this.content = content;
+        for(DocumentListener listener : listeners)
+            listener.contentChanged(sender);
     }
     
-    public DocumentBinding getBinding() {
+    public synchronized DocumentBinding getBinding() {
         return new DocumentBinding(file.toString(), file, isUntitled);
     }
     
-    public boolean isUntitled() {
+    public synchronized boolean isUntitled() {
         return isUntitled;
     }
     
@@ -59,15 +65,15 @@ public class Document {
         return owner.documentTypeDefinition();
     }
     
-    private void loadContent() throws IOException {
+    private synchronized void loadContent() throws IOException {
         content = readAsString(file);
     }
     
-    private void saveContent(File file) throws IOException {
+    private synchronized void saveContent(File file) throws IOException {
         writeString(file, content);
     }
     
-    public void saveAs(File file) throws IOException {
+    public synchronized void saveAs(File file) throws IOException {
         try {
             saveContent(file);
             this.file = file;
@@ -77,6 +83,12 @@ public class Document {
                 file.delete();
             throw e;
         }
+        for(DocumentListener listener : listeners)
+            listener.bindingChanged();
+    }
+
+    public synchronized void save() throws IOException {
+        saveContent(file);
     }
     
 }
