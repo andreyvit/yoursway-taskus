@@ -218,14 +218,13 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
-        DialogSettingsProvider dsp = new DialogSettingsProvider(lookup(preferenceStore,
-                "documentWindows"));
-        InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED :
-            InitialShellPosition.SYSTEM_DEFAULT);
+        DialogSettingsProvider dsp = new DialogSettingsProvider(lookup(preferenceStore, "documentWindows"));
+        InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
+                : InitialShellPosition.SYSTEM_DEFAULT);
         final SwtCocoaWindow window = new SwtCocoaWindow(display, dsp, callback, pos);
         documentWindows.add(window);
         window.getShell().addDisposeListener(new DisposeListener() {
-
+            
             public void widgetDisposed(DisposeEvent e) {
                 documentWindows.remove(window);
                 if (activeWindow == window)
@@ -234,7 +233,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             
         });
         window.getShell().addShellListener(new ShellAdapter() {
-           
+            
             @Override
             public void shellActivated(ShellEvent e) {
                 setActiveWindow(window);
@@ -249,23 +248,27 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         });
         return window;
     }
-
+    
     public File chooseDocumentToOpen(String defaultExtention) {
-        FileDialog dialog = new FileDialog(null, SWT.OPEN);
-        dialog.setFilterExtensions(new String[] {"*." + defaultExtention, "*.txt"});
-        dialog.setFilterNames(new String[] {"Corchy documents", "Text files"});
-        dialog.setText("Open TODO list");
-        String choice = dialog.open();
-        if (choice == null)
-            return null;
-        else
-            return new File(choice);
+        Shell fakeShell = new Shell();
+        try {
+            FileDialog dialog = new FileDialog(fakeShell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] { "*." + defaultExtention, "*.txt" });
+            dialog.setFilterNames(new String[] { "Corchy documents", "Text files" });
+            dialog.setText("Open TODO list");
+            String choice = dialog.open();
+            if (choice == null)
+                return null;
+            else
+                return new File(choice);
+        } finally {
+            fakeShell.dispose();
+        }
     }
-
+    
     public void displayError(String title, String message) {
-        NSAlert alert = NSAlert.alertWithMessageText(NSString.stringWith(title),
-                NSString.stringWith("Got it"), null, null, 
-                NSString.stringWith(message));
+        NSAlert alert = NSAlert.alertWithMessageText(NSString.stringWith(title), NSString
+                .stringWith("Got it"), null, null, NSString.stringWith(message));
         alert.runModal();
     }
     
