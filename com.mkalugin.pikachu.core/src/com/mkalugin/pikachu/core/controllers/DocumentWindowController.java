@@ -10,7 +10,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.model.Document;
 
-public class DocumentWindowController implements DocumentWindowCallback {
+public class DocumentWindowController implements DocumentWindowCallback, DocumentListener {
     
     private final DocumentWindow window;
     
@@ -22,6 +22,7 @@ public class DocumentWindowController implements DocumentWindowCallback {
         this.document = document;
         this.window = factory.createDocumentWindow(this);
         window.setDocumentBinding(document.getBinding());
+        document.addListener(this);
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
         new DocumentSavingAgent(document);
@@ -86,6 +87,13 @@ public class DocumentWindowController implements DocumentWindowCallback {
             } catch (IOException e) {
                 window.reportSavingFailed(file);
             }
+    }
+
+    public void bindingChanged() {
+        window.setDocumentBinding(document.getBinding());
+    }
+
+    public void contentChanged(Object sender) {
     }
     
 }

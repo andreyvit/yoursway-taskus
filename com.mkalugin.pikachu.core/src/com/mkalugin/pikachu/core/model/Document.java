@@ -15,7 +15,7 @@ public class Document {
     
     private String content = "\n\nTyagayte hloptsi, I'll be back.\n";
     private File file;
-    private final boolean isUntitled;
+    private boolean isUntitled;
     private final DocumentOwner owner;
 
     public Document(DocumentOwner owner, File file, boolean isUntitled) throws IOException {
@@ -77,6 +77,7 @@ public class Document {
         try {
             saveContent(file);
             this.file = file;
+            isUntitled = false;
         } catch (IOException e) {
             // if writing failed, delete the partially written file
             if (file.exists())
