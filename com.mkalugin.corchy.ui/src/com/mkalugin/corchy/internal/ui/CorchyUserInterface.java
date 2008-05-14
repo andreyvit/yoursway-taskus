@@ -23,6 +23,7 @@ public class CorchyUserInterface {
         
         hiddenShell = new Shell();
         display.setApplicationMenuBar(createMenuBar(hiddenShell));
+//        display.setApplicationMenuName("Corchy");
     }
     
     public ICorchyWindow createDocumentWindow() {
@@ -50,7 +51,7 @@ public class CorchyUserInterface {
                 }
             }
         });
-        builder.item("Redo", SWT.MOD1 + 'Y', new Runnable() {
+        builder.item("Redo", SWT.MOD1 + SWT.SHIFT + 'Y', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
