@@ -76,6 +76,8 @@ public class Document {
     public synchronized void saveAs(File file) throws IOException {
         try {
             saveContent(file);
+            if (isUntitled)
+                this.file.delete();
             this.file = file;
             isUntitled = false;
         } catch (IOException e) {
@@ -96,10 +98,17 @@ public class Document {
     public void discard() {
         if (isUntitled)
             file.delete();
+        fireClosed(true);
     }
     
     public void close() {
+        fireClosed(false);
+    }
+
+    private void fireClosed(boolean discarded) {
         owner.documentClosed(this);
+        for(DocumentListener listener : listeners)
+            listener.closed(discarded);
     }
 
     public File getFile() {

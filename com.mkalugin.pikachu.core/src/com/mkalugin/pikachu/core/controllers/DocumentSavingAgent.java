@@ -32,5 +32,8 @@ public class DocumentSavingAgent implements DocumentListener {
     public void dispose() {
         document.removeListener(this);
     }
+
+    public void closed(boolean discarded) {
+    }
     
 }

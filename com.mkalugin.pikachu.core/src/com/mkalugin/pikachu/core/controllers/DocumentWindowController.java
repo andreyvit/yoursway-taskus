@@ -47,16 +47,17 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
                 
                 public void discard() {
                     document.discard();
-                    closeDocument();
                 }
                 
                 public void save() {
                     if (saveFileAs())
-                        closeDocument();
+                        document.close();
                 }
                 
             });
             return false;
+        } else {
+            document.close();
         }
         return true;
     }
@@ -80,11 +81,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     public void contentChanged(Object sender) {
     }
     
-    public void discarded() {
-        closeDocument();
-    }
-    
-    protected void closeDocument() {
+    public void closed(boolean discarded) {
         savingAgent.dispose();
         window.close();
     }

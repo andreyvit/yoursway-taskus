@@ -2,7 +2,6 @@ package com.mkalugin.pikachu.core.controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;

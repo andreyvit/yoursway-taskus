@@ -5,5 +5,7 @@ public interface DocumentListener {
     void contentChanged(Object sender);
     
     void bindingChanged();
+
+    void closed(boolean discarded);
     
 }
