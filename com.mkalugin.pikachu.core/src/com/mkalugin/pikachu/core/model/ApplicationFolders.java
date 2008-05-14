@@ -9,7 +9,7 @@ public class ApplicationFolders {
     
     public static File applicationDataFolder() {
         try {
-            return new File("~/Library/Application Data/" + APPLICATION_NAME).getCanonicalFile();
+            return new File(new File(System.getProperty("user.home")), "Library/Application Data/" + APPLICATION_NAME).getCanonicalFile();
         } catch (IOException e) {
             throw new AssertionError(e);
         }
