@@ -2,6 +2,7 @@ package com.mkalugin.pikachu.core.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
 import com.mkalugin.pikachu.core.Document;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
@@ -22,16 +23,19 @@ public class ApplicationController implements ApplicationPresentationCallback {
     }
     
     public void run() {
-        openNewDocument();
+        Collection<Document> documents = model.openAllUntitledDocuments();
+        if (documents.isEmpty())
+            openNewDocument();
+        else
+            for (Document document : documents)
+                open(document);
         applicationPresentation.run();
     }
     
     public void openNewDocument() {
         try {
             Document document = model.createEmptyDocument();
-            DocumentWindowController controller = new DocumentWindowController(document,
-                    applicationPresentation);
-            controller.openDocumentWindow();
+            open(document);
         } catch (IOException e) {
             applicationPresentation.displayError("Failed to create a document", "You've just triggered a disk I/O error #-4982063, you bastard!");
         }
@@ -40,8 +44,15 @@ public class ApplicationController implements ApplicationPresentationCallback {
     public void openDocument() {
         File file = applicationPresentation.chooseDocumentToOpen(model.getDefaultDocumentExtension());
         if (file != null) {
-            model.openDocument(file);
+            Document document = model.openDocument(file);
+            open(document);
         }
+    }
+
+    private void open(Document document) {
+        DocumentWindowController controller = new DocumentWindowController(document,
+                applicationPresentation);
+        controller.openDocumentWindow();
     }
     
 }

@@ -30,7 +30,7 @@ public class ApplicationModel {
         File[] files = untitledDocumentsDir.listFiles();
         if (files != null)
             for (File file : files)
-                result.add(openDocument(file));
+                result.add(doOpenDocument(file, true));
         return result;
     }
 
@@ -53,7 +53,11 @@ public class ApplicationModel {
     }
 
     public Document openDocument(File file) {
-        return new Document(file, false);
+        return doOpenDocument(file, false);
+    }
+
+    private Document doOpenDocument(File file, boolean isUntitled) {
+        return new Document(file, isUntitled);
     }
     
 }
