@@ -11,6 +11,8 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
+import org.eclipse.swt.internal.cocoa.NSSearchField;
+import org.eclipse.swt.internal.cocoa.NSSearchFieldCell;
 import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.layout.FormAttachment;
@@ -180,11 +182,17 @@ public class SwtCocoaWindow implements DocumentWindow {
         
         // Search field
         Text searchField = new Text(bottomBar, SWT.SINGLE | SWT.SEARCH);
-        searchField.setText("Search");
+        NSSearchField nsSearchField = (NSSearchField)searchField.view;
+        NSSearchFieldCell theCell = new NSSearchFieldCell(nsSearchField.cell());
+        theCell.setPlaceholderString(NSString.stringWith("Search"));
         searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING)
                 .indent(0, 0).create());
         
-        GridLayoutFactory.fillDefaults().numColumns(2).extendedMargins(8, 8, 4, 0).margins(0, 0)
+        Composite endSpace = new Composite(bottomBar, SWT.NONE);
+        endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
+                .indent(0, 0).hint(15, SWT.DEFAULT).create());
+        
+        GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
     }
     
