@@ -5,6 +5,8 @@ import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -128,12 +130,12 @@ public class SwtCocoaWindow implements DocumentWindow {
         
         // min 100 px. for the outline,
         // 30% initially
-        final int limit = 100, percent = 30;
+        final int limit = 150;
         final FormData sashData = new FormData();
-        sashData.left = new FormAttachment(percent, 0);
+        sashData.left = new FormAttachment(0, 150);
         sashData.top = new FormAttachment(0, 0);
         sashData.bottom = new FormAttachment(100, 0);
-        sashData.width = 2;
+        sashData.width = 1;
         sash.setLayoutData(sashData);
         sash.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event e) {
@@ -146,6 +148,15 @@ public class SwtCocoaWindow implements DocumentWindow {
                     parent.layout();
                 }
             }
+        });
+        sash.addPaintListener(new PaintListener() {
+
+			public void paintControl(PaintEvent e) {
+				Rectangle sashRect = sash.getBounds();
+				e.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+				e.gc.drawLine(0, 0, 0, sashRect.height);
+			}
+        	
         });
         
         FormData editorData = new FormData();
