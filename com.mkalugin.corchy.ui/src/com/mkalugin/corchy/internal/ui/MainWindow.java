@@ -34,7 +34,7 @@ public abstract class MainWindow extends Window {
 	
 	private IDialogSettings dialogSettings;
 	
-	public MainWindow(boolean hasBottomBar) {
+	public MainWindow(Display display, boolean hasBottomBar) {
 		super((Shell) null);
 		this.hasBottomBar = hasBottomBar;
 	}

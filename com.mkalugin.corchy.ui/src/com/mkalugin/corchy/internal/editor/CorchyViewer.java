@@ -11,7 +11,16 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 
-class CorchyViewer extends SourceViewer {
+public class CorchyViewer extends SourceViewer {
+    
+    private static final String VIEWER_KEY = "textViewer";
+    
+    public final static CorchyViewer fromControl(StyledText control) {
+        Object data = control.getData(VIEWER_KEY);
+        if (data instanceof CorchyViewer)
+            return (CorchyViewer) data;
+        return null;
+    }
 	
 	private StyledText styledText;
 
@@ -26,6 +35,7 @@ class CorchyViewer extends SourceViewer {
 		styledText.setIndent(15);
 		styledText.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL,
 				SWT.FILL).create());
+		styledText.setData(VIEWER_KEY, this);
 		return styledText;
 	}
 

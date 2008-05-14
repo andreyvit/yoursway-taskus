@@ -8,23 +8,16 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.cocoa.NSColor;
 import org.eclipse.swt.internal.cocoa.NSOutlineView;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
-import com.mkalugin.corchy.ui.core.CorchyApplication;
-import com.mkalugin.pikachu.core.astxxxxx.Project;
-import com.mkalugin.pikachu.core.model.ModelConsumer;
-import com.mkalugin.pikachu.core.workspace.Workspace;
-import com.mkalugin.pikachu.core.workspace.WorkspaceSnapshot;
-
-public class OutlineView implements ModelConsumer<WorkspaceSnapshot> {
+public class OutlineView  {
 
 	private TreeViewer viewer;
 	private ITreeContentProvider contentProvider;
 
 	public OutlineView(Composite parent) {
 		createControl(parent);
-		Workspace workspace = CorchyApplication.workspace();
-		workspace.registerConsumer(this);
+//		Workspace workspace = CorchyApplication.workspace();
+//		workspace.registerConsumer(this);
 	}
 
 	private void createControl(Composite parent) {
@@ -35,8 +28,8 @@ public class OutlineView implements ModelConsumer<WorkspaceSnapshot> {
 		contentProvider = new ITreeContentProvider() {
 
 			public Object[] getChildren(Object parentElement) {
-				if (parentElement instanceof Project)
-					return ((Project) parentElement).getTasks();
+//				if (parentElement instanceof Project)
+//					return ((Project) parentElement).getTasks();
 				return new Object[0];
 			}
 
@@ -49,9 +42,9 @@ public class OutlineView implements ModelConsumer<WorkspaceSnapshot> {
 			}
 
 			public Object[] getElements(Object inputElement) {
-				if (inputElement instanceof WorkspaceSnapshot) {
-					return ((WorkspaceSnapshot) inputElement).projects();
-				}
+//				if (inputElement instanceof WorkspaceSnapshot) {
+//					return ((WorkspaceSnapshot) inputElement).projects();
+//				}
 				return new Object[0];
 			}
 
@@ -70,16 +63,16 @@ public class OutlineView implements ModelConsumer<WorkspaceSnapshot> {
 		viewer.getControl().setLayoutData(outlineData);
 	}
 
-	public void consume(final WorkspaceSnapshot snapshot) {
-		Display.getDefault().asyncExec(new Runnable() {
-
-			public void run() {
-				viewer.setInput(snapshot);
-				viewer.refresh();
-			}
-
-		});
-
-	}
+//	public void consume(final WorkspaceSnapshot snapshot) {
+//		Display.getDefault().asyncExec(new Runnable() {
+//
+//			public void run() {
+//				viewer.setInput(snapshot);
+//				viewer.refresh();
+//			}
+//
+//		});
+//
+//	}
 
 }
