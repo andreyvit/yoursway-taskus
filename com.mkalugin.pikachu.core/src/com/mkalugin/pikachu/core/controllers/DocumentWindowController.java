@@ -7,6 +7,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewFactory;
+import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewFactory;
@@ -60,6 +61,22 @@ public class DocumentWindowController implements DocumentWindowCallback {
     }
 
     public boolean closeFile() {
+        if (document.isUntitled()) {
+            window.askSaveDiscardCancel(new SaveDiscardCancel() {
+
+                public void cancel() {
+                }
+
+                public void discard() {
+                    window.close();
+                }
+
+                public void save() {
+                }
+                
+            });
+            return false;
+        }
         return true;
     }
     

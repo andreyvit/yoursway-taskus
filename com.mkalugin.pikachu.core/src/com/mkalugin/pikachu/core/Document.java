@@ -27,4 +27,8 @@ public class Document {
         return new DocumentBinding(file.toString(), file, isUntitled);
     }
     
+    public boolean isUntitled() {
+        return isUntitled;
+    }
+    
 }

@@ -11,5 +11,9 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory {
     void openWindow();
 
     void setDocumentBinding(DocumentBinding documentBinding);
+
+    void askSaveDiscardCancel(SaveDiscardCancel handler);
+
+    void close();
     
 }
