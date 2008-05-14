@@ -159,6 +159,8 @@ public class SwtCocoaWindow implements DocumentWindow {
         createEditorAndOutline(editorBlock);
         editorBlock.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
                 .create());
+        GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 0).spacing(0, 0).numColumns(1)
+				.generateLayout(parent);
     }
     
     private void fillBottomBar(Composite bottomBar) {
