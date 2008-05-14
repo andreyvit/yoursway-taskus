@@ -26,6 +26,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
+import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
+import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;

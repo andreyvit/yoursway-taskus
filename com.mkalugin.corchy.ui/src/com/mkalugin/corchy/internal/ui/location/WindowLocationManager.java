@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.ui.location;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.SWT;
@@ -8,8 +8,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
-import com.mkalugin.corchy.internal.ui.location.ShellPositionConstraint;
 
 public class WindowLocationManager {
     

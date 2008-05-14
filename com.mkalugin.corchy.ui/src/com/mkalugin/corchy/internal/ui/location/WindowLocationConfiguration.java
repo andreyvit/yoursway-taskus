@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.ui.location;
 
 import static com.mkalugin.corchy.internal.ui.location.InitialShellPosition.CENTERED;
 import static com.mkalugin.corchy.internal.ui.location.ShellPositionConstraint.CONTAINED_WITHIN_SINGLE_MONITOR;
@@ -6,8 +6,6 @@ import static com.mkalugin.corchy.internal.ui.location.ShellPositionConstraint.C
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 
-import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
-import com.mkalugin.corchy.internal.ui.location.ShellPositionConstraint;
 
 public class WindowLocationConfiguration {
     
