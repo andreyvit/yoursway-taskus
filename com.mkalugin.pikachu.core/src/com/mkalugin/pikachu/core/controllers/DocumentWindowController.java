@@ -15,18 +15,16 @@ public class DocumentWindowController implements DocumentWindowCallback {
     
     private final DocumentWindow window;
     
-    private final Document model;
-    
-    private String key;
+    private final Document document;
     
     public DocumentWindowController(Document document, DocumentWindowFactory factory) {
         if (document == null)
             throw new NullPointerException("model is null");
-        this.model = document;
+        this.document = document;
         this.window = factory.createDocumentWindow(this);
+        window.setDocumentBinding(document.getBinding());
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
-        key = "untitled" + System.currentTimeMillis();
     }
 
     public void startSynchronization() {
@@ -57,12 +55,8 @@ public class DocumentWindowController implements DocumentWindowCallback {
     }
 
     public void openDocumentWindow() {
-        window.setText(model.getContent());
+        window.setText(document.getContent());
         window.openWindow();
-    }
-
-    public String uniqueDocumentKeyForPreferencePersistance() {
-        return key;
     }
 
     public boolean closeFile() {

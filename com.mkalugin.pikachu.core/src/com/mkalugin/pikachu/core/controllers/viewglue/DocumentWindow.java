@@ -9,5 +9,7 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory {
     void highlightUsing(ADocument document);
 
     void openWindow();
+
+    void setDocumentBinding(DocumentBinding documentBinding);
     
 }

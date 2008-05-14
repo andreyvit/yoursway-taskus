@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-
 public class WindowLocationManager {
     
     private static final String KEY_WIDTH = "width";
@@ -24,9 +23,9 @@ public class WindowLocationManager {
     private ShellPositionConstraint positionConstraint;
     private boolean persistLocation;
     private boolean persistSize;
+    private boolean boundsInitialized;
     
-    public WindowLocationManager(Shell shell, IDialogSettings dialogSettings,
-            WindowLocationConfiguration configuration) {
+    public WindowLocationManager(Shell shell, WindowLocationConfiguration configuration) {
         if (shell == null)
             throw new NullPointerException("shell is null");
         if (configuration == null)
@@ -37,11 +36,6 @@ public class WindowLocationManager {
         this.positionConstraint = configuration.getPositionConstraint();
         this.persistLocation = configuration.shouldPersistLocation();
         this.persistSize = configuration.shouldPersistSize();
-        
-        if (dialogSettings == null && configuration.shouldPersistSomething())
-            throw new NullPointerException("dialogSettings is null, but persistance is requestored");
-        this.dialogSettings = dialogSettings;
-        
         Listener saveStateListener = new Listener() {
             public void handleEvent(Event event) {
                 saveState();
@@ -49,16 +43,21 @@ public class WindowLocationManager {
         };
         shell.addListener(SWT.Resize, saveStateListener);
         shell.addListener(SWT.Move, saveStateListener);
-        initializeBounds(shell);
+        if (!(persistLocation || persistSize))
+            initializeBounds();
     }
     
     public void setDialogSettings(IDialogSettings dialogSettings) {
-        if (dialogSettings == null && persistLocation || persistSize)
+        if (dialogSettings == null && (persistLocation || persistSize))
             throw new NullPointerException("dialogSettings is null, but persistance is requestored");
         this.dialogSettings = dialogSettings;
+        if (!boundsInitialized)
+            initializeBounds();
+        else
+            saveState();
     }
     
-    private void initializeBounds(Shell shell) {
+    private void initializeBounds() {
         Point size = loadSize();
         if (size == null)
             size = computeInitialSize(shell);
@@ -68,6 +67,7 @@ public class WindowLocationManager {
             location = shell.getLocation();
         shell.setBounds(positionConstraint.constrain(new Rectangle(location.x, location.y, size.x, size.y),
                 shell.getDisplay()));
+        boundsInitialized = true;
     }
     
     private Point computeInitialSize(Shell shell) {

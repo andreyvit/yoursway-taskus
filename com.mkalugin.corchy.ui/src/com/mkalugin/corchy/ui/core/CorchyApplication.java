@@ -5,12 +5,14 @@ import org.eclipse.equinox.app.IApplicationContext;
 
 import com.mkalugin.corchy.internal.ui.SwtCocoaApplicationPresentationFactory;
 import com.mkalugin.pikachu.core.controllers.ApplicationController;
+import com.mkalugin.pikachu.core.model.ApplicationFolders;
 import com.mkalugin.pikachu.core.model.ApplicationModel;
 
 public class CorchyApplication implements IApplication {
     
     public Object start(IApplicationContext context) throws Exception {
-        new ApplicationController(new ApplicationModel(), new SwtCocoaApplicationPresentationFactory()).run();
+        new ApplicationController(new ApplicationModel(ApplicationFolders.untitledDocumentsFolder()),
+                new SwtCocoaApplicationPresentationFactory()).run();
         return EXIT_OK;
     }
     

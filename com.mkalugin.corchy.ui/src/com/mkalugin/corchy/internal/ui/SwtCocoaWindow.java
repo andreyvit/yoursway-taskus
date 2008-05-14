@@ -13,6 +13,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
+import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -31,6 +32,7 @@ import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
@@ -55,6 +57,8 @@ public class SwtCocoaWindow implements DocumentWindow {
     private Shell shell;
     
     private final DialogSettingsProvider preferenceStorageProvider;
+    
+    private WindowLocationManager locationManager;
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -84,16 +88,19 @@ public class SwtCocoaWindow implements DocumentWindow {
         createControls(composition.body());
         fillBottomBar(composition.bottomBar());
         
-        new WindowLocationManager(shell, computePreferenceStorage(), new WindowLocationConfiguration()
-                .initialPosition(initialPosition).size(500, 600));
+        locationManager = new WindowLocationManager(shell, new WindowLocationConfiguration().initialPosition(
+                initialPosition).size(500, 600));
+    }
+    
+    public void setDocumentBinding(DocumentBinding documentBinding) {
+        locationManager.setDialogSettings(preferenceStorageProvider.forKey(documentBinding.getUniqueKey()));
+        shell.setText(documentBinding.getFile().getName());
+        shell.view.window().setRepresentedFilename(NSString.stringWith(documentBinding.getFile().getPath()));
+        shell.view.window().setDocumentEdited(documentBinding.isUntitled());
     }
     
     public Shell getShell() {
         return shell;
-    }
-    
-    private IDialogSettings computePreferenceStorage() {
-        return preferenceStorageProvider.forKey(callback.uniqueDocumentKeyForPreferencePersistance());
     }
     
     private String computeTitle() {
@@ -199,7 +206,7 @@ public class SwtCocoaWindow implements DocumentWindow {
     public SourceView bindSourceView(SourceViewCallback callback) {
         return sourceView.bind(callback);
     }
-
+    
     public void fileClose() {
         if (callback.closeFile())
             shell.dispose();

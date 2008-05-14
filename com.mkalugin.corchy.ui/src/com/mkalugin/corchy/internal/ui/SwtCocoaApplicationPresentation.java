@@ -3,6 +3,7 @@ package com.mkalugin.corchy.internal.ui;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.mkalugin.corchy.internal.ui.Utils.lookup;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -13,8 +14,11 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.internal.cocoa.NSAlert;
+import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -24,6 +28,7 @@ import com.mkalugin.corchy.internal.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 
@@ -143,26 +148,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         });
         builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
             public void run() {
-                //                DirectoryDialog fileDialog = new DirectoryDialog(getShell(), SWT.OPEN);
-                //                while (true) {
-                //                    String result = fileDialog.open();
-                //                    if (result == null)
-                //                        break;
-                //                  try {
-                //                      FSDataStorage dataStorage = new FSDataStorage(new File(result), false);
-                //                      CorchyApplication.openWorkspaceWithStorage(dataStorage);
-                //                      break;
-                //                  } catch (Exception e) {
-                //                      MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.CANCEL);
-                //                      messageBox.setMessage("Impossible to open");
-                //                      messageBox.setText("Failed to open file " + result + " due to:\n"
-                //                              + e.getLocalizedMessage()
-                //                              + "\nPlease select other file or click 'cancel'.");
-                //                      int open = messageBox.open();
-                //                      if (open == SWT.CANCEL)
-                //                          break;
-                //                  }
-                //                }
+                callback.openDocument();
             }
         });
         builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
@@ -263,4 +249,24 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         });
         return window;
     }
+
+    public File chooseDocumentToOpen(String defaultExtention) {
+        FileDialog dialog = new FileDialog(null, SWT.OPEN);
+        dialog.setFilterExtensions(new String[] {"*." + defaultExtention, "*.txt"});
+        dialog.setFilterNames(new String[] {"Corchy documents", "Text files"});
+        dialog.setText("Open TODO list");
+        String choice = dialog.open();
+        if (choice == null)
+            return null;
+        else
+            return new File(choice);
+    }
+
+    public void displayError(String title, String message) {
+        NSAlert alert = NSAlert.alertWithMessageText(NSString.stringWith(title),
+                NSString.stringWith("Got it"), null, null, 
+                NSString.stringWith(message));
+        alert.runModal();
+    }
+    
 }

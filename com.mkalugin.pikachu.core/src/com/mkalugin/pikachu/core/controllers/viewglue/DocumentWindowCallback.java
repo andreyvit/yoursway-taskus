@@ -6,6 +6,4 @@ public interface DocumentWindowCallback {
     
     void startSynchronization();
     
-    String uniqueDocumentKeyForPreferencePersistance();
-    
 }
