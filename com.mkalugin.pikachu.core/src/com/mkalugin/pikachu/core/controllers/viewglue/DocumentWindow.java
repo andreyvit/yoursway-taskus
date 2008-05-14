@@ -19,7 +19,7 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory {
 
     void close();
 
-    File chooseFileNameToSaveInto(DocumentBinding binding, DocumentTypeDefinition documentTypeDefinition);
+    void chooseFileNameToSaveInto(DocumentBinding binding, DocumentTypeDefinition documentTypeDefinition, FileNameRequestor requestor);
 
     void reportSavingFailed(File file);
     

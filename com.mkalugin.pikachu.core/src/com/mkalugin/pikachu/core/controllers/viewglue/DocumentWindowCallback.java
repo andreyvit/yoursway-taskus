@@ -6,6 +6,6 @@ public interface DocumentWindowCallback {
     
     void startSynchronization();
 
-    boolean saveFileAs();
+    void saveFileAs();
     
 }

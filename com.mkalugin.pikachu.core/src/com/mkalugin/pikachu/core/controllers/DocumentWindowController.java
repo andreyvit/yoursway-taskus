@@ -7,6 +7,7 @@ import com.mkalugin.pikachu.core.DocumentListener;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
+import com.mkalugin.pikachu.core.controllers.viewglue.FileNameRequestor;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.model.Document;
 
@@ -53,8 +54,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
                     }
                     
                     public void save() {
-                        if (saveFileAs())
-                            document.close();
+                        doSaveAs(true);
                     }
                     
                 });
@@ -65,16 +65,28 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
         return true;
     }
     
-    public boolean saveFileAs() {
-        File file = window.chooseFileNameToSaveInto(document.getBinding(), document.documentTypeDefinition());
-        if (file != null)
-            try {
-                document.saveAs(file);
-                return true;
-            } catch (IOException e) {
-                window.reportSavingFailed(file);
-            }
-        return false;
+    public void saveFileAs() {
+        doSaveAs(false);
+    }
+
+    void doSaveAs(final boolean closeWhenDone) {
+        window.chooseFileNameToSaveInto(document.getBinding(), document.documentTypeDefinition(), 
+                new FileNameRequestor() {
+
+                    public void cancelled() {
+                    }
+
+                    public void fileSelected(File file) {
+                        try {
+                            document.saveAs(file);
+                            if (closeWhenDone)
+                                document.close();
+                        } catch (IOException e) {
+                            window.reportSavingFailed(file);
+                        }
+                    }
+            
+        });
     }
     
     public void bindingChanged() {
