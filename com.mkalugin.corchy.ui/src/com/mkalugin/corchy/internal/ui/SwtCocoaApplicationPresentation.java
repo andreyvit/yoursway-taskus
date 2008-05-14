@@ -148,6 +148,13 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 callback.openDocument();
             }
         });
+        builder.separator();
+        fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
+            public void run() {
+                if (activeWindow != null)
+                    activeWindow.fileClose();
+            }
+        });
         builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
             public void run() {
                 if (activeWindow != null)
@@ -179,16 +186,10 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 //                }
             }
         });
-        fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
-            public void run() {
-                if (activeWindow != null)
-                    activeWindow.fileClose();
-            }
-        });
         
         builder.separator();
         
-        builder.item("Synchronize with remotes", new Runnable() {
+        builder.item("Synchronize Now", new Runnable() {
             public void run() {
                 //                performSync();
             }
