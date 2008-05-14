@@ -10,24 +10,26 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyViewer;
-import com.mkalugin.pikachu.core.ICorchyWindow;
+import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
+import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 
-public class CorchyUserInterface {
+public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
     private Display display;
     private Shell hiddenShell;
+    private final ApplicationPresentationCallback callback;
     
-    public CorchyUserInterface() {
+    public SwtCocoaApplicationPresentation(ApplicationPresentationCallback callback) {
+        this.callback = callback;
+        
         display = new Display();
         Display.setAppName("Corchy");
         
         hiddenShell = new Shell();
         display.setApplicationMenuBar(createMenuBar(hiddenShell));
 //        display.setApplicationMenuName("Corchy");
-    }
-    
-    public ICorchyWindow createDocumentWindow() {
-        return new CorchyWindow(display);
     }
     
     public void run() {
@@ -187,6 +189,10 @@ public class CorchyUserInterface {
         editItem.setText("Edit");
         editItem.setMenu(createEditMenu(shell));
         return bar;
+    }
+
+    public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
+        return new SwtCocoaWindow(display, callback);
     }
     
 }

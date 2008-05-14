@@ -9,12 +9,16 @@ import org.eclipse.swt.internal.cocoa.NSColor;
 import org.eclipse.swt.internal.cocoa.NSOutlineView;
 import org.eclipse.swt.widgets.Composite;
 
-public class OutlineView  {
+import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
+import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
+
+public class SwtCocoaOutlineView implements OutlineView {
 
 	private TreeViewer viewer;
 	private ITreeContentProvider contentProvider;
+    private OutlineViewCallback callback;
 
-	public OutlineView(Composite parent) {
+	public SwtCocoaOutlineView(Composite parent) {
 		createControl(parent);
 //		Workspace workspace = CorchyApplication.workspace();
 //		workspace.registerConsumer(this);
@@ -62,6 +66,15 @@ public class OutlineView  {
 	public void setLayoutData(Object outlineData) {
 		viewer.getControl().setLayoutData(outlineData);
 	}
+
+    public OutlineView bind(OutlineViewCallback callback) {
+        if (callback == null)
+            throw new NullPointerException("callback is null");
+        if (this.callback != null)
+            throw new IllegalStateException("callback is already set");
+        this.callback = callback;
+        return this;
+    }
 
 //	public void consume(final WorkspaceSnapshot snapshot) {
 //		Display.getDefault().asyncExec(new Runnable() {

@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.net.URL;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
-import com.mkalugin.pikachu.core.model.MDocument;
-import com.mkalugin.pikachu.core.model.builder.StructuredModelBuilder;
+import com.mkalugin.pikachu.core.model.document.structure.MDocument;
+import com.mkalugin.pikachu.core.model.document.structure.builder.StructuredModelBuilder;
 import com.mkalugin.pikachu.core.workspace.DocumentParser;
 
 public class AbstractModelBuildingTests {

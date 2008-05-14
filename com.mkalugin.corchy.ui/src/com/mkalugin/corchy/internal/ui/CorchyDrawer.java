@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.Shell;
 public class CorchyDrawer {
 
 	private final Drawer drawer;
-	private OutlineView outlineView;
+	private SwtCocoaOutlineView swtCocoaOutlineView;
 
 	public CorchyDrawer(Shell host) {
 		drawer = new Drawer(host, NSMakeSize(150, 0), OS.NSMinXEdge);
 		drawer.setMinSize(NSMakeSize(30, 0));
 		drawer.setMaxSize(NSMakeSize(250, 0));
-		new OutlineView(drawer);
+		new SwtCocoaOutlineView(drawer);
 		GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 0).generateLayout(drawer);
 	}
 	
@@ -32,8 +32,8 @@ public class CorchyDrawer {
 		drawer.toggle();
 	}
 
-	public OutlineView outlineView() {
-		return outlineView;
+	public SwtCocoaOutlineView swtCocoaOutlineView() {
+		return swtCocoaOutlineView;
 	}
 	
 }

@@ -1,4 +1,4 @@
-package com.mkalugin.pikachu.core.model;
+package com.mkalugin.pikachu.core.model.document.structure;
 
 import static com.google.common.collect.Lists.newArrayList;
 

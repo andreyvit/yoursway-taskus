@@ -1,4 +1,4 @@
-package com.mkalugin.pikachu.core.model;
+package com.mkalugin.pikachu.core.model.document.structure;
 
 public class MProject extends MHernyaContainer {
 

@@ -5,19 +5,20 @@ import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.swt.widgets.Composite;
 
-import com.mkalugin.pikachu.core.ViewCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
+import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 
-public class CorchyEditor {
+public class SwtCocoaSourceView implements SourceView {
 
 	private CorchyViewer sourceViewer;
 	private Document document;
 //	private Workspace workspace;
 	private boolean consuming;
 	private DocumentStylesheet stylesheet;
-    private final ViewCallback callback;
+    private SourceViewCallback callback;
 
-	public CorchyEditor(Composite parent, ViewCallback callback) {
-		this.callback = callback;
+	public SwtCocoaSourceView(Composite parent) {
         createControls(parent);
 //		workspace = CorchyApplication.workspace();
 //		workspace.registerConsumer(this);
@@ -134,6 +135,15 @@ public class CorchyEditor {
 
     public void setText(String text) {
         document.set(text);
+    }
+
+    public SourceView bind(SourceViewCallback callback) {
+        if (callback == null)
+            throw new NullPointerException("callback is null");
+        if (this.callback != null)
+            throw new IllegalStateException("callback is already set");
+        this.callback = callback;
+        return this;
     }
 	
 }

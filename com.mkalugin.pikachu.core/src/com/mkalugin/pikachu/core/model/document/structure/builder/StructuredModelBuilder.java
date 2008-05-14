@@ -1,4 +1,4 @@
-package com.mkalugin.pikachu.core.model.builder;
+package com.mkalugin.pikachu.core.model.document.structure.builder;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
@@ -14,11 +14,11 @@ import com.mkalugin.pikachu.core.ast.ATaskLevelVisitor;
 import com.mkalugin.pikachu.core.ast.ATaskLine;
 import com.mkalugin.pikachu.core.ast.ATaskName;
 import com.mkalugin.pikachu.core.ast.ATextLine;
-import com.mkalugin.pikachu.core.model.MDocument;
-import com.mkalugin.pikachu.core.model.MElement;
-import com.mkalugin.pikachu.core.model.MProject;
-import com.mkalugin.pikachu.core.model.MTag;
-import com.mkalugin.pikachu.core.model.MTask;
+import com.mkalugin.pikachu.core.model.document.structure.MDocument;
+import com.mkalugin.pikachu.core.model.document.structure.MElement;
+import com.mkalugin.pikachu.core.model.document.structure.MProject;
+import com.mkalugin.pikachu.core.model.document.structure.MTag;
+import com.mkalugin.pikachu.core.model.document.structure.MTask;
 
 public class StructuredModelBuilder {
     
