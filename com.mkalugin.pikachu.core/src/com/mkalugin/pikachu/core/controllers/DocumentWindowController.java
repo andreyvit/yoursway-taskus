@@ -14,42 +14,43 @@ import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewFactory;
 public class DocumentWindowController implements DocumentWindowCallback {
     
     private final DocumentWindow window;
+    
     private final Document model;
+    
     private String key;
-
-    public DocumentWindowController(Document model, DocumentWindowFactory factory) {
-        if (model == null)
+    
+    public DocumentWindowController(Document document, DocumentWindowFactory factory) {
+        if (document == null)
             throw new NullPointerException("model is null");
-        this.model = model;
+        this.model = document;
         this.window = factory.createDocumentWindow(this);
-        new OutlineViewController(window);
-        new SourceViewController(window);
+        new OutlineViewController(document, window);
+        new SourceViewController(document, window);
         key = "untitled" + System.currentTimeMillis();
     }
 
     public void startSynchronization() {
     }
 
-    class OutlineViewController implements OutlineViewCallback {
+    static class OutlineViewController implements OutlineViewCallback {
         
         private final OutlineView outlineView;
 
-        public OutlineViewController(OutlineViewFactory factory) {
+        public OutlineViewController(Document document, OutlineViewFactory factory) {
             outlineView = factory.bindOutlineView(this);
         }
         
     }
     
-    class SourceViewController implements SourceViewCallback {
+    static class SourceViewController implements SourceViewCallback {
         
         private SourceView sourceView;
 
-        public SourceViewController(SourceViewFactory factory) {
+        public SourceViewController(Document document, SourceViewFactory factory) {
             sourceView = factory.bindSourceView(this);
         }
 
         public void setText(String text) {
-            // TODO Auto-generated method stub
             
         }
         
@@ -62,6 +63,10 @@ public class DocumentWindowController implements DocumentWindowCallback {
 
     public String uniqueDocumentKeyForPreferencePersistance() {
         return key;
+    }
+
+    public boolean closeFile() {
+        return true;
     }
     
 }

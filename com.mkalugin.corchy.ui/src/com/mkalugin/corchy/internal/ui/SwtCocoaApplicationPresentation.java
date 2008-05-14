@@ -10,6 +10,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
@@ -32,6 +35,8 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     private final IDialogSettings preferenceStore;
     
     private final List<SwtCocoaWindow> documentWindows = newArrayList();
+    private MenuItem fileClose;
+    SwtCocoaWindow activeWindow;
     
     public SwtCocoaApplicationPresentation(ApplicationPresentationCallback callback,
             IDialogSettings preferenceStore) {
@@ -160,7 +165,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 //                }
             }
         });
-        builder.item("Save as...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
+        builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
             public void run() {
                 //                FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
                 //                fileDialog.setFilterExtensions(new String[] { EXT });
@@ -189,6 +194,13 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 //                }
             }
         });
+        fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
+            public void run() {
+                if (activeWindow == null)
+                    return;
+                activeWindow.fileClose();
+            }
+        });
         
         builder.separator();
         
@@ -214,6 +226,11 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         return bar;
     }
     
+    void setActiveWindow(SwtCocoaWindow window) {
+        this.activeWindow = window;
+        fileClose.setEnabled(activeWindow != null);
+    }
+    
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
         DialogSettingsProvider dsp = new DialogSettingsProvider(lookup(preferenceStore,
                 "documentWindows"));
@@ -225,6 +242,22 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
 
             public void widgetDisposed(DisposeEvent e) {
                 documentWindows.remove(window);
+                if (activeWindow == window)
+                    setActiveWindow(null);
+            }
+            
+        });
+        window.getShell().addShellListener(new ShellAdapter() {
+           
+            @Override
+            public void shellActivated(ShellEvent e) {
+                setActiveWindow(window);
+            }
+            
+            @Override
+            public void shellDeactivated(ShellEvent e) {
+                if (activeWindow == window)
+                    setActiveWindow(null);
             }
             
         });

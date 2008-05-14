@@ -9,6 +9,8 @@ import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
 import org.eclipse.swt.internal.cocoa.OS;
@@ -68,6 +70,15 @@ public class SwtCocoaWindow implements DocumentWindow {
         shell = new Shell();
         shell.setData(this);
         shell.setText(computeTitle());
+        
+        shell.addShellListener(new ShellAdapter() {
+            
+            @Override
+            public void shellClosed(ShellEvent e) {
+                e.doit = SwtCocoaWindow.this.callback.closeFile();
+            }
+            
+        });
         
         BottomBarComposition composition = new BottomBarComposition(shell);
         createControls(composition.body());
@@ -187,6 +198,11 @@ public class SwtCocoaWindow implements DocumentWindow {
     
     public SourceView bindSourceView(SourceViewCallback callback) {
         return sourceView.bind(callback);
+    }
+
+    public void fileClose() {
+        if (callback.closeFile())
+            shell.dispose();
     }
     
     //	public void consume(WorkspaceSnapshot snapshot) {
