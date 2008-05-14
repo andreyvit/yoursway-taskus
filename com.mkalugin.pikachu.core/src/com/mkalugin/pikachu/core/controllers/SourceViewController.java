@@ -41,4 +41,7 @@ public class SourceViewController implements SourceViewCallback, DocumentListene
     public void closed(boolean discarded) {
     }
 
+    public void emptinessChanged() {
+    }
+
 }

@@ -34,7 +34,6 @@ public class ApplicationModel implements DocumentOwner {
         listeners.remove(listener);
     }
     
-    
     public Document createEmptyDocument() throws IOException {
         File file = chooseUntitledFileLocation();
         return createDocument(file, true);
@@ -51,7 +50,11 @@ public class ApplicationModel implements DocumentOwner {
         if (files != null)
             for (File file : files)
                 try {
-                    result.add(createDocument(file, true));
+                    Document document = createDocument(file, true);
+                    if (document.isEmpty())
+                        document.discard();
+                    else
+                        result.add(document);
                 } catch (IOException e) {
                     // reading error? hm, weird
                     e.printStackTrace(System.err);
@@ -100,9 +103,9 @@ public class ApplicationModel implements DocumentOwner {
     }
 
     public void documentClosed(Document document) {
-        openDocuments.remove(document);
-        for(ApplicationModelListener listener : listeners)
-            listener.documentClosed(document);
+        if (openDocuments.remove(document))
+            for(ApplicationModelListener listener : listeners)
+                listener.documentClosed(document);
     }
     
     public void documentFileChanged(Document document) {

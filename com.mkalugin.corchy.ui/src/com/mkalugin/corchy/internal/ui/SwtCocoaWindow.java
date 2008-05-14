@@ -97,11 +97,11 @@ public class SwtCocoaWindow implements DocumentWindow {
                 initialPosition).size(500, 600));
     }
     
-    public void setDocumentBinding(DocumentBinding documentBinding) {
+    public void setDocumentBinding(DocumentBinding documentBinding, boolean isDocumentEmpty) {
         locationManager.setDialogSettings(preferenceStorageProvider.forKey(documentBinding.getUniqueKey()));
         shell.setText(documentBinding.getFile().getName());
         shell.view.window().setRepresentedFilename(NSString.stringWith(documentBinding.getFile().getPath()));
-        shell.view.window().setDocumentEdited(documentBinding.isUntitled());
+        shell.view.window().setDocumentEdited(documentBinding.isUntitled() && !isDocumentEmpty);
     }
     
     public Shell getShell() {

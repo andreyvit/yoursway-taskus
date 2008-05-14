@@ -15,7 +15,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     private final DocumentWindow window;
     
     private final Document document;
-
+    
     private DocumentSavingAgent savingAgent;
     
     public DocumentWindowController(Document document, DocumentWindowFactory factory) {
@@ -23,7 +23,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
             throw new NullPointerException("model is null");
         this.document = document;
         this.window = factory.createDocumentWindow(this);
-        window.setDocumentBinding(document.getBinding());
+        setBindingToWindow();
         document.addListener(this);
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
@@ -40,28 +40,31 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     
     public boolean closeFile() {
         if (document.isUntitled()) {
-            window.askSaveDiscardCancel(new SaveDiscardCancel() {
-                
-                public void cancel() {
-                }
-                
-                public void discard() {
-                    document.discard();
-                }
-                
-                public void save() {
-                    if (saveFileAs())
-                        document.close();
-                }
-                
-            });
+            if (document.isEmpty())
+                document.discard();
+            else
+                window.askSaveDiscardCancel(new SaveDiscardCancel() {
+                    
+                    public void cancel() {
+                    }
+                    
+                    public void discard() {
+                        document.discard();
+                    }
+                    
+                    public void save() {
+                        if (saveFileAs())
+                            document.close();
+                    }
+                    
+                });
             return false;
         } else {
             document.close();
         }
         return true;
     }
-
+    
     public boolean saveFileAs() {
         File file = window.chooseFileNameToSaveInto(document.getBinding(), document.documentTypeDefinition());
         if (file != null)
@@ -75,7 +78,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     }
     
     public void bindingChanged() {
-        window.setDocumentBinding(document.getBinding());
+        setBindingToWindow();
     }
     
     public void contentChanged(Object sender) {
@@ -84,6 +87,14 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     public void closed(boolean discarded) {
         savingAgent.dispose();
         window.close();
+    }
+    
+    public void emptinessChanged() {
+        setBindingToWindow();
+    }
+    
+    private void setBindingToWindow() {
+        window.setDocumentBinding(document.getBinding(), document.isEmpty());
     }
     
 }

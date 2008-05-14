@@ -13,8 +13,9 @@ import com.yoursway.utils.Listeners;
 
 public class Document {
     
-    private String content = "\n\nTyagayte hloptsi, I'll be back.\n";
+    private String content;
     private File file;
+    private boolean isEmpty;
     private boolean isUntitled;
     private final DocumentOwner owner;
 
@@ -51,6 +52,16 @@ public class Document {
         this.content = content;
         for(DocumentListener listener : listeners)
             listener.contentChanged(sender);
+        boolean isEmpty = calculateIsEmpty();
+        if (this.isEmpty != isEmpty) {
+            this.isEmpty = isEmpty;
+            for(DocumentListener listener : listeners)
+                listener.emptinessChanged();
+        }
+    }
+
+    private boolean calculateIsEmpty() {
+        return content.trim().length() == 0;
     }
     
     public synchronized DocumentBinding getBinding() {
@@ -67,6 +78,7 @@ public class Document {
     
     private synchronized void loadContent() throws IOException {
         content = readAsString(file);
+        isEmpty = calculateIsEmpty();
     }
     
     private synchronized void saveContent(File file) throws IOException {
@@ -114,5 +126,9 @@ public class Document {
     public File getFile() {
         return file;
     }
-
+    
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+    
 }

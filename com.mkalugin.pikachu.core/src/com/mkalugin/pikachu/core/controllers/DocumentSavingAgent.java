@@ -35,5 +35,8 @@ public class DocumentSavingAgent implements DocumentListener {
 
     public void closed(boolean discarded) {
     }
+
+    public void emptinessChanged() {
+    }
     
 }
