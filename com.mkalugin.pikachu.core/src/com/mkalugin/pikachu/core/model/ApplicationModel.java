@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Collection;
 
-import com.mkalugin.pikachu.core.Document;
-
-public class ApplicationModel {
+public class ApplicationModel implements DocumentOwner {
     
     private static final String DOCUMENT_EXT = "corchy";
     private final File untitledDocumentsDir;
@@ -22,7 +20,7 @@ public class ApplicationModel {
     
     public Document createEmptyDocument() throws IOException {
         File file = chooseUntitledFileLocation();
-        return new Document(file, true);
+        return createDocument(file, true);
     }
     
     public Collection<Document> openAllUntitledDocuments() {
@@ -30,7 +28,12 @@ public class ApplicationModel {
         File[] files = untitledDocumentsDir.listFiles();
         if (files != null)
             for (File file : files)
-                result.add(doOpenDocument(file, true));
+                try {
+                    result.add(createDocument(file, true));
+                } catch (IOException e) {
+                    // reading error? hm, weird
+                    e.printStackTrace(System.err);
+                }
         return result;
     }
 
@@ -48,16 +51,16 @@ public class ApplicationModel {
         }
     }
 
-    public String getDefaultDocumentExtension() {
-        return DOCUMENT_EXT;
+    public DocumentTypeDefinition documentTypeDefinition() {
+        return new DocumentTypeDefinition(DOCUMENT_EXT);
     }
 
-    public Document openDocument(File file) {
-        return doOpenDocument(file, false);
+    public Document openDocument(File file) throws IOException {
+        return createDocument(file, false);
     }
 
-    private Document doOpenDocument(File file, boolean isUntitled) {
-        return new Document(file, isUntitled);
+    private Document createDocument(File file, boolean isUntitled) throws IOException {
+        return new Document(this, file, isUntitled);
     }
     
 }

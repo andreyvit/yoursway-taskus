@@ -7,7 +7,8 @@ Bundle-Vendor: Mikhail Kalugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Activator: com.mkalugin.pikachu.core.PikachuCore
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
- com.google.collections;bundle-version="1.0.0"
+ com.google.collections;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0"
 Export-Package: com.mkalugin.pikachu.core,
  com.mkalugin.pikachu.core.ast,
  com.mkalugin.pikachu.core.controllers,
