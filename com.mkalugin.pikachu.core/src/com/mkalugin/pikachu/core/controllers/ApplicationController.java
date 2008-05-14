@@ -8,9 +8,10 @@ import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationFactory;
 import com.mkalugin.pikachu.core.model.ApplicationModel;
+import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
 
-public class ApplicationController implements ApplicationPresentationCallback {
+public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
     
     private ApplicationPresentation applicationPresentation;
     private final ApplicationModel model;
@@ -19,23 +20,20 @@ public class ApplicationController implements ApplicationPresentationCallback {
         if (model == null)
             throw new NullPointerException("model is null");
         this.model = model;
+        model.addListener(this);
         applicationPresentation = presentationFactory.createPresentation(this);
     }
     
     public void run() {
-        Collection<Document> documents = model.openAllUntitledDocuments();
-        if (documents.isEmpty())
+        model.openAllUntitledDocuments();
+        if (model.areNoDocumentsOpen())
             openNewDocument();
-        else
-            for (Document document : documents)
-                open(document);
         applicationPresentation.run();
     }
     
     public void openNewDocument() {
         try {
-            Document document = model.createEmptyDocument();
-            open(document);
+            model.openNewDocument();
         } catch (IOException e) {
             applicationPresentation.displayFailedToCreateEmptyDocumentError();
         }
@@ -45,18 +43,23 @@ public class ApplicationController implements ApplicationPresentationCallback {
         File file = applicationPresentation.chooseDocumentToOpen(model.documentTypeDefinition());
         if (file != null) {
             try {
-                Document document = model.openDocument(file);
-                open(document);
+                model.openExistingDocument(file);
             } catch (IOException e) {
                 applicationPresentation.displayFailedToOpenError(file);
             }
         }
     }
 
-    private void open(Document document) {
+    public void documentClosed(Document document) {
+    }
+
+    public void documentOpened(Document document) {
         DocumentWindowController controller = new DocumentWindowController(document,
                 applicationPresentation);
         controller.openDocumentWindow();
+    }
+
+    public void documentFileChanged(Document document) {
     }
     
 }

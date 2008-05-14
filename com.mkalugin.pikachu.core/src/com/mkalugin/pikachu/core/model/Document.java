@@ -84,6 +84,7 @@ public class Document {
                 file.delete();
             throw e;
         }
+        owner.documentFileChanged(this);
         for(DocumentListener listener : listeners)
             listener.bindingChanged();
     }
@@ -95,6 +96,14 @@ public class Document {
     public void discard() {
         if (isUntitled)
             file.delete();
+    }
+    
+    public void close() {
+        owner.documentClosed(this);
+    }
+
+    public File getFile() {
+        return file;
     }
 
 }

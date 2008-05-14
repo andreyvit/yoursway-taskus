@@ -1,21 +1,16 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.mkalugin.corchy.internal.ui.Utils.lookup;
 
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.internal.cocoa.NSAlert;
-import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -26,6 +21,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
+import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
+import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;

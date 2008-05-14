@@ -1,6 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
-import org.eclipse.jface.preference.IPreferenceStore;
+import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
+import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
 
 public class DialogSettingsProvider {
     

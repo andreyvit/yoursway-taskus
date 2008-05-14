@@ -1,10 +1,6 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.ui.core.preference;
 
 import static com.yoursway.utils.Listeners.newListenersByIdentity;
-
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.yoursway.utils.Listeners;
 
