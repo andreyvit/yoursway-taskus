@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -36,14 +37,14 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     private Display display;
     private Shell hiddenShell;
     private final ApplicationPresentationCallback callback;
-    private final IDialogSettings preferenceStore;
+    private final IPreferenceStore preferenceStore;
     
     private final List<SwtCocoaWindow> documentWindows = newArrayList();
     private MenuItem fileClose;
     SwtCocoaWindow activeWindow;
     
     public SwtCocoaApplicationPresentation(ApplicationPresentationCallback callback,
-            IDialogSettings preferenceStore) {
+            IPreferenceStore preferenceStore) {
         if (callback == null)
             throw new NullPointerException("callback is null");
         if (preferenceStore == null)
@@ -218,7 +219,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
-        DialogSettingsProvider dsp = new DialogSettingsProvider(lookup(preferenceStore, "documentWindows"));
+        DialogSettingsProvider dsp = new DialogSettingsProvider(new SubPreferenceStore(preferenceStore, "documentWindows"));
         InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
                 : InitialShellPosition.SYSTEM_DEFAULT);
         final SwtCocoaWindow window = new SwtCocoaWindow(display, dsp, callback, pos);

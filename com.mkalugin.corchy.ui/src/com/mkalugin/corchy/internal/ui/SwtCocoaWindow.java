@@ -224,7 +224,7 @@ public class SwtCocoaWindow implements DocumentWindow {
         if (callback.closeFile())
             shell.dispose();
     }
-
+    
     public void askSaveDiscardCancel(final SaveDiscardCancel handler) {
         CocoaAlert alert = new CocoaAlert(shell) {
             

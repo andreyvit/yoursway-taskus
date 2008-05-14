@@ -1,22 +1,19 @@
 package com.mkalugin.corchy.internal.ui;
 
-import static com.mkalugin.corchy.internal.ui.Utils.lookup;
-
-import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 
 public class DialogSettingsProvider {
     
-    private final IDialogSettings parentStorage;
+    private final IPreferenceStore parentStorage;
 
-    public DialogSettingsProvider(IDialogSettings parentStorage) {
-        if (parentStorage == null)
+    public DialogSettingsProvider(IPreferenceStore preferenceStore) {
+        if (preferenceStore == null)
             throw new NullPointerException("parentStorage is null");
-        this.parentStorage = parentStorage;
+        this.parentStorage = preferenceStore;
     }
     
-    public IDialogSettings forKey(String key) {
-        // TODO: remove old sections here
-        return lookup(parentStorage, key);
+    public IPreferenceStore forKey(String key) {
+        return new SubPreferenceStore(parentStorage, key);
     }
     
 }

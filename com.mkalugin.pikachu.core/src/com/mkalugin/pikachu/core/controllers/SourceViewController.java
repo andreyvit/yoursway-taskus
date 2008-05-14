@@ -37,5 +37,5 @@ public class SourceViewController implements SourceViewCallback, DocumentListene
     private void setTextToControl() {
         sourceView.setText(this.document.getContent());
     }
-    
+
 }

@@ -1,6 +1,6 @@
 package com.mkalugin.corchy.internal.ui.location;
 
-import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -15,7 +15,7 @@ public class WindowLocationManager {
     private static final String KEY_Y = "y";
     private static final String KEY_X = "x";
     
-    private IDialogSettings dialogSettings;
+    private IPreferenceStore preferenceStore;
     private final Shell shell;
     
     private InitialShellPosition initialPosition;
@@ -47,10 +47,10 @@ public class WindowLocationManager {
             initializeBounds();
     }
     
-    public void setDialogSettings(IDialogSettings dialogSettings) {
-        if (dialogSettings == null && (persistLocation || persistSize))
+    public void setDialogSettings(IPreferenceStore preferenceStore) {
+        if (preferenceStore == null && (persistLocation || persistSize))
             throw new NullPointerException("dialogSettings is null, but persistance is requestored");
-        this.dialogSettings = dialogSettings;
+        this.preferenceStore = preferenceStore;
         if (!boundsInitialized)
             initializeBounds();
         else
@@ -62,9 +62,11 @@ public class WindowLocationManager {
         if (size == null)
             size = computeInitialSize(shell);
         Point location = loadLocation();
-        location = initialPosition.calculatePosition(shell.getDisplay(), (Shell) shell.getParent(), size);
-        if (location == null)
-            location = shell.getLocation();
+        if (location == null) {
+            location = initialPosition.calculatePosition(shell.getDisplay(), (Shell) shell.getParent(), size);
+            if (location == null)
+                location = shell.getLocation();
+        }
         shell.setBounds(positionConstraint.constrain(new Rectangle(location.x, location.y, size.x, size.y),
                 shell.getDisplay()));
         boundsInitialized = true;
@@ -83,7 +85,11 @@ public class WindowLocationManager {
         if (!persistSize)
             return null;
         try {
-            return new Point(dialogSettings.getInt(KEY_WIDTH), dialogSettings.getInt(KEY_HEIGHT));
+            int width = preferenceStore.getInt(KEY_WIDTH);
+            int height = preferenceStore.getInt(KEY_HEIGHT);
+            if (width < 1 || height < 1)
+                return null;
+            return new Point(width, height);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -93,7 +99,11 @@ public class WindowLocationManager {
         if (!persistLocation)
             return null;
         try {
-            return new Point(dialogSettings.getInt(KEY_X), dialogSettings.getInt(KEY_Y));
+            if (!preferenceStore.contains(KEY_X) || !preferenceStore.contains(KEY_Y))
+                return null;
+            int x = preferenceStore.getInt(KEY_X);
+            int y = preferenceStore.getInt(KEY_Y);
+            return new Point(x, y);
         } catch (NumberFormatException e) {
             return null;
         }
@@ -102,12 +112,12 @@ public class WindowLocationManager {
     private void saveState() {
         Rectangle bounds = shell.getBounds();
         if (persistLocation) {
-            dialogSettings.put(KEY_X, bounds.x);
-            dialogSettings.put(KEY_Y, bounds.y);
+            preferenceStore.setValue(KEY_X, bounds.x);
+            preferenceStore.setValue(KEY_Y, bounds.y);
         }
         if (persistSize) {
-            dialogSettings.put(KEY_WIDTH, bounds.width);
-            dialogSettings.put(KEY_HEIGHT, bounds.height);
+            preferenceStore.setValue(KEY_WIDTH, bounds.width);
+            preferenceStore.setValue(KEY_HEIGHT, bounds.height);
         }
     }
     

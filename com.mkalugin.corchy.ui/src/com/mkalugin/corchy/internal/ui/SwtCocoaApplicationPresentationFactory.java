@@ -8,7 +8,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationFac
 public class SwtCocoaApplicationPresentationFactory implements ApplicationPresentationFactory {
 
     public ApplicationPresentation createPresentation(ApplicationPresentationCallback callback) {
-        return new SwtCocoaApplicationPresentation(callback, CorchyUIPlugin.instance().getDialogSettings());
+        return new SwtCocoaApplicationPresentation(callback, CorchyUIPlugin.instance().getPreferenceStore());
     }
     
 }
