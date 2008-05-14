@@ -19,11 +19,11 @@ public class ApplicationController implements ApplicationPresentationCallback {
     }
     
     public void run() {
-        createEmptyDocument();
+        openNewDocument();
         applicationPresentation.run();
     }
-    
-    private void createEmptyDocument() {
+
+    public void openNewDocument() {
         Document document = model.createEmptyDocument();
         DocumentWindowController controller = new DocumentWindowController(document, applicationPresentation);
         controller.openDocumentWindow();

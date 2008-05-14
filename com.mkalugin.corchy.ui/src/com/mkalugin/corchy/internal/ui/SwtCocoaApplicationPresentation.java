@@ -113,6 +113,11 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
+        builder.item("New", SWT.MOD1 + 'N', new Runnable() {
+            public void run() {
+                callback.openNewDocument();
+            }
+        });
         builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
             public void run() {
 //                DirectoryDialog fileDialog = new DirectoryDialog(getShell(), SWT.OPEN);
