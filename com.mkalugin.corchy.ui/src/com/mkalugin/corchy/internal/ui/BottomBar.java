@@ -2,8 +2,6 @@ package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_BOTTOM_BAR;
 
-import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -39,18 +37,5 @@ public class BottomBar extends Canvas {
 	        size.y = 32;
         return size;
 	}
-	
-	private void createBottomBar(Composite parent) {
-		final Canvas bottomBar = new Canvas(parent, SWT.NONE);
-		bottomBar.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL,
-				SWT.END).grab(true, false).indent(0, 0)
-				.minSize(SWT.DEFAULT, 32).hint(SWT.DEFAULT, 32).create());
-
-		GridLayoutFactory.fillDefaults().numColumns(2).extendedMargins(8, 8, 4, 0).margins(0, 0)
-				.spacing(0, 0).generateLayout(bottomBar);
-	}
-	
-
-
 	
 }
