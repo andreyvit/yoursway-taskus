@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import com.mkalugin.pikachu.core.Document;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationFactory;
 import com.mkalugin.pikachu.core.model.ApplicationModel;
+import com.mkalugin.pikachu.core.model.Document;
 
 public class ApplicationController implements ApplicationPresentationCallback {
     
@@ -37,15 +37,19 @@ public class ApplicationController implements ApplicationPresentationCallback {
             Document document = model.createEmptyDocument();
             open(document);
         } catch (IOException e) {
-            applicationPresentation.displayError("Failed to create a document", "You've just triggered a disk I/O error #-4982063, you bastard!");
+            applicationPresentation.displayFailedToCreateEmptyDocumentError();
         }
     }
     
     public void openDocument() {
-        File file = applicationPresentation.chooseDocumentToOpen(model.getDefaultDocumentExtension());
+        File file = applicationPresentation.chooseDocumentToOpen(model.documentTypeDefinition());
         if (file != null) {
-            Document document = model.openDocument(file);
-            open(document);
+            try {
+                Document document = model.openDocument(file);
+                open(document);
+            } catch (IOException e) {
+                applicationPresentation.displayFailedToOpenError(file);
+            }
         }
     }
 

@@ -1,18 +1,16 @@
 package com.mkalugin.pikachu.core.controllers;
 
-import com.mkalugin.pikachu.core.Document;
+import java.io.File;
+import java.io.IOException;
+
+import com.mkalugin.pikachu.core.DocumentListener;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
-import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewFactory;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
-import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewFactory;
+import com.mkalugin.pikachu.core.model.Document;
 
-public class DocumentWindowController implements DocumentWindowCallback {
+public class DocumentWindowController implements DocumentWindowCallback, DocumentListener {
     
     private final DocumentWindow window;
     
@@ -24,33 +22,34 @@ public class DocumentWindowController implements DocumentWindowCallback {
         this.document = document;
         this.window = factory.createDocumentWindow(this);
         window.setDocumentBinding(document.getBinding());
+        document.addListener(this);
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
+        new DocumentSavingAgent(document);
     }
 
     public void startSynchronization() {
     }
-
-    static class OutlineViewController implements OutlineViewCallback {
-        
-        private final OutlineView outlineView;
-
-        public OutlineViewController(Document document, OutlineViewFactory factory) {
-            outlineView = factory.bindOutlineView(this);
-        }
-        
-    }
     
-    static class SourceViewController implements SourceViewCallback {
+    static class DocumentSavingAgent implements DocumentListener {
         
-        private SourceView sourceView;
-
-        public SourceViewController(Document document, SourceViewFactory factory) {
-            sourceView = factory.bindSourceView(this);
+        private final Document document;
+        
+        public DocumentSavingAgent(Document document) {
+            this.document = document;
+            document.addListener(this);
         }
 
-        public void setText(String text) {
-            
+        public void bindingChanged() {
+        }
+
+        public void contentChanged(Object sender) {
+            try {
+                document.save();
+            } catch (IOException e) {
+                // FIXME handle saving errors more gracefully
+                e.printStackTrace(System.err);
+            }
         }
         
     }
@@ -78,6 +77,23 @@ public class DocumentWindowController implements DocumentWindowCallback {
             return false;
         }
         return true;
+    }
+
+    public void saveFileAs() {
+        File file = window.chooseFileNameToSaveInto(document.getBinding(), document.documentTypeDefinition());
+        if (file != null)
+            try {
+                document.saveAs(file);
+            } catch (IOException e) {
+                window.reportSavingFailed(file);
+            }
+    }
+
+    public void bindingChanged() {
+        window.setDocumentBinding(document.getBinding());
+    }
+
+    public void contentChanged(Object sender) {
     }
     
 }

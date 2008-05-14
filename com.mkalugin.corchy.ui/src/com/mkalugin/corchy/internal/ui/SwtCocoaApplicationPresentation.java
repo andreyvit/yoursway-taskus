@@ -13,7 +13,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.internal.cocoa.NSAlert;
 import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.widgets.Control;
@@ -28,9 +27,9 @@ import com.mkalugin.corchy.internal.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
-import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
+import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
 public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
@@ -153,6 +152,8 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         });
         builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
             public void run() {
+                if (activeWindow != null)
+                    activeWindow.fileSaveAs();
                 //                FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
                 //                fileDialog.setFilterExtensions(new String[] { EXT });
                 //                fileDialog.setFileName("Unnamed." + EXT);
@@ -182,9 +183,8 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         });
         fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
             public void run() {
-                if (activeWindow == null)
-                    return;
-                activeWindow.fileClose();
+                if (activeWindow != null)
+                    activeWindow.fileClose();
             }
         });
         
@@ -249,11 +249,12 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         return window;
     }
     
-    public File chooseDocumentToOpen(String defaultExtention) {
+    public File chooseDocumentToOpen(DocumentTypeDefinition documentTypeDefinition) {
         Shell fakeShell = new Shell();
         try {
             FileDialog dialog = new FileDialog(fakeShell, SWT.OPEN);
-            dialog.setFilterExtensions(new String[] { "*." + defaultExtention, "*.txt" });
+            dialog.setFilterExtensions(new String[] { "*." + documentTypeDefinition.defaultExtension(),
+                    "*.txt" });
             dialog.setFilterNames(new String[] { "Corchy documents", "Text files" });
             dialog.setText("Open TODO list");
             String choice = dialog.open();
@@ -266,10 +267,18 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         }
     }
     
-    public void displayError(String title, String message) {
-        NSAlert alert = NSAlert.alertWithMessageText(NSString.stringWith(title), NSString
-                .stringWith("Got it"), null, null, NSString.stringWith(message));
-        alert.runModal();
+    public void displayFailedToOpenError(File file) {
+        CocoaAlert alert = new SimpleCocoaAlert(null);
+        alert.setMessageText("Opening failed");
+        alert.setInformativeText(String.format("Could not read from file “%s”.", file.getPath()));
+        alert.openModal();
+    }
+
+    public void displayFailedToCreateEmptyDocumentError() {
+        CocoaAlert alert = new SimpleCocoaAlert(null);
+        alert.setMessageText("Failed to create a document");
+        alert.setInformativeText("You've just triggered a disk I/O error #-4982063, you bastard!");
+        alert.openModal();
     }
     
 }

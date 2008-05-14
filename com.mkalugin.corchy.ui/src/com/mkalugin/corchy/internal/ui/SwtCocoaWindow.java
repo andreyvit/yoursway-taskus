@@ -2,6 +2,8 @@ package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
 
+import java.io.File;
+
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
@@ -24,6 +26,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
@@ -42,6 +45,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
+import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
 public class SwtCocoaWindow implements DocumentWindow {
 
@@ -265,20 +269,35 @@ public class SwtCocoaWindow implements DocumentWindow {
     public void close() {
         shell.dispose();
     }
-    
-    //	public void consume(WorkspaceSnapshot snapshot) {
-    //		title = APP_TITLE + " - " + CorchyApplication.workspace().storage().getDescription();
-    //		Display display = Display.getDefault();
-    //		if (display == null)
-    //			return;
-    //		display.asyncExec(new Runnable() {
-    //			public void run() {
-    //				Shell shell = getShell();
-    //				if (shell != null)
-    //					shell.setText(title);
-    //			}
-    //		});
-    //
-    //	}
+
+    public void fileSaveAs() {
+        callback.saveFileAs();
+    }
+
+    public File chooseFileNameToSaveInto(DocumentBinding binding,
+            DocumentTypeDefinition documentTypeDefinition) {
+        Shell fakeShell = new Shell();
+        try {
+            FileDialog dialog = new FileDialog(fakeShell, SWT.SAVE);
+            dialog.setFilterExtensions(new String[] { "*." + documentTypeDefinition.defaultExtension(),
+                    "*.txt" });
+            dialog.setFilterNames(new String[] { "Corchy documents", "Text files" });
+            dialog.setText("Save TODO list as");
+            String choice = dialog.open();
+            if (choice == null)
+                return null;
+            else
+                return new File(choice);
+        } finally {
+            fakeShell.dispose();
+        }
+    }
+
+    public void reportSavingFailed(File file) {
+        CocoaAlert alert = new SimpleCocoaAlert(null);
+        alert.setMessageText("Saving failed");
+        alert.setInformativeText(String.format("Could not write into file “%s”.", file.getPath()));
+        alert.openModal();
+    }
     
 }
