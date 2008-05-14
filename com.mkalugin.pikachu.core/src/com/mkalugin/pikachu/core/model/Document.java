@@ -92,4 +92,9 @@ public class Document {
         saveContent(file);
     }
     
+    public void discard() {
+        if (isUntitled)
+            file.delete();
+    }
+
 }

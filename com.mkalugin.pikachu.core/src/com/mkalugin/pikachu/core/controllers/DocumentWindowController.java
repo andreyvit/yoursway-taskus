@@ -15,6 +15,8 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     private final DocumentWindow window;
     
     private final Document document;
+
+    private DocumentSavingAgent savingAgent;
     
     public DocumentWindowController(Document document, DocumentWindowFactory factory) {
         if (document == null)
@@ -25,52 +27,32 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
         document.addListener(this);
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
-        new DocumentSavingAgent(document);
+        savingAgent = new DocumentSavingAgent(document);
     }
-
+    
     public void startSynchronization() {
     }
     
-    static class DocumentSavingAgent implements DocumentListener {
-        
-        private final Document document;
-        
-        public DocumentSavingAgent(Document document) {
-            this.document = document;
-            document.addListener(this);
-        }
-
-        public void bindingChanged() {
-        }
-
-        public void contentChanged(Object sender) {
-            try {
-                document.save();
-            } catch (IOException e) {
-                // FIXME handle saving errors more gracefully
-                e.printStackTrace(System.err);
-            }
-        }
-        
-    }
-
     public void openDocumentWindow() {
         window.setText(document.getContent());
         window.openWindow();
     }
-
+    
     public boolean closeFile() {
         if (document.isUntitled()) {
             window.askSaveDiscardCancel(new SaveDiscardCancel() {
-
+                
                 public void cancel() {
                 }
-
+                
                 public void discard() {
-                    window.close();
+                    document.discard();
+                    closeDocument();
                 }
-
+                
                 public void save() {
+                    if (saveFileAs())
+                        closeDocument();
                 }
                 
             });
@@ -79,21 +61,32 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
         return true;
     }
 
-    public void saveFileAs() {
+    public boolean saveFileAs() {
         File file = window.chooseFileNameToSaveInto(document.getBinding(), document.documentTypeDefinition());
         if (file != null)
             try {
                 document.saveAs(file);
+                return true;
             } catch (IOException e) {
                 window.reportSavingFailed(file);
             }
+        return false;
     }
-
+    
     public void bindingChanged() {
         window.setDocumentBinding(document.getBinding());
     }
-
+    
     public void contentChanged(Object sender) {
+    }
+    
+    public void discarded() {
+        closeDocument();
+    }
+    
+    protected void closeDocument() {
+        savingAgent.dispose();
+        window.close();
     }
     
 }
