@@ -50,6 +50,7 @@ public class SwtCocoaSourceView implements SourceView {
     private void createControls(Composite parent) {
         stylesheet = new DefaultDocumentStylesheet();
         sourceViewer = new CorchyViewer(parent);
+        sourceViewer.getControl().setFocus(); 
         document = createDocument();
         sourceViewer.setDocument(document);
         document.addDocumentListener(new IDocumentListener() {
