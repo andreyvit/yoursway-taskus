@@ -127,12 +127,13 @@ public class SwtCocoaSourceView implements SourceView {
         TextPresentation presentation = new TextPresentation();
         for (ADocumentLevelNode p : document.getChildren())
             highlight(presentation, p);
-        final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation.getAllStyleRangeIterator());
+        final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation
+                .getAllStyleRangeIterator());
         Runnable runnable = new Runnable() {
-
+            
             public void run() {
-                sourceViewer.getTextWidget().setStyleRanges((StyleRange[])
-                       ranges.toArray(new StyleRange[ranges.size()]));
+                sourceViewer.getTextWidget().setStyleRanges(
+                        (StyleRange[]) ranges.toArray(new StyleRange[ranges.size()]));
             }
             
         };
@@ -141,24 +142,24 @@ public class SwtCocoaSourceView implements SourceView {
             settingPresentationFirstTime = false;
         } else
             runnable.run();
-//        sourceViewer.changeTextPresentation(presentation, true);
+        //        sourceViewer.changeTextPresentation(presentation, true);
     }
     
     private void highlight(final TextPresentation presentation, ADocumentLevelNode node) {
         node.accept(new ADocumentLevelVisitor() {
-
+            
             public void visitEmptyLine(AEmptyLine line) {
                 highlightText(presentation, line);
             }
-
+            
             public void visitProjectLine(AProjectLine line) {
                 highlightProject(presentation, line);
             }
-
+            
             public void visitTaskLine(ATaskLine line) {
                 highlightTask(presentation, line);
             }
-
+            
             public void visitTextLine(ATextLine line) {
                 highlightText(presentation, line);
             }
@@ -175,13 +176,13 @@ public class SwtCocoaSourceView implements SourceView {
         stylesheet.styleProject(style);
         presentation.addStyleRange(style);
         
-//        try {
-//            int line = document.getLineOfOffset(range.start());
-//            sourceViewer.getTextWidget().setLineBackground(line, 1, 
-//                    sourceViewer.getTextWidget().getDisplay().getSystemColor(SWT.COLOR_BLUE));
-//        } catch (BadLocationException e) {
-//            e.printStackTrace();
-//        }
+        //        try {
+        //            int line = document.getLineOfOffset(range.start());
+        //            sourceViewer.getTextWidget().setLineBackground(line, 1, 
+        //                    sourceViewer.getTextWidget().getDisplay().getSystemColor(SWT.COLOR_BLUE));
+        //        } catch (BadLocationException e) {
+        //            e.printStackTrace();
+        //        }
     }
     
     protected void highlightText(TextPresentation presentation, ANode node) {
@@ -194,25 +195,26 @@ public class SwtCocoaSourceView implements SourceView {
     }
     
     protected void highlightTask(TextPresentation presentation, ATaskLine task) {
+        boolean isDone = task.isDone();
         for (ATaskLevelNode node : task.getChildren())
-            highlight(presentation, node);
+            highlight(presentation, node, isDone);
     }
     
-    private void highlight(final TextPresentation presentation, ATaskLevelNode node) {
+    private void highlight(final TextPresentation presentation, ATaskLevelNode node, final boolean isDone) {
         node.accept(new ATaskLevelVisitor() {
-
+            
             public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
-                highlightTaskText(presentation, fragment);
+                highlightTaskText(presentation, fragment, false);
             }
-
+            
             public void visitLeader(ATaskLeader leader) {
-                highlightTaskText(presentation, leader);
+                highlightTaskText(presentation, leader, false);
             }
-
+            
             public void visitName(ATaskName name) {
-                highlightTaskText(presentation, name);
+                highlightTaskText(presentation, name, isDone);
             }
-
+            
             public void visitTag(ATag tag) {
                 highlightTaskTag(presentation, tag);
             }
@@ -220,15 +222,18 @@ public class SwtCocoaSourceView implements SourceView {
         });
     }
     
-    protected void highlightTaskText(TextPresentation presentation, ATaskLevelNode tag) {
+    protected void highlightTaskText(TextPresentation presentation, ATaskLevelNode tag, boolean isDone) {
         StyleRange style = new StyleRange();
         ARange range = tag.range();
         style.start = range.start();
         style.length = range.length();
-        stylesheet.styleTask(style);
+        if (isDone)
+            stylesheet.styleDoneTask(style);
+        else
+            stylesheet.styleTask(style);
         presentation.addStyleRange(style);
     }
-
+    
     protected void highlightTaskTag(TextPresentation presentation, ATag tag) {
         StyleRange style = new StyleRange();
         ARange range = tag.range();

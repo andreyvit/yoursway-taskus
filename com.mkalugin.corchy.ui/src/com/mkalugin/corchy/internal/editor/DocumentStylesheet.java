@@ -7,8 +7,12 @@ public interface DocumentStylesheet {
 	void styleProject(TextStyle style);
 	
 	void styleText(TextStyle style);
+	
+	void styleTaskLeader(TextStyle style);
 
 	void styleTask(TextStyle style);
+	
+	void styleDoneTask(TextStyle style);
 
 	void styleTag(TextStyle style);
 	

@@ -35,8 +35,17 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 //		style.foreground = projectForegroundColor;
 	}
 
-	public void styleTask(TextStyle style) {
+	public void styleTaskLeader(TextStyle style) {
 		style.font = taskFont;
+	}
+	
+	public void styleTask(TextStyle style) {
+	    style.font = taskFont;
+	}
+	
+	public void styleDoneTask(TextStyle style) {
+	    style.font = taskFont;
+	    style.strikeout = true;
 	}
 
 	public void styleTag(TextStyle style) {
