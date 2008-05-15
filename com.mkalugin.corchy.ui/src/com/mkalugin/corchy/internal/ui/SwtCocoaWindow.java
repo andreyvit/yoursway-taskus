@@ -255,8 +255,10 @@ public class SwtCocoaWindow implements DocumentWindow {
                     dismiss();
                     handler.save();
                     break;
-                case 1:
-                    handler.cancel();
+                case 1:   
+                	dismiss();
+                    handler.cancel();   
+                    shell.setActive();
                     break;
                 case 2:
                     handler.discard();

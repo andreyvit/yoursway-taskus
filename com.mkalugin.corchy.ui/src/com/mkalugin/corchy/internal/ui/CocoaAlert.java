@@ -89,7 +89,7 @@ public abstract class CocoaAlert {
     protected abstract void finished(int button);
 
     public void dismiss() {
-        new NSWindow(alert.window().id).orderOut(null);
+    	new NSWindow(alert.window().id).close();
     }
     
 }
