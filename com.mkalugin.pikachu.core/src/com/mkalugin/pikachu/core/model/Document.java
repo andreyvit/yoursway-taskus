@@ -8,13 +8,16 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mkalugin.pikachu.core.DocumentListener;
+import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
+import com.mkalugin.pikachu.core.workspace.DocumentParser;
 import com.yoursway.utils.Listeners;
 
 public class Document {
     
-    private String content = "\n\nTyagayte hloptsi, I'll be back.\n";
+    private String content;
     private File file;
+    private boolean isEmpty;
     private boolean isUntitled;
     private final DocumentOwner owner;
 
@@ -30,6 +33,7 @@ public class Document {
     }
     
     private transient Listeners<DocumentListener> listeners = newListenersByIdentity();
+    private ADocument ast;
     
     public synchronized void addListener(DocumentListener listener) {
         listeners.add(listener);
@@ -43,14 +47,29 @@ public class Document {
         return content;
     }
     
+    public synchronized ADocument getDocumentNode() {
+        return ast;
+    }
+    
     public synchronized void setContent(String content, Object sender) {
         if (content == null)
             throw new NullPointerException("content is null");
-        if (this.content.equals(content))
+        if (content.equals(this.content))
             return;
         this.content = content;
+        this.ast = new DocumentParser().parse(content);
         for(DocumentListener listener : listeners)
             listener.contentChanged(sender);
+        boolean isEmpty = calculateIsEmpty();
+        if (this.isEmpty != isEmpty) {
+            this.isEmpty = isEmpty;
+            for(DocumentListener listener : listeners)
+                listener.emptinessChanged();
+        }
+    }
+
+    private boolean calculateIsEmpty() {
+        return content.trim().length() == 0;
     }
     
     public synchronized DocumentBinding getBinding() {
@@ -66,7 +85,7 @@ public class Document {
     }
     
     private synchronized void loadContent() throws IOException {
-        content = readAsString(file);
+        setContent(readAsString(file), this);
     }
     
     private synchronized void saveContent(File file) throws IOException {
@@ -76,6 +95,8 @@ public class Document {
     public synchronized void saveAs(File file) throws IOException {
         try {
             saveContent(file);
+            if (isUntitled)
+                this.file.delete();
             this.file = file;
             isUntitled = false;
         } catch (IOException e) {
@@ -84,12 +105,37 @@ public class Document {
                 file.delete();
             throw e;
         }
+        owner.documentFileChanged(this);
         for(DocumentListener listener : listeners)
             listener.bindingChanged();
     }
 
     public synchronized void save() throws IOException {
         saveContent(file);
+    }
+    
+    public void discard() {
+        if (isUntitled)
+            file.delete();
+        fireClosed(true);
+    }
+    
+    public void close() {
+        fireClosed(false);
+    }
+
+    private void fireClosed(boolean discarded) {
+        owner.documentClosed(this);
+        for(DocumentListener listener : listeners)
+            listener.closed(discarded);
+    }
+
+    public File getFile() {
+        return file;
+    }
+    
+    public boolean isEmpty() {
+        return isEmpty;
     }
     
 }

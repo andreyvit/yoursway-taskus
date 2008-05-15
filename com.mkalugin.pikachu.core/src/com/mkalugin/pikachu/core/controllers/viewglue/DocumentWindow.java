@@ -13,13 +13,13 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory {
 
     void openWindow();
 
-    void setDocumentBinding(DocumentBinding documentBinding);
+    void setDocumentBinding(DocumentBinding documentBinding, boolean isDocumentEmpty);
 
     void askSaveDiscardCancel(SaveDiscardCancel handler);
 
     void close();
 
-    File chooseFileNameToSaveInto(DocumentBinding binding, DocumentTypeDefinition documentTypeDefinition);
+    void chooseFileNameToSaveInto(DocumentBinding binding, DocumentTypeDefinition documentTypeDefinition, FileNameRequestor requestor);
 
     void reportSavingFailed(File file);
     

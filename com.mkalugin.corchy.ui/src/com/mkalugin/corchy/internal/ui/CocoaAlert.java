@@ -7,6 +7,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.internal.cocoa.NSAlert;
 import org.eclipse.swt.internal.cocoa.NSString;
+import org.eclipse.swt.internal.cocoa.NSWindow;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -26,21 +27,9 @@ public abstract class CocoaAlert {
         if (proc == 0)
             SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
         
-        Display display = Display.getDefault();
-        Callback windowDelegateCallback3 = new Callback(display, "windowDelegateProc", 3);
-        int proc3 = windowDelegateCallback3.getAddress();
-        if (proc3 == 0)
-            SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
-        Callback windowDelegateCallback2 = new Callback(display, "windowDelegateProc", 2);
-        int proc2 = windowDelegateCallback2.getAddress();
-        if (proc2 == 0)
-            SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
-        
         String className = "SWTAlertDelegate";
         int cls = OS.objc_allocateClassPair(OS.class_NSObject, className, 0);
         OS.class_addIvar(cls, "tag", OS.PTR_SIZEOF, (byte) (Math.log(OS.PTR_SIZEOF) / Math.log(2)), "i");
-        OS.class_addMethod(cls, OS.sel_tag, proc2, "@:");
-        OS.class_addMethod(cls, OS.sel_setTag_1, proc3, "@:i");
         OS.class_addMethod(cls, sel_alertDidEnd_returnCode_contextInfo_, proc, "@:@ii");
         OS.objc_registerClassPair(cls);
     }
@@ -91,13 +80,16 @@ public abstract class CocoaAlert {
     static int delegateProc(int id, int sel, int arg0, int arg1, int arg2) {
         SWTAlertDelegate delegate = new SWTAlertDelegate(id);
         int ref = delegate.tag();
-        System.out.println("Ref = " + ref);
         CocoaAlert cocoaAlert = (CocoaAlert) OS.JNIGetObject(ref);
-        //            OS.DeleteGlobalRef(ref);
+        OS.DeleteGlobalRef(ref);
         cocoaAlert.finished(arg1 - OS.NSAlertFirstButtonReturn);
         return 0;
     }
     
     protected abstract void finished(int button);
+
+    public void dismiss() {
+        new NSWindow(alert.window().id).orderOut(null);
+    }
     
 }

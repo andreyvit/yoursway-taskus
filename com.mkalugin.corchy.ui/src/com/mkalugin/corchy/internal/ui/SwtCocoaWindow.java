@@ -40,6 +40,7 @@ import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.FileNameRequestor;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
@@ -48,7 +49,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
 public class SwtCocoaWindow implements DocumentWindow {
-
+    
     private static final String DIALOG_ID = "mainWindow";
     
     private static final String APP_TITLE = "Corchy";
@@ -99,11 +100,11 @@ public class SwtCocoaWindow implements DocumentWindow {
                 initialPosition).size(500, 600));
     }
     
-    public void setDocumentBinding(DocumentBinding documentBinding) {
+    public void setDocumentBinding(DocumentBinding documentBinding, boolean isDocumentEmpty) {
         locationManager.setDialogSettings(preferenceStorageProvider.forKey(documentBinding.getUniqueKey()));
         shell.setText(documentBinding.getFile().getName());
         shell.view.window().setRepresentedFilename(NSString.stringWith(documentBinding.getFile().getPath()));
-        shell.view.window().setDocumentEdited(documentBinding.isUntitled());
+        shell.view.window().setDocumentEdited(documentBinding.isUntitled() && !isDocumentEmpty);
     }
     
     public Shell getShell() {
@@ -177,7 +178,7 @@ public class SwtCocoaWindow implements DocumentWindow {
         editorBlock.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true)
                 .create());
         GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 0).spacing(0, 0).numColumns(1)
-				.generateLayout(parent);
+                .generateLayout(parent);
     }
     
     private void fillBottomBar(Composite bottomBar) {
@@ -197,15 +198,15 @@ public class SwtCocoaWindow implements DocumentWindow {
         
         // Search field
         Text searchField = new Text(bottomBar, SWT.SINGLE | SWT.SEARCH);
-        NSSearchField nsSearchField = (NSSearchField)searchField.view;
+        NSSearchField nsSearchField = (NSSearchField) searchField.view;
         NSSearchFieldCell theCell = new NSSearchFieldCell(nsSearchField.cell());
         theCell.setPlaceholderString(NSString.stringWith("Search"));
         searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING)
                 .indent(0, 0).create());
         
         Composite endSpace = new Composite(bottomBar, SWT.NONE);
-        endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).hint(15, SWT.DEFAULT).create());
+        endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
+                15, SWT.DEFAULT).create());
         
         GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
@@ -235,7 +236,7 @@ public class SwtCocoaWindow implements DocumentWindow {
         if (callback.closeFile())
             shell.dispose();
     }
-
+    
     public void askSaveDiscardCancel(final SaveDiscardCancel handler) {
         CocoaAlert alert = new CocoaAlert(shell) {
             
@@ -249,8 +250,9 @@ public class SwtCocoaWindow implements DocumentWindow {
             
             @Override
             protected void finished(int button) {
-                switch(button) {
+                switch (button) {
                 case 0:
+                    dismiss();
                     handler.save();
                     break;
                 case 1:
@@ -269,30 +271,31 @@ public class SwtCocoaWindow implements DocumentWindow {
     public void close() {
         shell.dispose();
     }
-
+    
     public void fileSaveAs() {
         callback.saveFileAs();
     }
-
-    public File chooseFileNameToSaveInto(DocumentBinding binding,
-            DocumentTypeDefinition documentTypeDefinition) {
-        Shell fakeShell = new Shell();
-        try {
-            FileDialog dialog = new FileDialog(fakeShell, SWT.SAVE);
-            dialog.setFilterExtensions(new String[] { "*." + documentTypeDefinition.defaultExtension(),
-                    "*.txt" });
-            dialog.setFilterNames(new String[] { "Corchy documents", "Text files" });
-            dialog.setText("Save TODO list as");
-            String choice = dialog.open();
-            if (choice == null)
-                return null;
-            else
-                return new File(choice);
-        } finally {
-            fakeShell.dispose();
-        }
+    
+    public void chooseFileNameToSaveInto(DocumentBinding binding,
+            DocumentTypeDefinition documentTypeDefinition, final FileNameRequestor requestor) {
+        FileSheet dialog = new FileSheet(shell, SWT.SAVE) {
+            
+            @Override
+            protected void finished(String result) {
+                if (result == null)
+                    requestor.cancelled();
+                else
+                    requestor.fileSelected(new File(result));
+            }
+            
+        };
+        dialog
+                .setFilterExtensions(new String[] { "*." + documentTypeDefinition.defaultExtension(), "*.txt" });
+        dialog.setFilterNames(new String[] { "Corchy documents", "Text files" });
+        dialog.setText("Save TODO list as");
+        dialog.open();
     }
-
+    
     public void reportSavingFailed(File file) {
         CocoaAlert alert = new SimpleCocoaAlert(null);
         alert.setMessageText("Saving failed");

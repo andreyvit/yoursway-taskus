@@ -6,4 +6,8 @@ public interface DocumentListener {
     
     void bindingChanged();
     
+    void emptinessChanged();
+
+    void closed(boolean discarded);
+    
 }

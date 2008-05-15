@@ -21,4 +21,8 @@ public abstract class ANodeImpl implements ANode {
         return TestingUtils.containerToString(getClass().getSimpleName(), children);
     }
     
+    public ARange range() {
+        return new ARange(start, end);
+    }
+    
 }

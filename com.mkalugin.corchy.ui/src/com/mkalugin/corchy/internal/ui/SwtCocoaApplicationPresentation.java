@@ -1,20 +1,16 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.mkalugin.corchy.internal.ui.Utils.lookup;
 
 import java.io.File;
 import java.util.List;
 
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.internal.cocoa.NSAlert;
-import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -25,6 +21,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
+import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
+import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
@@ -36,14 +34,14 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     private Display display;
     private Shell hiddenShell;
     private final ApplicationPresentationCallback callback;
-    private final IDialogSettings preferenceStore;
+    private final IPreferenceStore preferenceStore;
     
     private final List<SwtCocoaWindow> documentWindows = newArrayList();
     private MenuItem fileClose;
     SwtCocoaWindow activeWindow;
     
     public SwtCocoaApplicationPresentation(ApplicationPresentationCallback callback,
-            IDialogSettings preferenceStore) {
+            IPreferenceStore preferenceStore) {
         if (callback == null)
             throw new NullPointerException("callback is null");
         if (preferenceStore == null)
@@ -150,47 +148,23 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 callback.openDocument();
             }
         });
-        builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
-            public void run() {
-                if (activeWindow != null)
-                    activeWindow.fileSaveAs();
-                //                FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
-                //                fileDialog.setFilterExtensions(new String[] { EXT });
-                //                fileDialog.setFileName("Unnamed." + EXT);
-                //                while (true) {
-                //                    String result = fileDialog.open();
-                //                    if (result == null)
-                //                        break;
-                //                    if (!result.endsWith(EXT))
-                //                        result += EXT;
-                //                  try {
-                //                      FSDataStorage dataStorage = new FSDataStorage(new File(result), true);
-                //                      CorchyApplication.workspace().saveToStorage(dataStorage);
-                //                      CorchyApplication.openWorkspaceWithStorage(dataStorage);
-                //                      break;
-                //                  } catch (Exception e) {
-                //                      MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.CANCEL);
-                //                      messageBox.setMessage("Impossible to save");
-                //                      messageBox.setText("Failed to save to file " + result + " due to:\n"
-                //                              + e.getLocalizedMessage()
-                //                              + "\nPlease select other file or click 'cancel'.");
-                //                      int open = messageBox.open();
-                //                      if (open == SWT.CANCEL)
-                //                          break;
-                //                  }
-                //                }
-            }
-        });
+        builder.separator();
         fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
             public void run() {
                 if (activeWindow != null)
                     activeWindow.fileClose();
             }
         });
+        builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
+            public void run() {
+                if (activeWindow != null)
+                    activeWindow.fileSaveAs();
+            }
+        });
         
         builder.separator();
         
-        builder.item("Synchronize with remotes", new Runnable() {
+        builder.item("Synchronize Now", new Runnable() {
             public void run() {
                 //                performSync();
             }
@@ -218,7 +192,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
-        DialogSettingsProvider dsp = new DialogSettingsProvider(lookup(preferenceStore, "documentWindows"));
+        DialogSettingsProvider dsp = new DialogSettingsProvider(new SubPreferenceStore(preferenceStore, "documentWindows"));
         InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
                 : InitialShellPosition.SYSTEM_DEFAULT);
         final SwtCocoaWindow window = new SwtCocoaWindow(display, dsp, callback, pos);
