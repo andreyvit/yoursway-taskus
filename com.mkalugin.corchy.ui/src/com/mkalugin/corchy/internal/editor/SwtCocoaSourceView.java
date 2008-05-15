@@ -5,10 +5,12 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Composite;
 
@@ -49,7 +51,7 @@ public class SwtCocoaSourceView implements SourceView {
     }
     
     private void createControls(Composite parent) {
-        stylesheet = new DefaultDocumentStylesheet();
+        stylesheet = new DefaultDocumentStylesheet(parent.getDisplay());
         sourceViewer = new CorchyViewer(parent);
         sourceViewer.getControl().setFocus(); 
         document = createDocument();
@@ -172,6 +174,14 @@ public class SwtCocoaSourceView implements SourceView {
         style.rise = 5;
         stylesheet.styleProject(style);
         presentation.addStyleRange(style);
+        
+//        try {
+//            int line = document.getLineOfOffset(range.start());
+//            sourceViewer.getTextWidget().setLineBackground(line, 1, 
+//                    sourceViewer.getTextWidget().getDisplay().getSystemColor(SWT.COLOR_BLUE));
+//        } catch (BadLocationException e) {
+//            e.printStackTrace();
+//        }
     }
     
     protected void highlightText(TextPresentation presentation, ANode node) {
@@ -179,7 +189,7 @@ public class SwtCocoaSourceView implements SourceView {
         ARange range = node.range();
         style.start = range.start();
         style.length = range.length();
-        stylesheet.styleTask(style);
+        stylesheet.styleText(style);
         presentation.addStyleRange(style);
     }
     

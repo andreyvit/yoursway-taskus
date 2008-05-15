@@ -5,6 +5,8 @@ import org.eclipse.swt.graphics.TextStyle;
 public interface DocumentStylesheet {
 
 	void styleProject(TextStyle style);
+	
+	void styleText(TextStyle style);
 
 	void styleTask(TextStyle style);
 

@@ -21,7 +21,7 @@ import com.mkalugin.pikachu.core.ast.ATextLine;
 
 public class DocumentParser {
     
-    private static final Pattern TAG = compile("\\s@(\\w+)(?::([^\\s]+)|\\(([^)]*)\\))?");
+    private static final Pattern TAG = compile("\\s@(\\w*)(?::([^\\s]+)|\\(([^)]*)\\))?");
     
     public ADocument parse(String source) {
         int documentEnd = source.length();
