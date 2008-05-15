@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mkalugin.pikachu.core.DocumentListener;
+import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
+import com.mkalugin.pikachu.core.workspace.DocumentParser;
 import com.yoursway.utils.Listeners;
 
 public class Document {
@@ -31,6 +33,7 @@ public class Document {
     }
     
     private transient Listeners<DocumentListener> listeners = newListenersByIdentity();
+    private ADocument ast;
     
     public synchronized void addListener(DocumentListener listener) {
         listeners.add(listener);
@@ -44,12 +47,17 @@ public class Document {
         return content;
     }
     
+    public synchronized ADocument getDocumentNode() {
+        return ast;
+    }
+    
     public synchronized void setContent(String content, Object sender) {
         if (content == null)
             throw new NullPointerException("content is null");
-        if (this.content.equals(content))
+        if (content.equals(this.content))
             return;
         this.content = content;
+        this.ast = new DocumentParser().parse(content);
         for(DocumentListener listener : listeners)
             listener.contentChanged(sender);
         boolean isEmpty = calculateIsEmpty();
@@ -77,8 +85,7 @@ public class Document {
     }
     
     private synchronized void loadContent() throws IOException {
-        content = readAsString(file);
-        isEmpty = calculateIsEmpty();
+        setContent(readAsString(file), this);
     }
     
     private synchronized void saveContent(File file) throws IOException {

@@ -30,12 +30,18 @@ public class SourceViewController implements SourceViewCallback, DocumentListene
 
     public void contentChanged(Object sender) {
         if (sender == this)
-            return;
-        setTextToControl();
+            updateHighlighting();
+        else
+            setTextToControl();
     }
     
     private void setTextToControl() {
-        sourceView.setText(this.document.getContent());
+        sourceView.setText(document.getContent());
+        updateHighlighting();
+    }
+
+    private void updateHighlighting() {
+        sourceView.highlightAccordingTo(document.getDocumentNode());
     }
 
     public void closed(boolean discarded) {

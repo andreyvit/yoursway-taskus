@@ -1,142 +1,239 @@
 package com.mkalugin.corchy.internal.editor;
 
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
+import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Composite;
 
+import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
+import com.mkalugin.pikachu.core.ast.ADocumentLevelVisitor;
+import com.mkalugin.pikachu.core.ast.AEmptyLine;
+import com.mkalugin.pikachu.core.ast.ANode;
+import com.mkalugin.pikachu.core.ast.AProjectLine;
+import com.mkalugin.pikachu.core.ast.ARange;
+import com.mkalugin.pikachu.core.ast.ATag;
+import com.mkalugin.pikachu.core.ast.ATaskDescriptionFragment;
+import com.mkalugin.pikachu.core.ast.ATaskLeader;
+import com.mkalugin.pikachu.core.ast.ATaskLevelNode;
+import com.mkalugin.pikachu.core.ast.ATaskLevelVisitor;
+import com.mkalugin.pikachu.core.ast.ATaskLine;
+import com.mkalugin.pikachu.core.ast.ATaskName;
+import com.mkalugin.pikachu.core.ast.ATextLine;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 
 public class SwtCocoaSourceView implements SourceView {
-
-	private CorchyViewer sourceViewer;
-	private Document document;
-//	private Workspace workspace;
-	private boolean consuming;
-	private DocumentStylesheet stylesheet;
+    
+    private CorchyViewer sourceViewer;
+    private Document document;
+    //	private Workspace workspace;
+    private boolean consuming;
+    private DocumentStylesheet stylesheet;
     private SourceViewCallback callback;
-
-	public SwtCocoaSourceView(Composite parent) {
+    
+    public SwtCocoaSourceView(Composite parent) {
         createControls(parent);
-//		workspace = CorchyApplication.workspace();
-//		workspace.registerConsumer(this);
-		consuming = false;
-	}
+        //		workspace = CorchyApplication.workspace();
+        //		workspace.registerConsumer(this);
+        consuming = false;
+    }
+    
+    private void createControls(Composite parent) {
+        stylesheet = new DefaultDocumentStylesheet();
+        sourceViewer = new CorchyViewer(parent);
+        document = createDocument();
+        sourceViewer.setDocument(document);
+        document.addDocumentListener(new IDocumentListener() {
+            
+            public void documentAboutToBeChanged(DocumentEvent event) {
+            }
+            
+            public void documentChanged(DocumentEvent event) {
+                saveDocument();
+            }
+            
+        });
+    }
+    
+    protected void saveDocument() {
+        callback.setText(document.get());
+    }
+    
+    private Document createDocument() {
+        return new Document("");
+    }
+    
+    public void setLayoutData(Object editorData) {
+        sourceViewer.getControl().setLayoutData(editorData);
+    }
+    
+    public boolean isActive() {
+        return sourceViewer.getControl().isFocusControl();
+    }
+    
+    public void undo() {
+        if (sourceViewer.getUndoManager().undoable())
+            sourceViewer.getUndoManager().undo();
+    }
+    
+    public void redo() {
+        if (sourceViewer.getUndoManager().redoable())
+            sourceViewer.getUndoManager().redo();
+    }
+    
+    //	public synchronized void consume(final WorkspaceSnapshot snapshot) {
+    //		consuming = true;
+    //		String current = document.get();
+    //		final String fresh = snapshot.content();
+    //		if (!current.equals(fresh)) {
+    //			Display.getDefault().asyncExec(new Runnable() {
+    //
+    //				public void run() {
+    //				    if (isVirgin) {
+    //				        document.set(fresh);
+    //				        isVirgin = false;
+    //				    }
+    //				}
+    //
+    //			});
+    //
+    //		}
+    //		Display.getDefault().asyncExec(new Runnable() {
+    //
+    //            public void run() {
+    //                updateHighlighting(snapshot);
+    //            }
+    //		    
+    //		});
+    //		consuming = false;
+    //	}
+    
+    private boolean settingPresentationFirstTime = true;
+    
+    protected void updateHighlighting(ADocument document) {
+        TextPresentation presentation = new TextPresentation();
+        for (ADocumentLevelNode p : document.getChildren())
+            highlight(presentation, p);
+        final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation.getAllStyleRangeIterator());
+        Runnable runnable = new Runnable() {
 
-	private void createControls(Composite parent) {
-		stylesheet = new DefaultDocumentStylesheet();
-		sourceViewer = new CorchyViewer(parent);
-		document = createDocument();
-		sourceViewer.setDocument(document);
-		document.addDocumentListener(new IDocumentListener() {
+            public void run() {
+                sourceViewer.getTextWidget().setStyleRanges((StyleRange[])
+                       ranges.toArray(new StyleRange[ranges.size()]));
+            }
+            
+        };
+        if (settingPresentationFirstTime) {
+            sourceViewer.getTextWidget().getDisplay().asyncExec(runnable);
+            settingPresentationFirstTime = false;
+        } else
+            runnable.run();
+//        sourceViewer.changeTextPresentation(presentation, true);
+    }
+    
+    private void highlight(final TextPresentation presentation, ADocumentLevelNode node) {
+        node.accept(new ADocumentLevelVisitor() {
 
-			public void documentAboutToBeChanged(DocumentEvent event) {
-			}
+            public void visitEmptyLine(AEmptyLine line) {
+                highlightText(presentation, line);
+            }
 
-			public void documentChanged(DocumentEvent event) {
-				saveDocument();
-			}
+            public void visitProjectLine(AProjectLine line) {
+                highlightProject(presentation, line);
+            }
 
-		});
-	}
+            public void visitTaskLine(ATaskLine line) {
+                highlightTask(presentation, line);
+            }
 
-	protected void saveDocument() {
-	    callback.setText(document.get());
+            public void visitTextLine(ATextLine line) {
+                highlightText(presentation, line);
+            }
+            
+        });
+    }
+    
+    protected void highlightProject(TextPresentation presentation, AProjectLine project) {
+        StyleRange style = new StyleRange();
+        ARange range = project.range();
+        style.start = range.start();
+        style.length = range.length();
+        style.rise = 5;
+        stylesheet.styleProject(style);
+        presentation.addStyleRange(style);
+    }
+    
+    protected void highlightText(TextPresentation presentation, ANode node) {
+        StyleRange style = new StyleRange();
+        ARange range = node.range();
+        style.start = range.start();
+        style.length = range.length();
+        stylesheet.styleTask(style);
+        presentation.addStyleRange(style);
+    }
+    
+    protected void highlightTask(TextPresentation presentation, ATaskLine task) {
+        for (ATaskLevelNode node : task.getChildren())
+            highlight(presentation, node);
+    }
+    
+    private void highlight(final TextPresentation presentation, ATaskLevelNode node) {
+        node.accept(new ATaskLevelVisitor() {
+
+            public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
+                highlightTaskText(presentation, fragment);
+            }
+
+            public void visitLeader(ATaskLeader leader) {
+                highlightTaskText(presentation, leader);
+            }
+
+            public void visitName(ATaskName name) {
+                highlightTaskText(presentation, name);
+            }
+
+            public void visitTag(ATag tag) {
+                highlightTaskTag(presentation, tag);
+            }
+            
+        });
+    }
+    
+    protected void highlightTaskText(TextPresentation presentation, ATaskLevelNode tag) {
+        StyleRange style = new StyleRange();
+        ARange range = tag.range();
+        style.start = range.start();
+        style.length = range.length();
+        stylesheet.styleTask(style);
+        presentation.addStyleRange(style);
     }
 
-    private Document createDocument() {
-		return new Document("");
-	}
-
-	public void setLayoutData(Object editorData) {
-		sourceViewer.getControl().setLayoutData(editorData);
-	}
-
-	public boolean isActive() {
-		return sourceViewer.getControl().isFocusControl();
-	}
-
-	public void undo() {
-		if (sourceViewer.getUndoManager().undoable())
-			sourceViewer.getUndoManager().undo();
-	}
-
-	public void redo() {
-		if (sourceViewer.getUndoManager().redoable())
-			sourceViewer.getUndoManager().redo();
-	}
-	
-//	public synchronized void consume(final WorkspaceSnapshot snapshot) {
-//		consuming = true;
-//		String current = document.get();
-//		final String fresh = snapshot.content();
-//		if (!current.equals(fresh)) {
-//			Display.getDefault().asyncExec(new Runnable() {
-//
-//				public void run() {
-//				    if (isVirgin) {
-//				        document.set(fresh);
-//				        isVirgin = false;
-//				    }
-//				}
-//
-//			});
-//
-//		}
-//		Display.getDefault().asyncExec(new Runnable() {
-//
-//            public void run() {
-//                updateHighlighting(snapshot);
-//            }
-//		    
-//		});
-//		consuming = false;
-//	}
-//
-//	protected void updateHighlighting(WorkspaceSnapshot snapshot) {
-//		TextPresentation presentation = new TextPresentation();
-//		for (Project p : snapshot.projects()) {
-//			highlight(presentation, p);
-//		}
-//		sourceViewer.changeTextPresentation(presentation, true);
-//	}
-//
-//	protected void highlight(TextPresentation presentation, Project project) {
-//		StyleRange range = new StyleRange();
-//		range.start = project.titleStart();
-//		range.length = project.titleLength();
-//		range.rise = 5;		
-//		stylesheet.styleProject(range);
-//		presentation.addStyleRange(range);
-//	}
-//
-//	protected void highlight(TextPresentation presentation, TaskHeadline task) {
-//		StyleRange range = new StyleRange();
-//		range.start = task.startOffset();
-//		range.length = task.length();
-//		stylesheet.styleTask(range);
-//		presentation.addStyleRange(range);
-//
-//	}
-//
-//	protected void highlight(TextPresentation presentation, Tag tag) {
-//		StyleRange range = new StyleRange();
-//		range.start = tag.startOffset();
-//		range.length = tag.length();
-//		stylesheet.styleTag(range);
-//		presentation.addStyleRange(range);
-//	}
-
-	public void dispose() {
-		stylesheet.dispose();
-	}
-
+    protected void highlightTaskTag(TextPresentation presentation, ATag tag) {
+        StyleRange style = new StyleRange();
+        ARange range = tag.range();
+        style.start = range.start();
+        style.length = range.length();
+        stylesheet.styleTag(style);
+        presentation.addStyleRange(style);
+    }
+    
+    public void dispose() {
+        stylesheet.dispose();
+    }
+    
     public void setText(String text) {
         document.set(text);
     }
-
+    
     public SourceView bind(SourceViewCallback callback) {
         if (callback == null)
             throw new NullPointerException("callback is null");
@@ -145,5 +242,9 @@ public class SwtCocoaSourceView implements SourceView {
         this.callback = callback;
         return this;
     }
-	
+    
+    public void highlightAccordingTo(ADocument documentNode) {
+        updateHighlighting(documentNode);
+    }
+    
 }
