@@ -1,8 +1,6 @@
 package com.mkalugin.pikachu.core.controllers;
 
-import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.mkalugin.pikachu.core.controllers.sync.LocalTask.HAS_ID;
 import static com.mkalugin.pikachu.core.controllers.sync.TaskPersistance.tasksToString;
 import static com.yoursway.utils.YsDigest.sha1;
 import static com.yoursway.utils.YsFileUtils.readAsString;
@@ -10,7 +8,6 @@ import static com.yoursway.utils.YsFileUtils.writeString;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,8 +18,10 @@ import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizationResult;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
+import com.kalugin.plugins.sync.api.synchronizer.TaskId;
 import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 import com.kalugin.plugins.sync.api.synchronizer.changes.ChangeVisitor;
+import com.mkalugin.basecamp.BasecampSource;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.sync.LocalTag;
 import com.mkalugin.pikachu.core.controllers.sync.LocalTask;
@@ -36,7 +35,6 @@ import com.mkalugin.pikachu.core.model.document.structure.MTag;
 import com.mkalugin.pikachu.core.model.document.structure.MTask;
 import com.mkalugin.pikachu.core.model.document.structure.MText;
 import com.mkalugin.pikachu.core.model.document.structure.builder.StructuredModelBuilder;
-import com.yoursway.utils.YsDigest;
 
 public class SynchronizationController {
     
@@ -92,14 +90,13 @@ public class SynchronizationController {
         for (MElement element : project.getChildren())
             collectLocalTasks(element, localTasksObsessedWithRed, source);
         
-        List<LocalTask> localTasksWithIds = newArrayList(filter(localTasksObsessedWithRed, HAS_ID));
         List<SynchronizableTask> remoteTasksObsessedWithGreen = source.computeTasks();
         
         List<? extends SynchronizableTask> oldLocalTasksWantsARedTail = null;
         List<? extends SynchronizableTask> oldRemoteTasksWantsAGreenTail = null;
         boolean allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled = false; 
         
-        if (false && nafNafWithRedTail.exists() && nifNifWithGreenTail.exists())
+        if (nafNafWithRedTail.exists() && nifNifWithGreenTail.exists())
             try {
                 oldLocalTasksWantsARedTail = TaskPersistance.parseTasks(readAsString(nafNafWithRedTail), source.idTagName());
                 oldRemoteTasksWantsAGreenTail = TaskPersistance.parseTasks(readAsString(nifNifWithGreenTail), source.idTagName());
@@ -109,7 +106,7 @@ public class SynchronizationController {
             
         if (oldLocalTasksWantsARedTail == null || oldRemoteTasksWantsAGreenTail == null) {
             // no previous state, so do a best-effort initial synchronization 
-            oldRemoteTasksWantsAGreenTail = oldLocalTasksWantsARedTail = newArrayList(localTasksWithIds); 
+            oldRemoteTasksWantsAGreenTail = oldLocalTasksWantsARedTail = localTasksObsessedWithRed; 
             // OBSTAIN FROM killing (SWT bindings for INTERCAL, anyone?)
             allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled = true;
         }
@@ -118,11 +115,12 @@ public class SynchronizationController {
         synchronizer.setOldLocalTasks(oldLocalTasksWantsARedTail);
         synchronizer.setOldRemoteTasks(oldRemoteTasksWantsAGreenTail);
         synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
-        synchronizer.setNewLocalTasks(localTasksWithIds);
+        synchronizer.setNewLocalTasks(localTasksObsessedWithRed);
         
         SynchronizationResult result = synchronizer.synchronize();
         for (Change change : result.getChangesToApplyLocally())
-            change.accept(new ChangeApplicator(definition, allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled));
+            change.accept(new ChangeApplicator(definition, localTasksObsessedWithRed,
+                    allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled));
         
         try {
             pigsThreeDifferentOnes.mkdirs();
@@ -147,30 +145,33 @@ public class SynchronizationController {
         Matcher matcher = SYNC_SPEC.matcher(text);
         if (matcher.find()) {
             String pluginName = matcher.group(1);
-            if (pluginName.equals("random")) {
+            if (pluginName.equals("random"))
                 synchronizationDefinitions.add(new SynchronizationDefinition(element, new RandomSource()));
-            }
+            else if (pluginName.equals("basecamp"))
+                synchronizationDefinitions.add(new SynchronizationDefinition(element, new BasecampSource()));
         }
     }
 
     private final class ChangeApplicator implements ChangeVisitor {
         private final SynchronizationDefinition definition;
         private final boolean allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled;
+        private final List<LocalTask> localTasks;
         
-        private ChangeApplicator(SynchronizationDefinition definition, boolean allPigsGoneToHeaven) {
+        private ChangeApplicator(SynchronizationDefinition definition, List<LocalTask> localTasks, boolean allPigsGoneToHeaven) {
+            if (definition == null)
+                throw new NullPointerException("definition is null");
+            if (localTasks == null)
+                throw new NullPointerException("localTasks is null");
             this.definition = definition;
+            this.localTasks = localTasks;
             this.allPigsGoneToHeavenAsOurPersonalSaviorsSoNoOneElseWillBeKilled = allPigsGoneToHeaven;
         }
         
         public void visitAddition(SynchronizableTask task) {
             MTask newTask = new MTask();
             newTask.setName(task.getName());
-            for (SynchronizableTag tag : task.tags()) {
-                MTag newTag = new MTag();
-                newTag.setName(tag.getName());
-                newTag.setValue(tag.getValue());
-                newTask.addTag(newTag);
-            }
+            for (SynchronizableTag tag : task.tags())
+                newTask.addTag(wrap(tag));
             session.addTask(newTask, definition.instruction);
         }
         
@@ -195,11 +196,39 @@ public class SynchronizationController {
         }
         
         public void visitTagValueChange(SynchronizableTask task, SynchronizableTag olderTag, SynchronizableTag newerTag) {
-            MTag tag = new MTag();
-            tag.setName(newerTag.getName());
-            tag.setValue(newerTag.getValue());
-            session.changeTagValue(((LocalTag) olderTag).getTag(), tag);
+            session.changeTagValue(map(map(task), newerTag).getTag(), wrap(newerTag));
         }
+        
+        LocalTask map(SynchronizableTask task) {
+            TaskId id = task.getId();
+            if (id != null)
+                for (LocalTask localTask : localTasks)
+                    if (id.equals(localTask.getId()))
+                        return localTask;
+            String name = task.getName();
+            for (LocalTask localTask : localTasks)
+                if (name.equals(localTask.getName()))
+                    return localTask;
+            throw new IllegalArgumentException("No local task to change tag in");
+        }
+        
+        LocalTag map(LocalTask task, SynchronizableTag tag) {
+            String name = tag.getName();
+            for (SynchronizableTag theTag : task.tags()) {
+                LocalTag localTag = (LocalTag) theTag;
+                if (localTag.nameEquals(name))
+                    return localTag;
+            }
+            throw new IllegalArgumentException("No local tag to change");
+        }
+        
+        private MTag wrap(SynchronizableTag tag) {
+            MTag result = new MTag();
+            result.setName(tag.getName());
+            result.setValue(tag.getValue());
+            return result;
+        }
+        
     }
 
     static class SynchronizationDefinition {

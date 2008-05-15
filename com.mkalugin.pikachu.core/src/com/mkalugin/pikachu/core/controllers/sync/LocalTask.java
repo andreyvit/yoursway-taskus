@@ -15,14 +15,6 @@ import com.mkalugin.pikachu.core.model.document.structure.MTask;
 
 public class LocalTask implements SynchronizableTask {
     
-    public static final Predicate<LocalTask> HAS_ID = new Predicate<LocalTask>() {
-
-        public boolean apply(LocalTask t) {
-            return t.hasId();
-        }
-        
-    };
-    
     private final String name;
     private TaskId id;
     private final Collection<SynchronizableTag> tags = newArrayList();

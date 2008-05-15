@@ -1,5 +1,6 @@
 package com.kalugin.plugins.sync.api.synchronizer.changes;
 
+import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 import static com.google.common.collect.Sets.newHashSet;
@@ -12,9 +13,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
-import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils;
 
 public class Changes {
     
@@ -120,9 +121,17 @@ public class Changes {
         
     }
     
+    public static final Predicate<SynchronizableTask> HAS_ID = new Predicate<SynchronizableTask>() {
+
+        public boolean apply(SynchronizableTask t) {
+            return t.getId() != null;
+        }
+        
+    };
+
     public static Collection<Change> compare(List<? extends SynchronizableTask> older, List<? extends SynchronizableTask> newer) {
         TaskChangesBuilder builder = new TaskChangesBuilder();
-        compare(older, newer, TASK_TO_ID, builder);
+        compare(newArrayList(filter(older, HAS_ID)), newArrayList(filter(newer, HAS_ID)), TASK_TO_ID, builder);
         return builder.getChanges();
     }
 

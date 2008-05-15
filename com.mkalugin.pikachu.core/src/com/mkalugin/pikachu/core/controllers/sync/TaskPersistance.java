@@ -28,9 +28,9 @@ public class TaskPersistance {
 
     private static void parseTask(List<SynchronizableTask> result, String line, String idTagName) {
         StringExtractor extractor = new StringExtractor(line, WHITESPACE);
-        String caption = extractor.requireWord();
+        String caption = extractor.requireAsString(Pattern.compile("[^@]*"));
         MTask ttt = new MTask();
-        ttt.setName(caption);
+        ttt.setName(caption.trim());
         
         Matcher tagMatch;
         while ((tagMatch = extractor.extract(Pattern.compile("^@(\\w+)(?::([^\\s]+)|\\(([^)]*)\\))?"))) != null) {
@@ -66,7 +66,18 @@ public class TaskPersistance {
                 result.append(task.getName());
                 Collection<SynchronizableTag> tags = task.tags();
                 if (!tags.isEmpty())
-                    result.append(' ').append(sortedToStringUsing(tags, " "));
+                    result.append(' ').append(join(" ", sort(transform(tags, new Function<SynchronizableTag, String>() {
+
+                        public String apply(SynchronizableTag tag) {
+                            StringBuilder result = new StringBuilder();
+                            result.append('@').append(tag.getName());
+                            String value = tag.getValue();
+                            if (value != null)
+                                result.append('(').append(value).append(')');
+                            return result.toString();
+                        }
+                        
+                    }))));
                 return result.toString();
             }
             
