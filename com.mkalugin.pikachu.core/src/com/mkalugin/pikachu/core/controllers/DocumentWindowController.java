@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mkalugin.pikachu.core.DocumentListener;
+import com.mkalugin.pikachu.core.controllers.search.SearchController;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowFactory;
@@ -28,6 +29,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
         document.addListener(this);
         new OutlineViewController(document, window);
         new SourceViewController(document, window);
+        new SearchController(document, window);
         savingAgent = new DocumentSavingAgent(document);
     }
     

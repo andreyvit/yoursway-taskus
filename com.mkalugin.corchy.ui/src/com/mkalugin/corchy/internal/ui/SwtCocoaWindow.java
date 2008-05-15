@@ -7,6 +7,10 @@ import java.io.File;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -15,8 +19,10 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSButton;
+import org.eclipse.swt.internal.cocoa.NSObject;
 import org.eclipse.swt.internal.cocoa.NSSearchField;
 import org.eclipse.swt.internal.cocoa.NSSearchFieldCell;
+import org.eclipse.swt.internal.cocoa.NSSegmentedControl;
 import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.layout.FormAttachment;
@@ -27,6 +33,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
@@ -37,6 +44,9 @@ import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.controllers.search.SearchCallback;
+import com.mkalugin.pikachu.core.controllers.search.SearchControls;
+import com.mkalugin.pikachu.core.controllers.search.SearchResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
@@ -48,7 +58,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
-public class SwtCocoaWindow implements DocumentWindow {
+public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     
     private static final String DIALOG_ID = "mainWindow";
     
@@ -67,6 +77,14 @@ public class SwtCocoaWindow implements DocumentWindow {
     private final DialogSettingsProvider preferenceStorageProvider;
     
     private WindowLocationManager locationManager;
+
+	private SearchCallback searchCallback;
+
+	private Composite searchNavigationComposite;
+
+	private Label matchesCountLabel;
+
+	private Text searchField;
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -181,11 +199,16 @@ public class SwtCocoaWindow implements DocumentWindow {
                 .generateLayout(parent);
     }
     
+    private Button createBottomBarButtonForImage(Composite parent) {
+    	Button button = new Button(parent, SWT.NONE | SWT.PUSH);
+        ((NSButton) button.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
+        ((NSButton) button.view).setImagePosition(OS.NSImageOnly);
+        return button;
+    }
+    
     private void fillBottomBar(Composite bottomBar) {
         // Sync button
-        Button syncButton = new Button(bottomBar, SWT.NONE | SWT.PUSH);
-        ((NSButton) syncButton.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
-        ((NSButton) syncButton.view).setImagePosition(OS.NSImageOnly);
+        Button syncButton = createBottomBarButtonForImage(bottomBar);
         syncButton.setImage(ICN_SYNC.get());
         syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING, SWT.BEGINNING)
                 .indent(0, 0).create());
@@ -196,23 +219,69 @@ public class SwtCocoaWindow implements DocumentWindow {
             }
         });
         
-        // Search field
-        Text searchField = new Text(bottomBar, SWT.SINGLE | SWT.SEARCH);
+        searchNavigationComposite = new Composite(bottomBar, SWT.NONE);
+        searchNavigationComposite.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).create());
+        createSearchNavigationControls(searchNavigationComposite);
+        searchNavigationComposite.setVisible(false);
+        
+        searchField = new Text(bottomBar, SWT.SINGLE | SWT.SEARCH);
         NSSearchField nsSearchField = (NSSearchField) searchField.view;
         NSSearchFieldCell theCell = new NSSearchFieldCell(nsSearchField.cell());
         theCell.setPlaceholderString(NSString.stringWith("Search"));
-        searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).create());
+        searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING).grab(false, false)
+                .indent(8, 0).create());
+        searchField.addModifyListener(new ModifyListener() {
+
+			public void modifyText(ModifyEvent e) {
+				searchCallback.setSearchPattern(searchField.getText());
+			}
+        	
+        });
         
         Composite endSpace = new Composite(bottomBar, SWT.NONE);
         endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
                 15, SWT.DEFAULT).create());
         
-        GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
+        GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
     }
     
-    public void highlightUsing(ADocument document) {
+    private void createSearchNavigationControls(Composite composite) {
+    	Composite space = new Composite(composite, SWT.NONE);
+    	space.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).create());
+        
+    	matchesCountLabel = new Label(composite, SWT.RIGHT);
+    	matchesCountLabel.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
+                .indent(0, 5).grab(true, false).minSize(75, SWT.DEFAULT).create());
+    	matchesCountLabel.setText("<foo>");    	
+    	
+    	Button prevButton = createBottomBarButtonForImage(composite);    	
+    	prevButton.setImage(ICN_SYNC.get());
+    	prevButton.setLayoutData(GridDataFactory.defaultsFor(prevButton).align(SWT.END, SWT.BEGINNING)
+                .indent(0, 0).create());
+    	prevButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {            	
+                searchCallback.previousMatch();
+            }
+        });
+    	
+    	Button nextButton = createBottomBarButtonForImage(composite);    	
+    	nextButton.setImage(ICN_SYNC.get());
+    	nextButton.setLayoutData(GridDataFactory.defaultsFor(nextButton).align(SWT.END, SWT.BEGINNING)
+                .indent(0, 0).create());
+    	nextButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                searchCallback.nextMatch();
+            }
+        });
+    	
+    	GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(0, 0, 0, 0).margins(0, 0)
+        .spacing(8, 0).generateLayout(composite);
+	}
+
+	public void highlightUsing(ADocument document) {
         // TODO Auto-generated method stub
     }
     
@@ -304,5 +373,33 @@ public class SwtCocoaWindow implements DocumentWindow {
         alert.setInformativeText(String.format("Could not write into file “%s”.", file.getPath()));
         alert.openModal();
     }
+
+	public SearchControls bindSearchControls(SearchCallback callback) {
+		searchCallback = callback;		
+		return this;
+	}
+
+	public void hightlightMatch(int number) {
+		sourceView.highlightMatch(number);
+	}
+
+	public void setMatchesNavigationEnabled(boolean enabled) {
+		searchNavigationComposite.setVisible(enabled);
+	}
+
+	public void showSearchResult(final SearchResult result) {
+		Display.getCurrent().syncExec(new Runnable() {
+
+			public void run() {
+				matchesCountLabel.setText(result.matchesCount() + " matches");
+			}
+    		
+    	});
+		sourceView.highlightSearchResults(result);
+	}
+
+	public void clearSearchField() {
+		searchField.setText("");
+	}
     
 }

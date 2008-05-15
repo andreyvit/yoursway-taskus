@@ -3,9 +3,10 @@ package com.mkalugin.pikachu.core.controllers.viewglue;
 import java.io.File;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.controllers.search.SearchControlsFactory;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
-public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory {
+public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, SearchControlsFactory {
     
     void setText(String text);
     
