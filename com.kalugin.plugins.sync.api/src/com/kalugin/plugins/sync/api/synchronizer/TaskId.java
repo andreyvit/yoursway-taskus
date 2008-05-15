@@ -5,6 +5,8 @@ public class TaskId {
     private final String id;
 
     public TaskId(String id) {
+        if (id == null)
+            throw new NullPointerException("id is null");
         this.id = id;
     }
     

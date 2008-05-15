@@ -11,7 +11,7 @@ public class RandomSource implements Source {
     public List<SynchronizableTask> computeTasks() {
         List<SynchronizableTask> result = newArrayList();
         for (int i = 0; i < 10; i++)
-            result.add(new FakeTask(i));
+            result.add(new FakeTask(i, idTagName()));
         return result;
     }
     
@@ -22,6 +22,10 @@ public class RandomSource implements Source {
 
     public String idTagName() {
         return "randomid";
+    }
+
+    public String identifier() {
+        return getClass().getSimpleName();
     }
     
 }

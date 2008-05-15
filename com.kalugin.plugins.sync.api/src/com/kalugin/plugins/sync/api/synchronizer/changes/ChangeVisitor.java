@@ -9,12 +9,12 @@ public interface ChangeVisitor {
     
     void visitRemoval(SynchronizableTask task);
     
-    void visitRename(SynchronizableTask newerTask);
+    void visitRename(SynchronizableTask olderTask, SynchronizableTask newerTask);
 
     void visitTagAddition(SynchronizableTask task, SynchronizableTag tag);
     
     void visitTagRemoval(SynchronizableTask task, SynchronizableTag tag);
     
-    void visitTagValueChange(SynchronizableTask task, SynchronizableTag newerTag);
+    void visitTagValueChange(SynchronizableTask task, SynchronizableTag olderTag, SynchronizableTag newerTag);
     
 }

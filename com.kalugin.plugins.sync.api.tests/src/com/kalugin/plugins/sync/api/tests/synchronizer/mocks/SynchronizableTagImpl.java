@@ -23,10 +23,10 @@ public class SynchronizableTagImpl implements SynchronizableTag {
     }
     
     public boolean valueEquals(SynchronizableTag another) {
-        SynchronizableTagImpl peer = (SynchronizableTagImpl) another;
-        if (!peer.getName().equals(name))
+        if (!another.getName().equals(name))
             throw new IllegalArgumentException("Must be comparing with the same kind of tag");
-        return value == null && peer.value == null || value != null && value.equals(peer.value);
+        String peerValue = another.getValue();
+        return value == null && peerValue == null || value != null && value.equals(peerValue);
     }
     
     @Override
@@ -35,6 +35,10 @@ public class SynchronizableTagImpl implements SynchronizableTag {
             return "@" + name + "(" + value + ")";
         else
             return "@" + name;
+    }
+
+    public String getValue() {
+        return value;
     }
     
 }

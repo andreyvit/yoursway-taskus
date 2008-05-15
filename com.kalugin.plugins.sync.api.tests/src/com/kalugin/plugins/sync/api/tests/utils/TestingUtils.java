@@ -4,6 +4,7 @@ import static com.google.common.base.Join.join;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.yoursway.utils.YsFileUtils.readAsStringAndClose;
 import static com.yoursway.utils.YsIterables.sort;
 
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class TestingUtils {
     public static List<SynchronizableTask> readTasks(URL entry, IdAssigner<String> idAssigner) throws IOException {
         if (entry == null)
             return null;
-        String data = YsFileUtils.readAsStringAndClose(entry.openStream());
+        String data = readAsStringAndClose(entry.openStream());
         return parseTasks(data.trim().split("\n"), idAssigner);
     }
 

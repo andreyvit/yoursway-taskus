@@ -7,10 +7,12 @@ public class LocalTag implements SynchronizableTag {
     
     private final String name;
     private final String value;
+    private final MTag tag;
     
     public LocalTag(MTag tag) {
         if (tag == null)
             throw new NullPointerException("name is null");
+        this.tag = tag;
         this.name = tag.getName();
         this.value = tag.getValue();
     }
@@ -27,11 +29,15 @@ public class LocalTag implements SynchronizableTag {
         return value;
     }
     
+    public MTag getTag() {
+        return tag;
+    }
+    
     public boolean valueEquals(SynchronizableTag another) {
-        LocalTag peer = (LocalTag) another;
-        if (!peer.getName().equals(name))
+        if (!another.getName().equals(name))
             throw new IllegalArgumentException("Must be comparing with the same kind of tag");
-        return value == null && peer.value == null || value != null && value.equals(peer.value);
+        String peerValue = another.getValue();
+        return value == null && peerValue == null || value != null && value.equals(peerValue);
     }
     
     @Override

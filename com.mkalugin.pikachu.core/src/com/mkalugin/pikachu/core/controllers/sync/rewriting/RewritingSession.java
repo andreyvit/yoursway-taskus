@@ -1,5 +1,7 @@
 package com.mkalugin.pikachu.core.controllers.sync.rewriting;
 
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
+import com.mkalugin.pikachu.core.ast.ARange;
 import com.mkalugin.pikachu.core.controllers.sync.edits.CompoundEdit;
 import com.mkalugin.pikachu.core.controllers.sync.edits.ReplaceEdit;
 import com.mkalugin.pikachu.core.model.document.structure.MTag;
@@ -43,6 +45,12 @@ public class RewritingSession {
         return result.toString();
     }
     
+    private String serializeTag(MTag tag) {
+        StringBuilder result = new StringBuilder();
+        serializeTag(tag, result);
+        return result.toString();
+    }
+    
     private void serializeTag(MTag tag, StringBuilder result) {
         result.append('@').append(tag.getName());
         String value = tag.getValue();
@@ -70,6 +78,13 @@ public class RewritingSession {
     
     boolean isEndOfLine(char ch) {
         return ch == '\n' || ch == '\r';
+    }
+
+    public void changeTagValue(MTag tag, MTag newerTag) {
+        ARange range = tag.getRange();
+        compound.add(new ReplaceEdit(range.start(), range.length(), 
+                serializeTag(newerTag)));
+        
     }
     
 }

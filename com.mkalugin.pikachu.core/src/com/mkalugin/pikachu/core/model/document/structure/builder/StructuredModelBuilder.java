@@ -44,6 +44,7 @@ public class StructuredModelBuilder {
         public void visitTag(ATag tagNode) {
             MTag tag = new MTag();
             tag.setName(tagNode.nameAsString());
+            tag.setRange(tagNode.range());
             ATagValue value = tagNode.getValue();
             tag.setValue(value == null ? null : value.getText());
             task.addTag(tag);

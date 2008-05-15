@@ -9,5 +9,7 @@ public interface Source {
     List<SynchronizableTask> computeTasks();
     
     String idTagName();
+
+    String identifier();
     
 }

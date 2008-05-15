@@ -1,6 +1,8 @@
 package com.mkalugin.pikachu.core.model;
 
+import static com.mkalugin.pikachu.core.model.ApplicationFolders.synchronizationStateFolder;
 import static com.yoursway.utils.Listeners.newListenersByIdentity;
+import static com.yoursway.utils.YsDigest.sha1;
 import static com.yoursway.utils.YsFileUtils.readAsString;
 import static com.yoursway.utils.YsFileUtils.writeString;
 
@@ -12,6 +14,7 @@ import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.workspace.DocumentParser;
 import com.yoursway.utils.Listeners;
+import com.yoursway.utils.YsDigest;
 
 public class Document {
     
@@ -20,7 +23,7 @@ public class Document {
     private boolean isEmpty;
     private boolean isUntitled;
     private final DocumentOwner owner;
-
+    
     public Document(DocumentOwner owner, File file, boolean isUntitled) throws IOException {
         if (owner == null)
             throw new NullPointerException("owner is null");
@@ -58,16 +61,16 @@ public class Document {
             return;
         this.content = content;
         this.ast = new DocumentParser().parse(content);
-        for(DocumentListener listener : listeners)
+        for (DocumentListener listener : listeners)
             listener.contentChanged(sender);
         boolean isEmpty = calculateIsEmpty();
         if (this.isEmpty != isEmpty) {
             this.isEmpty = isEmpty;
-            for(DocumentListener listener : listeners)
+            for (DocumentListener listener : listeners)
                 listener.emptinessChanged();
         }
     }
-
+    
     private boolean calculateIsEmpty() {
         return content.trim().length() == 0;
     }
@@ -106,10 +109,10 @@ public class Document {
             throw e;
         }
         owner.documentFileChanged(this);
-        for(DocumentListener listener : listeners)
+        for (DocumentListener listener : listeners)
             listener.bindingChanged();
     }
-
+    
     public synchronized void save() throws IOException {
         saveContent(file);
     }
@@ -123,19 +126,27 @@ public class Document {
     public void close() {
         fireClosed(false);
     }
-
+    
     private void fireClosed(boolean discarded) {
         owner.documentClosed(this);
-        for(DocumentListener listener : listeners)
+        for (DocumentListener listener : listeners)
             listener.closed(discarded);
     }
-
+    
     public File getFile() {
         return file;
     }
     
     public boolean isEmpty() {
         return isEmpty;
+    }
+    
+    public File fuflaMufla() {
+        try {
+            return new File(synchronizationStateFolder(), sha1(file.getCanonicalPath()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
 }

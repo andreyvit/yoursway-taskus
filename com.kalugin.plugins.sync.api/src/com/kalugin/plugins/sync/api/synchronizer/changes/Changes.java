@@ -82,7 +82,7 @@ public class Changes {
             String olderName = olderTask.getName();
             String newerName = newerTask.getName();
             if (!olderName.equals(newerName))
-                changes.add(new Rename(newerTask));
+                changes.add(new Rename(olderTask, newerTask));
         }
         
         private void checkTagChanges(SynchronizableTask olderTask, SynchronizableTask newerTask) {
@@ -111,7 +111,7 @@ public class Changes {
 
         public void common(SynchronizableTag oldItem, SynchronizableTag newItem) {
             if (!newItem.valueEquals(oldItem))
-                changes.add(new TagValueChange(task, newItem));
+                changes.add(new TagValueChange(task, oldItem, newItem));
         }
 
         public void removed(SynchronizableTag item) {

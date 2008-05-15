@@ -1,10 +1,14 @@
 package com.mkalugin.pikachu.core.model.document.structure;
 
+import com.mkalugin.pikachu.core.ast.ARange;
+
 public class MTag {
     
     private String name;
     
     private String value;
+    
+    private ARange range;
     
     public String getName() {
         return name;
@@ -24,6 +28,14 @@ public class MTag {
     
     public boolean isValueSet() {
         return value != null;
+    }
+
+    public void setRange(ARange range) {
+        this.range = range;
+    }
+
+    public ARange getRange() {
+        return range;
     }
     
 }

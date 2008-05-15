@@ -18,5 +18,9 @@ public class ApplicationFolders {
     public static File untitledDocumentsFolder() {
         return new File(applicationDataFolder(), "Untitled Documents");
     }
+
+    public static File synchronizationStateFolder() {
+        return new File(applicationDataFolder(), "Synchronization");
+    }
     
 }

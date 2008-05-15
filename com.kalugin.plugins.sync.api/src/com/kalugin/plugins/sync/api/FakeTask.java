@@ -33,7 +33,10 @@ public class FakeTask implements SynchronizableTask {
         }
         
         public boolean valueEquals(SynchronizableTag another) {
-            return value.equals(((FakeSynchronizableTag) another).value);
+            if (!another.getName().equals(name))
+                throw new IllegalArgumentException("Must be comparing with the same kind of tag");
+            String peerValue = another.getValue();
+            return value == null && peerValue == null || value != null && value.equals(peerValue);
         }
 
         @Override
@@ -74,12 +77,14 @@ public class FakeTask implements SynchronizableTask {
 
     private TaskId id;
     private String name;
-    private SynchronizableTag tag;
+    private SynchronizableTag fakeTag;
+    private FakeSynchronizableTag idTag;
 
-    public FakeTask(int index) {
+    public FakeTask(int index, String idTagName) {
         this.id = new TaskId("F" + index);
         this.name = "Fake task " + index;
-        tag = new FakeSynchronizableTag("faketag", "V" + (int) (Math.random() * 100));
+        fakeTag = new FakeSynchronizableTag("faketag", "V" + (int) (Math.random() * 100));
+        idTag = new FakeSynchronizableTag(idTagName, id.stringValue());
     }
 
     public TaskId getId() {
@@ -91,7 +96,7 @@ public class FakeTask implements SynchronizableTask {
     }
     
     public Collection<SynchronizableTag> tags() {
-        return newArrayList(tag);
+        return newArrayList(fakeTag, idTag);
     }
     
     public String toStringWithoutTags() {

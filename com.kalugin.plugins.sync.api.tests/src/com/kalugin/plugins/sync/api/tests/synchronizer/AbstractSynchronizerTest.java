@@ -119,7 +119,7 @@ public class AbstractSynchronizerTest {
                         throw new IllegalArgumentException("Task " + task + " did not exist");
                 }
                 
-                public void visitRename(SynchronizableTask newerTask) {
+                public void visitRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {
                     SynchronizableTask oldTask = idsToTasks.put(newerTask.getId(), newerTask);
                     if (oldTask == null)
                         throw new IllegalArgumentException("Task " + newerTask + " did not exist");
@@ -133,7 +133,7 @@ public class AbstractSynchronizerTest {
                     getTask(task).removeTag(tag.getName());
                 }
                 
-                public void visitTagValueChange(SynchronizableTask task, SynchronizableTag newerTag) {
+                public void visitTagValueChange(SynchronizableTask task, SynchronizableTag olderTag, SynchronizableTag newerTag) {
                     getTask(task).removeTag(newerTag.getName()).addTag(newerTag);
                 }
                 

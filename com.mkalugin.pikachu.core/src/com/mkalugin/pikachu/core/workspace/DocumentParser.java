@@ -10,6 +10,7 @@ import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
 import com.mkalugin.pikachu.core.ast.AEmptyLine;
 import com.mkalugin.pikachu.core.ast.AProjectLine;
 import com.mkalugin.pikachu.core.ast.AProjectName;
+import com.mkalugin.pikachu.core.ast.ARange;
 import com.mkalugin.pikachu.core.ast.ATag;
 import com.mkalugin.pikachu.core.ast.ATagName;
 import com.mkalugin.pikachu.core.ast.ATagValue;
@@ -76,8 +77,17 @@ public class DocumentParser {
             do {
                 ATagName nameNode = ATagName.extract(matcher.start(1), matcher.end(1), source);
                 String value = matcher.group(2);
-                ATagValue valueNode = (value == null ? null : ATagValue.extract(matcher.start(2), matcher.end(2), source));
-                task.addChild(new ATag(matcher.start(), matcher.end(), nameNode, valueNode));
+                ARange valueRange = null;
+                if (value != null)
+                    valueRange = new ARange(matcher.start(2), matcher.end(2));
+                else {
+                    value = matcher.group(3);
+                    if (value != null)
+                        valueRange = new ARange(matcher.start(3), matcher.end(3));
+                }
+                ATagValue valueNode = (value == null ? null : ATagValue.extract(valueRange.start(), valueRange.end(), source));
+                int tagStart = matcher.start() + 1 /* compensate for a space */; 
+                task.addChild(new ATag(tagStart, matcher.end(), nameNode, valueNode));
             } while (matcher.find());
         return task;
     }
