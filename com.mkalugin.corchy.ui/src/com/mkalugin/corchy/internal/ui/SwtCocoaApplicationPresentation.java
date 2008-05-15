@@ -159,31 +159,6 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             public void run() {
                 if (activeWindow != null)
                     activeWindow.fileSaveAs();
-                //                FileDialog fileDialog = new FileDialog(getShell(), SWT.SAVE);
-                //                fileDialog.setFilterExtensions(new String[] { EXT });
-                //                fileDialog.setFileName("Unnamed." + EXT);
-                //                while (true) {
-                //                    String result = fileDialog.open();
-                //                    if (result == null)
-                //                        break;
-                //                    if (!result.endsWith(EXT))
-                //                        result += EXT;
-                //                  try {
-                //                      FSDataStorage dataStorage = new FSDataStorage(new File(result), true);
-                //                      CorchyApplication.workspace().saveToStorage(dataStorage);
-                //                      CorchyApplication.openWorkspaceWithStorage(dataStorage);
-                //                      break;
-                //                  } catch (Exception e) {
-                //                      MessageBox messageBox = new MessageBox(getShell(), SWT.OK | SWT.CANCEL);
-                //                      messageBox.setMessage("Impossible to save");
-                //                      messageBox.setText("Failed to save to file " + result + " due to:\n"
-                //                              + e.getLocalizedMessage()
-                //                              + "\nPlease select other file or click 'cancel'.");
-                //                      int open = messageBox.open();
-                //                      if (open == SWT.CANCEL)
-                //                          break;
-                //                  }
-                //                }
             }
         });
         
