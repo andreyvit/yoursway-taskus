@@ -151,11 +151,10 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
         outlineData.bottom = new FormAttachment(100, 0);
         outlineView.setLayoutData(outlineData);
         
-        // min 100 px. for the outline,
-        // 30% initially
-        final int limit = 150;
+        // min 100 px for the outline, 150 px initially
+        final int limit = 100, byDefault = 150;
         final FormData sashData = new FormData();
-        sashData.left = new FormAttachment(0, 150);
+        sashData.left = new FormAttachment(0, byDefault);
         sashData.top = new FormAttachment(0, 0);
         sashData.bottom = new FormAttachment(100, 0);
         sashData.width = 1;
