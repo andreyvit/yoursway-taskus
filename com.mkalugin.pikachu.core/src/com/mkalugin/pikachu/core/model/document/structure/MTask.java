@@ -29,6 +29,10 @@ public class MTask extends MElement {
             throw new NullPointerException("tag is null");
         tags.remove(tag);
     }
+    
+    public Collection<MTag> getTags() {
+        return tags;
+    }
 
     @Override
     public String toString() {

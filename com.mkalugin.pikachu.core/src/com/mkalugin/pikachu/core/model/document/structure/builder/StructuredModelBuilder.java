@@ -19,6 +19,7 @@ import com.mkalugin.pikachu.core.model.document.structure.MElement;
 import com.mkalugin.pikachu.core.model.document.structure.MProject;
 import com.mkalugin.pikachu.core.model.document.structure.MTag;
 import com.mkalugin.pikachu.core.model.document.structure.MTask;
+import com.mkalugin.pikachu.core.model.document.structure.MText;
 
 public class StructuredModelBuilder {
     
@@ -88,6 +89,7 @@ public class StructuredModelBuilder {
         }
         
         public void visitTextLine(ATextLine line) {
+            add(new MText(line));
         }
     }
 

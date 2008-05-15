@@ -9,24 +9,24 @@ import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public class Synchronizer {
     
-    private List<SynchronizableTask> oldLocalTasks;
-    private List<SynchronizableTask> oldRemoteTasks;
-    private List<SynchronizableTask> newLocalTasks;
-    private List<SynchronizableTask> newRemoteTasks;
+    private List<? extends SynchronizableTask> oldLocalTasks;
+    private List<? extends SynchronizableTask> oldRemoteTasks;
+    private List<? extends SynchronizableTask> newLocalTasks;
+    private List<? extends SynchronizableTask> newRemoteTasks;
     
-    public void setOldLocalTasks(List<SynchronizableTask> oldLocalTasks) {
+    public void setOldLocalTasks(List<? extends SynchronizableTask> oldLocalTasks) {
         this.oldLocalTasks = oldLocalTasks;
     }
     
-    public void setOldRemoteTasks(List<SynchronizableTask> oldRemoteTasks) {
+    public void setOldRemoteTasks(List<? extends SynchronizableTask> oldRemoteTasks) {
         this.oldRemoteTasks = oldRemoteTasks;
     }
     
-    public void setNewLocalTasks(List<SynchronizableTask> newLocalTasks) {
+    public void setNewLocalTasks(List<? extends SynchronizableTask> newLocalTasks) {
         this.newLocalTasks = newLocalTasks;
     }
     
-    public void setNewRemoteTasks(List<SynchronizableTask> newRemoteTasks) {
+    public void setNewRemoteTasks(List<? extends SynchronizableTask> newRemoteTasks) {
         this.newRemoteTasks = newRemoteTasks;
     }
     

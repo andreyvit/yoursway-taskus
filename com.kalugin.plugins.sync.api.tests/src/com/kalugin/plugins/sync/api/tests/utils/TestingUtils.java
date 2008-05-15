@@ -15,10 +15,10 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Functions;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
+import com.kalugin.plugins.sync.api.synchronizer.TaskId;
 import com.kalugin.plugins.sync.api.tests.internal.Activator;
 import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTagImpl;
 import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl;
-import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.TaskIdImpl;
 import com.yoursway.utils.StringExtractor;
 import com.yoursway.utils.YsFileUtils;
 
@@ -52,7 +52,7 @@ public class TestingUtils {
         String caption = extractor.requireWord();
         Matcher idMatch = extractor.extract(Pattern.compile("^#(\\d+)"));
         int id = (idMatch == null ? idAssigner.idOf(caption) : Integer.valueOf(idMatch.group(1)));
-        SynchronizableTaskImpl task = new SynchronizableTaskImpl(caption, new TaskIdImpl(id));
+        SynchronizableTaskImpl task = new SynchronizableTaskImpl(caption, new TaskId("" + id));
         result.add(task);
         
         Matcher tagMatch;

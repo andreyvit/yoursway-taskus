@@ -4,6 +4,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.uniqueIndex;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils.TAG_TO_NAME;
+import static com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils.TASK_TO_ID;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,7 @@ public class Changes {
         
     }
     
-    public static <T, Id> void compare(Collection<T> older, Collection<T> newer, Function<T, Id> identity, ChangesRequestor<T> requestor) {
+    public static <T, Id> void compare(Collection<? extends T> older, Collection<? extends T> newer, Function<T, Id> identity, ChangesRequestor<T> requestor) {
         Map<Id, T> idsToOlder = uniqueIndex(older, identity);
         Map<Id, T> idsToNewer = uniqueIndex(newer, identity);
         
@@ -119,9 +120,9 @@ public class Changes {
         
     }
     
-    public static Collection<Change> compare(List<SynchronizableTask> older, List<SynchronizableTask> newer) {
+    public static Collection<Change> compare(List<? extends SynchronizableTask> older, List<? extends SynchronizableTask> newer) {
         TaskChangesBuilder builder = new TaskChangesBuilder();
-        compare(older, newer, SynchronizableTaskUtils.TASK_TO_ID, builder);
+        compare(older, newer, TASK_TO_ID, builder);
         return builder.getChanges();
     }
 

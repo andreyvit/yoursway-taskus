@@ -1,8 +1,6 @@
 package com.kalugin.plugins.sync.api.tests.synchronizer.mocks;
 
-import static com.google.common.base.Join.join;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.yoursway.utils.YsStrings.sortedToString;
 import static com.yoursway.utils.YsStrings.sortedToStringUsing;
 import static java.util.Collections.unmodifiableCollection;
 
@@ -17,10 +15,10 @@ import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
 public class SynchronizableTaskImpl implements SynchronizableTask {
     
     private final String name;
-    private final TaskIdImpl id;
+    private final TaskId id;
     private final Collection<SynchronizableTag> tags = newArrayList();
 
-    public SynchronizableTaskImpl(String name, TaskIdImpl id) {
+    public SynchronizableTaskImpl(String name, TaskId id) {
         if (name == null)
             throw new NullPointerException("name is null");
         if (id == null) 
@@ -49,8 +47,8 @@ public class SynchronizableTaskImpl implements SynchronizableTask {
     private String toString(boolean includeTags) {
         StringBuilder result = new StringBuilder();
         result.append(name);
-        if (id.numericValue() < 100)
-            result.append(" #").append(id.numericValue());
+        if (Integer.valueOf(id.stringValue()) < 100)
+            result.append(" #").append(id.stringValue());
         if (includeTags && !tags.isEmpty())
             result.append(' ').append(sortedToStringUsing(tags, " "));
         return result.toString();

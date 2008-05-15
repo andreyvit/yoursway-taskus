@@ -10,6 +10,10 @@ public class ATextLine extends ANodeImpl implements ADocumentLevelNode {
             throw new NullPointerException("data is null");
         this.data = data;
     }
+    
+    public String getData() {
+        return data;
+    }
 
     @Override
     public String toString() {
