@@ -4,7 +4,11 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.io.File;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -173,6 +177,45 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         return menu;
     }
     
+    
+    Menu createEntryMenu(final Shell shell) {
+        Menu menu = new Menu(shell, SWT.DROP_DOWN);
+        
+        MenuBuilder builder = new MenuBuilder(menu);
+        builder.item("Tag with Done", SWT.MOD1 + 'D', new Runnable() {
+            public void run() {
+                Control focusControl = Display.getCurrent().getFocusControl();
+                if (focusControl instanceof StyledText) {
+                    CorchyViewer viewer = CorchyViewer.fromControl((StyledText) focusControl);
+                    if (viewer != null) {
+                        StyledText text = viewer.getTextWidget();
+                        IDocument document = viewer.getDocument();
+                        int offset = text.getCaretOffset();
+                        try {
+                            int line = document.getLineOfOffset(offset);
+                            int lineOffset = document.getLineOffset(line);
+                            int lineLength = document.getLineLength(line);
+                            String lineText = document.get(lineOffset, lineLength);
+                            Matcher matcher = Pattern.compile(" @done\\b").matcher(lineText);
+                            if (matcher.find()) {
+                                text.replaceTextRange(lineOffset + matcher.start(), matcher.end() - matcher.start(), "");
+                            } else {
+                                String delimiter = document.getLineDelimiter(line);
+                                int lineBodyEnd = lineOffset + lineLength
+                                        - (delimiter == null ? 0 : delimiter.length());
+                                text.replaceTextRange(lineBodyEnd, 0, " @done");
+                            }
+                        } catch (BadLocationException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        
+        return menu;
+    }
+    
     Menu createMenuBar(Shell shell) {
         Menu bar = new Menu(shell, SWT.BAR);
         
@@ -183,6 +226,11 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         MenuItem editItem = new MenuItem(bar, SWT.CASCADE);
         editItem.setText("Edit");
         editItem.setMenu(createEditMenu(shell));
+        
+        MenuItem entryItem = new MenuItem(bar, SWT.CASCADE);
+        entryItem.setText("Entry");
+        entryItem.setMenu(createEntryMenu(shell));
+        
         return bar;
     }
     
