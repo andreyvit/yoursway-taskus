@@ -14,8 +14,8 @@ import com.mkalugin.basecamp.model.ToDoList;
 public class Main implements IApplication {
     
     public Object start(IApplicationContext context) throws Exception {
-        String password = System.getenv("ANDREYVIT_PASSWORD");
-        Basecamp basecamp = new Basecamp(new URL("https://yoursway.seework.com/"), "andreyvit", password);
+        String password = System.getenv("FOURDMAN_PASSWORD");
+        Basecamp basecamp = new Basecamp(new URL("https://fourdman.seework.com/"), "fourdman", password);
         Collection<Project> projects = basecamp.listProjects();
         for (Project project : projects)
             System.out.println(project.getName() + " - " + project.getCompany().getName());
