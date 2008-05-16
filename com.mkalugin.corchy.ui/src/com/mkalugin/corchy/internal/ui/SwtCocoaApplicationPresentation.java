@@ -200,9 +200,10 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         
         builder.separator();
         
-        builder.item("Synchronize Now", new Runnable() {
+        builder.item("Synchronize Now", SWT.MOD1 + SWT.ALT + 'S', new Runnable() {
             public void run() {
-                //                performSync();
+                if (activeWindow != null)
+                    activeWindow.fileSynchronizeNow();
             }
         });
         

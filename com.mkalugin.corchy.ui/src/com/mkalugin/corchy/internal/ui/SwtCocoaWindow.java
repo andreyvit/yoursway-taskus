@@ -360,5 +360,9 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	public void openSynchProgressSheet() {
 		synchProgressSheet.open();
 	}
+
+    public void fileSynchronizeNow() {
+        callback.startSynchronization();
+    }
 	
 }
