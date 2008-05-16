@@ -37,16 +37,22 @@ public class CorchyViewer extends SourceViewer {
 			if (count == 0)
 				return;
 
+			int clientAreaHeight = styledText.getClientArea().height;
 			for (int i = 0; i < count; i++) {
 				gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 				if (i == activeMatchNumber) {
 					gc.setAlpha(200);
 				} else {
-					gc.setAlpha(150);
+					gc.setAlpha(100);
 				}
 				SearchMatch match = searchResult.getMatchWithNumber(i);
 				Rectangle bounds = styledText.getTextBounds(match.startOffset(), match
 						.endOffset());
+				// manual clipping
+				if (bounds.y + bounds.height < 0)
+					continue;
+				if (bounds.y > clientAreaHeight)
+					continue;
 				gc.setLineWidth(2);
 				gc.drawRoundRectangle(bounds.x - 1, bounds.y - 1, bounds.width + 2, bounds.height + 2, 4, 4);
 				styledText.redrawRange(match.startOffset(), match.endOffset() - match.startOffset(), true);

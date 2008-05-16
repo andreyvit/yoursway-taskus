@@ -84,7 +84,7 @@ public class SearchComposition {
 	private void createSearchNavigationControls(Composite composite) {
     	matchesCountLabel = new Label(composite, SWT.RIGHT);
     	matchesCountLabel.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
-                .indent(0, 5).grab(true, false).minSize(75, SWT.DEFAULT).create());
+                .indent(0, 5).grab(true, false).minSize(100, SWT.DEFAULT).create());
     	matchesCountLabel.setText("stub");    	
     	
     	Button prevButton = texturedButton(composite);    	
