@@ -82,8 +82,10 @@ public class SwtCocoaOutlineView implements OutlineView {
 				ISelection selection = event.getSelection();
 				if (selection instanceof IStructuredSelection) {
 					IStructuredSelection s = (IStructuredSelection) selection;
-					AProjectLine element = (AProjectLine) s.getFirstElement();
-					callback.projectSelected(element.name());					
+					if (!s.isEmpty()) {
+					    AProjectLine element = (AProjectLine) s.getFirstElement();
+					    callback.projectSelected(element.name());					
+					}
 				}
 			}
 			
