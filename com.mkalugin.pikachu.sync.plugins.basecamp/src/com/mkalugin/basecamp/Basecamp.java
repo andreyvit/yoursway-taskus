@@ -150,13 +150,10 @@ public class Basecamp {
     }
     
     public ToDoItem rename(ToDoItem item, String newText) throws BasecampException  {
-        return rename(item.getId(), newText);
-    }
-    
-    public ToDoItem rename(int itemId, String newText) throws BasecampException  {
+        int itemId = item.getId();
         try {
-            return createParser().parseToDoItem(query("/todos/update_item/" + itemId, "<item><content>" + escapeXml(newText)
-                    + "</content></item>"));
+            return createParser().parseToDoItem(
+                    query("/todos/update_item/" + itemId, buildUpdateRequest(item, newText)));
         } catch (IOException e) {
             throw new BasecampException(e);
         } catch (ParserConfigurationException e) {
@@ -164,6 +161,17 @@ public class Basecamp {
         } catch (SAXException e) {
             throw new BasecampException(e);
         }
+    }
+
+    private String buildUpdateRequest(ToDoItem item, String newText) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<item><content>").append(escapeXml(newText)).append("</content></item>");
+        // have to add a responsible party here, or else it will be removed
+        if (item.getResponsiblePartyId() != null)
+            builder.append("<responsible-party>").append(
+                    item.getResponsiblePartyId().getResponsiblePartyForToDoItemUpdate()).append(
+                    "</responsible-party>");
+        return builder.toString();
     }
     
     public ToDoItem createItem(ToDoList item, String newText) throws BasecampException  {
