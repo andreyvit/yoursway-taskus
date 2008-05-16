@@ -2,17 +2,12 @@ package com.mkalugin.basecamp;
 
 import static com.google.common.collect.Lists.newArrayList;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
 import com.kalugin.plugins.sync.api.Source;
+import com.kalugin.plugins.sync.api.SourceCallback;
 import com.kalugin.plugins.sync.api.SourceQueryFailed;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
@@ -46,27 +41,43 @@ public class BasecampSource implements Source {
         this.projectName = projectName;
         this.listName = listName;
         
-        String password = System.getenv(userName.toUpperCase() + "_PASSWORD");
+//        String password = System.getenv(userName.toUpperCase() + "_PASSWORD");
+    }
+
+    private void createBasecampConnector(SourceCallback callback, boolean force) {
+        String password = callback.askPassword(url.getHost(), userName, force);
         basecamp = new Basecamp(url, userName, password);
     }
     
-    public List<SynchronizableTask> computeTasks() {
-        System.out.println("Computing Basecamp tasks");
+    public List<SynchronizableTask> computeTasks(SourceCallback callback) {
         try {
-            project = chooseProject(basecamp.listProjects());
-            if (project != null) {
-                Collection<ToDoList> lists = basecamp.listToDoLists(project);
-                list = chooseToDoList(lists);
-                if (list != null) {
-                    list = basecamp.readToDoList(list);
-                    List<SynchronizableTask> tasks = newArrayList();
-                    for (ToDoItem item : list.getItems())
-                        tasks.add(new BasecampTask(item, idTagName()));
-                    return tasks;
+            boolean force = false;
+            while(true) {
+                createBasecampConnector(callback, force);
+                try {
+                    return doComputeTasks();
+                } catch (BasecampAuthenticationException e) {
                 }
+                System.out.println("Retrying authentication");
+                force = true;
             }
         } catch (BasecampException e) {
             throw new SourceQueryFailed(e);
+        }
+    }
+
+    private List<SynchronizableTask> doComputeTasks() throws BasecampException {
+        project = chooseProject(basecamp.listProjects());
+        if (project != null) {
+            Collection<ToDoList> lists = basecamp.listToDoLists(project);
+            list = chooseToDoList(lists);
+            if (list != null) {
+                list = basecamp.readToDoList(list);
+                List<SynchronizableTask> tasks = newArrayList();
+                for (ToDoItem item : list.getItems())
+                    tasks.add(new BasecampTask(item, idTagName()));
+                return tasks;
+            }
         }
         return newArrayList();
     }
@@ -86,7 +97,7 @@ public class BasecampSource implements Source {
     }
     
     public String idTagName() {
-        return "basecampid";
+        return "basecamp";
     }
     
     public String identifier() {
@@ -96,7 +107,12 @@ public class BasecampSource implements Source {
     public void dispose() {
     }
     
-    public void applyChanges(Collection<Change> changes) {
+    public void applyChanges(Collection<Change> changes, SourceCallback callback) {
+        createBasecampConnector(callback, false);
+        doApplyChanges(changes);
+    }
+
+    private void doApplyChanges(Collection<Change> changes) {
         for (Change change : changes)
             change.accept(new ChangeVisitor() {
                 

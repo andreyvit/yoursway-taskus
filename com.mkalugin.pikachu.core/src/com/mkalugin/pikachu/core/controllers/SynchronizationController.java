@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.kalugin.plugins.sync.api.Source;
+import com.kalugin.plugins.sync.api.SourceCallback;
 import com.kalugin.plugins.sync.api.SyncPluginsRegistry;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
@@ -42,8 +43,15 @@ public class SynchronizationController {
     
     private RewritingSession session;
 
-    public SynchronizationController(Document document) {
+    private final SourceCallback callback;
+
+    public SynchronizationController(Document document, SourceCallback callback) {
+        if (document == null)
+            throw new NullPointerException("document is null");
+        if (callback == null)
+            throw new NullPointerException("callback is null");
         this.document = document;
+        this.callback = callback;
     }
     
     public void run() {
@@ -90,7 +98,7 @@ public class SynchronizationController {
         for (MElement element : project.getChildren())
             collectLocalTasks(element, localTasksObsessedWithRed, source);
         
-        List<SynchronizableTask> remoteTasksObsessedWithGreen = source.computeTasks();
+        List<SynchronizableTask> remoteTasksObsessedWithGreen = source.computeTasks(callback);
         synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
         
         synchronizer.setNewLocalTasks(localTasksObsessedWithRed);
@@ -110,10 +118,10 @@ public class SynchronizationController {
             }
         
         Collection<Change> changesToApplyRemotely = synchronizer.synchronizeRemote();
-        source.applyChanges(changesToApplyRemotely);
+        source.applyChanges(changesToApplyRemotely, callback);
         if (!changesToApplyRemotely.isEmpty()) {
             // recompute the actual state of remote tasks
-            remoteTasksObsessedWithGreen = source.computeTasks();
+            remoteTasksObsessedWithGreen = source.computeTasks(callback);
             synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
         }
         

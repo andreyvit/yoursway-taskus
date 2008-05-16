@@ -5,3 +5,4 @@ Bundle-SymbolicName: com.mkalugin.keychain
 Bundle-Version: 1.0.0
 Bundle-Vendor: Mikhail Kalugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.mkalugin.keychain

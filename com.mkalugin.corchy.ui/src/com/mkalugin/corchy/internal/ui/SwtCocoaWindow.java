@@ -14,6 +14,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.layout.FormAttachment;
@@ -23,9 +24,11 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.FileSheet;
@@ -33,6 +36,7 @@ import com.mkalugin.corchy.internal.ui.dialogs.SheetDialog;
 import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.SynchronizationProgressDialog;
 import com.mkalugin.corchy.internal.ui.editor.SwtCocoaSourceView;
+import com.mkalugin.corchy.internal.ui.images.CorchyImages;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
@@ -46,12 +50,13 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.FileNameRequestor;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
+import com.mkalugin.pikachu.core.controllers.viewglue.PasswordQueryAgent;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
-public class SwtCocoaWindow implements DocumentWindow, SearchControls {
+public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQueryAgent {
     
     private static final String APP_TITLE = "Corchy";
     
@@ -72,7 +77,6 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	private SearchCallback searchCallback;
 
 	private SheetDialog synchProgressSheet;
-
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -163,13 +167,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
             }
         });
         sash.addPaintListener(new PaintListener() {
-
-			public void paintControl(PaintEvent e) {
-				Rectangle sashRect = sash.getBounds();
-				e.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
-				e.gc.drawLine(0, 0, 0, sashRect.height);
-			}
-        	
+            
+            public void paintControl(PaintEvent e) {
+                Rectangle sashRect = sash.getBounds();
+                e.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+                e.gc.drawLine(0, 0, 0, sashRect.height);
+            }
+            
         });
         
         FormData editorData = new FormData();
@@ -201,9 +205,9 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
             }
         });
         
-        searchComposition = new SearchComposition(bottomBar);     
-        searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).
-				grab(true, false).indent(0, 0).create());
+        searchComposition = new SearchComposition(bottomBar);
+        searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(
+                true, false).indent(0, 0).create());
         
         Composite endSpace = new Composite(bottomBar, SWT.NONE);
         endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
@@ -252,9 +256,9 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
                     dismiss();
                     handler.save();
                     break;
-                case 1:   
-                	dismiss();
-                    handler.cancel();   
+                case 1:
+                    dismiss();
+                    handler.cancel();
                     shell.setActive();
                     break;
                 case 2:
@@ -364,5 +368,96 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     public void fileSynchronizeNow() {
         callback.startSynchronization();
     }
-	
+    
+    public PasswordQueryAgent bindPasswordQueryAgent() {
+        return this;
+    }
+    
+    public String askPassword(String domain, String login) {
+        final Shell dialog = new Shell(shell);
+        dialog.setText("Login");
+        
+        Label icon = new Label(dialog, SWT.NONE);
+        icon.setImage(CorchyImages.IMG_KEYCHAIN.get());
+        icon.setLayoutData(GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.TOP).create());
+        
+        Composite content = new Composite(dialog, SWT.NONE);
+        
+        Label label = new Label(content, SWT.WRAP);
+        label.setText(String.format("Please login to %s.", domain));
+        label.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, false)
+                .create());
+        
+        Composite inputComposite = new Composite(content, SWT.NONE);
+        inputComposite.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).grab(true, true).create());
+        
+        Font regularFont = new Font(shell.getDisplay(), "Arial", 16, SWT.NONE);
+        
+        Label nameLabel = new Label(inputComposite, SWT.NONE);
+        nameLabel.setText("Name:");
+        nameLabel.setFont(regularFont);
+        
+        Label nameValue = new Label(inputComposite, SWT.NONE);
+        nameValue.setText(login);
+        nameValue.setFont(regularFont);
+        
+        Label passwordLabel = new Label(inputComposite, SWT.PASSWORD);
+        passwordLabel.setText("Password:");
+        
+        final Text passwordValue = new Text(inputComposite, SWT.BORDER);
+        passwordValue.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
+        
+        GridLayoutFactory.fillDefaults().numColumns(2).spacing(8, 8).generateLayout(inputComposite);
+        
+        Button storeInKeyChainCheckbox = new Button(content, SWT.CHECK);
+        storeInKeyChainCheckbox.setText("Remember this password in my keychain");
+        storeInKeyChainCheckbox.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).create());
+        
+        Composite buttons = new Composite(content, SWT.NONE);
+        buttons.setLayoutData(GridDataFactory.fillDefaults().indent(0, 4).grab(true, false).align(SWT.TRAIL,
+                SWT.CENTER).create());
+        
+        Button cancelButton = new Button(buttons, SWT.NONE);
+        cancelButton.setText("    Cancel    ");
+        cancelButton.setLayoutData(GridDataFactory.fillDefaults().minSize(100, 0).create());
+        
+        Button loginButton = new Button(buttons, SWT.NONE);
+        loginButton.setText("    Login    ");
+        dialog.setDefaultButton(loginButton);
+        loginButton.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).hint(150, 0)
+                .create());
+        
+        GridLayoutFactory.fillDefaults().numColumns(2).spacing(2, 8).generateLayout(buttons);
+        
+        GridLayoutFactory.fillDefaults().spacing(8, 8).generateLayout(content);
+        
+        GridLayoutFactory.fillDefaults().margins(24, 20).spacing(8, 8).numColumns(2).generateLayout(dialog);
+        
+        dialog.setSize(dialog.computeSize(420, SWT.DEFAULT));
+        
+        final String[] result = new String[1];
+        cancelButton.addSelectionListener(new SelectionAdapter() {
+            
+            public void widgetSelected(SelectionEvent e) {
+                dialog.dispose();
+            }
+            
+        });
+        loginButton.addSelectionListener(new SelectionAdapter() {
+            
+            public void widgetSelected(SelectionEvent e) {
+                result[0] = passwordValue.getText();
+                dialog.dispose();
+            }
+            
+        });
+        
+        dialog.open();
+        Display display = dialog.getDisplay();
+        while (!dialog.isDisposed())
+            if (!display.readAndDispatch())
+                display.sleep();
+        return result[0];
+    }
+    
 }

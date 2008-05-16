@@ -10,7 +10,7 @@ import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public class RandomSource implements Source {
     
-    public List<SynchronizableTask> computeTasks() {
+    public List<SynchronizableTask> computeTasks(SourceCallback callback) {
         List<SynchronizableTask> result = newArrayList();
         for (int i = 0; i < 10; i++) 
             result.add(new FakeTask(i, idTagName()));
@@ -32,7 +32,7 @@ public class RandomSource implements Source {
         return getClass().getSimpleName();
     }
 
-    public void applyChanges(Collection<Change> changesToApplyRemotely) {
+    public void applyChanges(Collection<Change> changesToApplyRemotely, SourceCallback callback) {
     }
 
     public void dispose() {

@@ -8,13 +8,13 @@ import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public interface Source {
     
-    List<SynchronizableTask> computeTasks();
+    List<SynchronizableTask> computeTasks(SourceCallback callback);
     
     String idTagName();
 
     String identifier();
 
-    void applyChanges(Collection<Change> changesToApplyRemotely);
+    void applyChanges(Collection<Change> changesToApplyRemotely, SourceCallback callback);
 
     void dispose();
     

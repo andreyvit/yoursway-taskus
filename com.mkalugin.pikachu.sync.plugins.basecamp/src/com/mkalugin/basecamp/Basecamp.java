@@ -192,12 +192,12 @@ public class Basecamp {
     }
     
     private Element query(String relativePath) throws HttpException, IOException,
-    ParserConfigurationException, SAXException {
+    ParserConfigurationException, SAXException, BasecampAuthenticationException {
         return query(relativePath, "");
     }
     
     private Element query(String relativePath, String request) throws HttpException, IOException,
-            ParserConfigurationException, SAXException {
+            ParserConfigurationException, SAXException, BasecampAuthenticationException {
         PostMethod post = new PostMethod(appendPath(url, relativePath).toExternalForm());
         post.setRequestHeader("Accept", "application/xml");
         StringRequestEntity entity = new StringRequestEntity("<request>" + request + "</request>",
@@ -206,6 +206,8 @@ public class Basecamp {
         
         int result = client.executeMethod(post);
         String resp = post.getResponseBodyAsString();
+        if (result == 401)
+            throw new BasecampAuthenticationException();
         if (result != 200 && result != 201)
             throw new IOException("Failed to communicate with Basecamp: result is " + result + "(url was "
                     + relativePath + ")\n" + resp);

@@ -5,7 +5,7 @@ import java.io.File;
 import com.mkalugin.pikachu.core.controllers.search.SearchControlsFactory;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
-public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, SearchControlsFactory {
+public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, SearchControlsFactory, PasswordQueryAgentFactory {
     
     void setText(String text);
     

@@ -18,6 +18,7 @@ public class CorchyImages {
 	public static final ManagedImage IMG_SYNC = new LazyImage("syncarrow.png"); 	
 	public static final ManagedImage IMG_LEFT_ARROW = new LazyImage("left.png"); 	
 	public static final ManagedImage IMG_RIGHT_ARROW = new LazyImage("right.png"); 	
+	public static final ManagedImage IMG_KEYCHAIN = new LazyImage("keychain.png"); 	
 
 	private static ImageRegistry imageRegistry = null;
 
