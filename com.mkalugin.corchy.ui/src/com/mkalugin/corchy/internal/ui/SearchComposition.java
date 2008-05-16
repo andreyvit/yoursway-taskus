@@ -131,5 +131,13 @@ public class SearchComposition {
 		searchField.setText(string);
 	}
 
+	public void setFocus() {
+		searchField.setFocus();
+	}
+
+	public boolean navigationEnabled() {
+		return searchNavigationComposite.isVisible();
+	}
+
 	
 }

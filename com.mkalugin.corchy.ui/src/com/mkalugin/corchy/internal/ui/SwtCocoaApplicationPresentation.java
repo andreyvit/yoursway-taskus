@@ -135,10 +135,38 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             }
         });
         
+        builder.separator();
+        
+        builder.cascade("Find", -1, createFindMenu(shell));
+        
         return menu;
     }
     
-    Menu createFileMenu(final Shell shell) {
+    private Menu createFindMenu(Shell shell) {
+    	 Menu menu = new Menu(shell, SWT.DROP_DOWN);
+         
+         MenuBuilder builder = new MenuBuilder(menu);
+         
+         builder.item("Document Search", SWT.MOD1 + SWT.MOD3 + 'F', new Runnable() {
+             public void run() {
+                 activeWindow.switchFocusToSearch();
+             }
+         });
+         builder.item("Find Next", SWT.MOD1 + 'G', new Runnable() {
+             public void run() {
+            	 activeWindow.findNext();
+             }
+         });
+         builder.separator();
+         builder.item("Find Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
+             public void run() {
+            	 activeWindow.findPrevious();
+             }
+         });
+         return menu;
+	}
+
+	Menu createFileMenu(final Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);

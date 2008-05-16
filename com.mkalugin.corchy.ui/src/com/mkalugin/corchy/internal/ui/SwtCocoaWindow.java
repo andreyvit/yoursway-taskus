@@ -69,6 +69,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 
 	private SearchComposition searchComposition;
 
+	private SearchCallback searchCallback;
+
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -301,6 +303,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     }
 
 	public SearchControls bindSearchControls(SearchCallback callback) {
+		searchCallback = callback;
 		searchComposition.setCallback(callback);		
 		return this;
 	}
@@ -335,5 +338,19 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	public void switchFocusToEditor() {
 		sourceView.setFocus();
 	}
+
+	public void switchFocusToSearch() {
+		searchComposition.setFocus();
+	}
+
+	public void findNext() {
+		if (searchComposition.navigationEnabled())
+			searchCallback.nextMatch();
+	}
     
+	public void findPrevious() {
+		if (searchComposition.navigationEnabled())
+			searchCallback.previousMatch();
+	}
+	
 }
