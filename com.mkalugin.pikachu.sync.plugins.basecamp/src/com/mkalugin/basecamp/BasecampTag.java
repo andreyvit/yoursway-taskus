@@ -10,8 +10,6 @@ final class BasecampTag implements SynchronizableTag {
     public BasecampTag(String name, String value) {
         if (name == null)
             throw new NullPointerException("name is null");
-        if (value == null)
-            throw new NullPointerException("value is null");
         this.name = name;
         this.value = value;
     }

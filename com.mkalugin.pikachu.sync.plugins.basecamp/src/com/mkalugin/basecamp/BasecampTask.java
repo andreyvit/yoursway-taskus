@@ -3,6 +3,7 @@ package com.mkalugin.basecamp;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.List;
 
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
@@ -13,6 +14,7 @@ public class BasecampTask implements SynchronizableTask {
     
     private final ToDoItem item;
     private BasecampTag idTag;
+    private BasecampTag doneTag;
 
     public BasecampTask(ToDoItem item, String idTagName) {
         if (item == null)
@@ -21,6 +23,8 @@ public class BasecampTask implements SynchronizableTask {
             throw new NullPointerException("idTagName is null");
         this.item = item;
         idTag = new BasecampTag(idTagName, "" + item.getId());
+        if (item.isCompleted())
+            doneTag = new BasecampTag("done", null);
     }
 
     public TaskId getId() {
@@ -32,7 +36,11 @@ public class BasecampTask implements SynchronizableTask {
     }
 
     public Collection<SynchronizableTag> tags() {
-        return newArrayList((SynchronizableTag) idTag);
+        List<SynchronizableTag> result = newArrayList();
+        result.add(idTag);
+        if (doneTag != null)
+            result.add(doneTag);
+        return result;
     }
 
     public String toStringWithoutTags() {
