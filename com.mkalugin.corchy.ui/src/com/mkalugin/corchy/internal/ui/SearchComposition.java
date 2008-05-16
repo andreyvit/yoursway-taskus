@@ -1,7 +1,8 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.texturedButton;
-import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
+import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_LEFT_ARROW;
+import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_RIGHT_ARROW;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -87,7 +88,7 @@ public class SearchComposition {
     	matchesCountLabel.setText("stub");    	
     	
     	Button prevButton = texturedButton(composite);    	
-    	prevButton.setImage(ICN_SYNC.get());
+    	prevButton.setImage(IMG_LEFT_ARROW.get());
     	prevButton.setLayoutData(GridDataFactory.defaultsFor(prevButton).align(SWT.END, SWT.BEGINNING)
                 .indent(0, 0).create());
     	prevButton.addSelectionListener(new SelectionAdapter() {
@@ -98,7 +99,7 @@ public class SearchComposition {
         });
     	
     	Button nextButton = texturedButton(composite);    	
-    	nextButton.setImage(ICN_SYNC.get());
+    	nextButton.setImage(IMG_RIGHT_ARROW.get());
     	nextButton.setLayoutData(GridDataFactory.defaultsFor(nextButton).align(SWT.END, SWT.BEGINNING)
                 .indent(0, 0).create());
     	nextButton.addSelectionListener(new SelectionAdapter() {

@@ -1,7 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.texturedButton;
-import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
+import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_SYNC;
 
 import java.io.File;
 
@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
+import com.mkalugin.corchy.internal.images.CorchyImages;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
@@ -186,7 +187,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     
     private void fillBottomBar(Composite bottomBar) {
         Button syncButton = texturedButton(bottomBar);
-        syncButton.setImage(ICN_SYNC.get());
+        syncButton.setImage(IMG_SYNC.get());
         syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING, SWT.BEGINNING)
                 .indent(0, 0).create());
         syncButton.addSelectionListener(new SelectionAdapter() {

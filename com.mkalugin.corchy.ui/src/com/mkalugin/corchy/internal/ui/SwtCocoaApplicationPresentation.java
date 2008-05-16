@@ -152,12 +152,12 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                  activeWindow.switchFocusToSearch();
              }
          });
+         builder.separator();
          builder.item("Find Next", SWT.MOD1 + 'G', new Runnable() {
              public void run() {
             	 activeWindow.findNext();
              }
          });
-         builder.separator();
          builder.item("Find Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
              public void run() {
             	 activeWindow.findPrevious();

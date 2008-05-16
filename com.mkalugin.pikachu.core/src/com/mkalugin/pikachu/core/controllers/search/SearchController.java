@@ -72,6 +72,8 @@ public class SearchController implements SearchCallback {
 	}
 	
 	private SearchMatch currentMatch() {
+		if (currentResult == null)
+			return null;
 		return currentResult.getMatchWithNumber(currentHighlightedMatch); 
 	}
 	
@@ -113,7 +115,8 @@ public class SearchController implements SearchCallback {
 		SearchMatch currentMatch = currentMatch();
 		controls.clearSearchField();
 		controls.switchFocusToEditor();
-		controls.setEditorSelectionTo(currentMatch);
+		if (currentMatch != null)
+			controls.setEditorSelectionTo(currentMatch);
 	}
 	
 	public void escPressed() {
