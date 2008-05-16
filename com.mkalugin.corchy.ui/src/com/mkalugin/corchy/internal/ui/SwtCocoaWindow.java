@@ -91,6 +91,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
         shell = new Shell();
         shell.setData(this);
         shell.setText(computeTitle());
+        shell.setMinimumSize(420, 200); // I love 42
         
         shell.addShellListener(new ShellAdapter() {
             
