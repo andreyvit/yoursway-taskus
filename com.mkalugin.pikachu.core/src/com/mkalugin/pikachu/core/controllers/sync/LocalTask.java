@@ -6,7 +6,6 @@ import static java.util.Collections.unmodifiableCollection;
 
 import java.util.Collection;
 
-import com.google.common.base.Predicate;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
@@ -17,6 +16,7 @@ public class LocalTask implements SynchronizableTask {
     
     private final String name;
     private TaskId id;
+    private boolean wannaBeAdded;
     private final Collection<SynchronizableTag> tags = newArrayList();
     private final String idTagName;
 
@@ -40,6 +40,10 @@ public class LocalTask implements SynchronizableTask {
     
     public boolean hasId() {
         return id != null;
+    }
+    
+    public boolean wannaBeAdded() {
+        return wannaBeAdded;
     }
 
     public String getName() {
@@ -75,7 +79,10 @@ public class LocalTask implements SynchronizableTask {
     private void addTag(LocalTag tag) {
         tags.add(tag);
         if(tag.nameEquals(idTagName))
-            this.id = new TaskId(tag.getValue());
+            if (tag.getValue() == null)
+                this.wannaBeAdded = true;
+            else
+                this.id = new TaskId(tag.getValue());
     }
     
 }

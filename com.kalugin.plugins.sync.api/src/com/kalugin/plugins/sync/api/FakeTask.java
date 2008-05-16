@@ -43,5 +43,9 @@ public class FakeTask implements SynchronizableTask {
     public String toStringWithoutTags() {
         return name + " #" + id;
     }
+
+    public boolean wannaBeAdded() {
+        return false;
+    }
     
 }

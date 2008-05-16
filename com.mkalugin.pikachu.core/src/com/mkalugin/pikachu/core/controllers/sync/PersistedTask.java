@@ -73,8 +73,12 @@ public class PersistedTask implements SynchronizableTask {
     
     private void addTag(PersistedTag tag) {
         tags.add(tag);
-        if(tag.nameEquals(idTagName))
+        if(tag.nameEquals(idTagName) && tag.getValue() != null)
             this.id = new TaskId(tag.getValue());
+    }
+
+    public boolean wannaBeAdded() {
+        return false;
     }
     
 }

@@ -2,9 +2,11 @@ package com.kalugin.plugins.sync.api;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public class RandomSource implements Source {
     
@@ -28,6 +30,12 @@ public class RandomSource implements Source {
 
     public String identifier() {
         return getClass().getSimpleName();
+    }
+
+    public void applyChanges(Collection<Change> changesToApplyRemotely) {
+    }
+
+    public void dispose() {
     }
     
 }

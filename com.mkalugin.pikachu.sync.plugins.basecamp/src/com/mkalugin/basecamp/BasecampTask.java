@@ -34,6 +34,10 @@ public class BasecampTask implements SynchronizableTask {
     public String getName() {
         return item.getContent();
     }
+    
+    public ToDoItem item() {
+        return item;
+    }
 
     public Collection<SynchronizableTag> tags() {
         List<SynchronizableTag> result = newArrayList();
@@ -45,6 +49,10 @@ public class BasecampTask implements SynchronizableTask {
 
     public String toStringWithoutTags() {
         return item.getContent() + " #" + item.getId();
+    }
+
+    public boolean wannaBeAdded() {
+        return false;
     }
     
 }

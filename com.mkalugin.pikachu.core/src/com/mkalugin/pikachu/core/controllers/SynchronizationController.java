@@ -9,6 +9,7 @@ import static com.yoursway.utils.YsFileUtils.writeString;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 import com.kalugin.plugins.sync.api.Source;
@@ -18,6 +19,7 @@ import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizationResult;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 import com.kalugin.plugins.sync.api.synchronizer.changes.ChangeVisitor;
 import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChange;
 import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChangeVisitor;
@@ -82,14 +84,15 @@ public class SynchronizationController {
         File nifNifWithGreenTail = new File(pigsThreeDifferentOnes, "nif-nif");
         File nufNuf = new File(pigsThreeDifferentOnes, "nuf-nuf"); // just for symmetry
         
+        Synchronizer synchronizer = new Synchronizer();
+        
         List<LocalTask> localTasksObsessedWithRed = newArrayList();
         for (MElement element : project.getChildren())
             collectLocalTasks(element, localTasksObsessedWithRed, source);
         
         List<SynchronizableTask> remoteTasksObsessedWithGreen = source.computeTasks();
-        
-        Synchronizer synchronizer = new Synchronizer();
         synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
+        
         synchronizer.setNewLocalTasks(localTasksObsessedWithRed);
         
         if (nafNafWithRedTail.exists() && nifNifWithGreenTail.exists())
@@ -98,13 +101,26 @@ public class SynchronizationController {
                 synchronizer
                         .setOldLocalTasks(parseTasks(readAsString(nafNafWithRedTail), idTagName));
                 synchronizer.setOldRemoteTasks(parseTasks(readAsString(nifNifWithGreenTail), idTagName));
+                
+                // the pigs are aging, kill them
+                nafNafWithRedTail.delete();
+                nifNifWithGreenTail.delete();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         
-        SynchronizationResult result = synchronizer.synchronize();
-        for (LocalChange change : result.getChangesToApplyLocally())
+        Collection<Change> changesToApplyRemotely = synchronizer.synchronizeRemote();
+        source.applyChanges(changesToApplyRemotely);
+        if (!changesToApplyRemotely.isEmpty()) {
+            // recompute the actual state of remote tasks
+            remoteTasksObsessedWithGreen = source.computeTasks();
+            synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
+        }
+        
+        Collection<LocalChange> changesToApplyLocally = synchronizer.synchronizeLocal();
+        for (LocalChange change : changesToApplyLocally)
             change.accept(new ChangeApplicator(definition, localTasksObsessedWithRed));
+        source.dispose();
         
         try {
             pigsThreeDifferentOnes.mkdirs();

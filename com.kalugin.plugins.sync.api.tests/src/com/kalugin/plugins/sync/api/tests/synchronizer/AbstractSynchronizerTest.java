@@ -64,7 +64,8 @@ public class AbstractSynchronizerTest {
         synchronizer.setOldRemoteTasks(oldRemoteTasks);
         synchronizer.setNewLocalTasks(localTasks);
         synchronizer.setNewRemoteTasks(remoteTasks);
-        SynchronizationResult result = synchronizer.synchronize();
+        SynchronizationResult result = new SynchronizationResult(synchronizer.synchronizeLocal(),
+                synchronizer.synchronizeRemote());
         
         // Expected string is always taken directly from one of the input files to prevent
         // false test passes caused by possible parsing/formatting errors

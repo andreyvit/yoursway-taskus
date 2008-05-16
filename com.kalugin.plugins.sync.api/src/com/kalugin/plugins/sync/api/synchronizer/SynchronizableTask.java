@@ -12,4 +12,6 @@ public interface SynchronizableTask {
 
     String toStringWithoutTags();
 
+    boolean wannaBeAdded();
+
 }

@@ -1,8 +1,10 @@
 package com.kalugin.plugins.sync.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
+import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 
 public interface Source {
     
@@ -11,5 +13,9 @@ public interface Source {
     String idTagName();
 
     String identifier();
+
+    void applyChanges(Collection<Change> changesToApplyRemotely);
+
+    void dispose();
     
 }

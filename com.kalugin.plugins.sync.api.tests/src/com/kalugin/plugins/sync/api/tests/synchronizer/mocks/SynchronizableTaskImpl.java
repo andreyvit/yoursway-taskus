@@ -75,5 +75,9 @@ public class SynchronizableTaskImpl implements SynchronizableTask {
         }
         throw new IllegalArgumentException("Tag with name " + tagName + " not found.");
     }
+
+    public boolean wannaBeAdded() {
+        return false;
+    }
     
 }

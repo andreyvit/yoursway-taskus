@@ -3,6 +3,7 @@ package com.mkalugin.basecamp;
 import static com.mkalugin.utils.UrlUtils.appendPath;
 import static com.mkalugin.utils.XmlUtils.childElements;
 import static com.mkalugin.utils.XmlUtils.parseXmlString;
+import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,11 +17,14 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.mkalugin.basecamp.model.Project;
+import com.mkalugin.basecamp.model.ToDoItem;
 import com.mkalugin.basecamp.model.ToDoList;
+import com.mkalugin.utils.XmlUtils.XmlFormatException;
 
 public class Basecamp {
     
@@ -47,37 +51,138 @@ public class Basecamp {
         return client;
     }
     
-    public Collection<Project> listProjects() throws IOException, ParserConfigurationException, SAXException {
-        return createParser().parseProjects(childElements(query("/project/list")));
+    public Collection<Project> listProjects() throws BasecampException {
+        try {
+            return createParser().parseProjects(childElements(query("/project/list")));
+        } catch (XmlFormatException e) {
+            throw new BasecampException(e);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
     }
     
-    public Collection<ToDoList> listToDoLists(Project project) throws IOException, ParserConfigurationException, SAXException {
+    public Collection<ToDoList> listToDoLists(Project project) throws BasecampException {
         return listToDoLists(project.getId());
     }
     
-    public Collection<ToDoList> listToDoLists(int projectId) throws IOException, ParserConfigurationException, SAXException {
-        return createParser().parseToDoLists(childElements(query("/projects/" + projectId + "/todos/lists")));
+    public Collection<ToDoList> listToDoLists(int projectId) throws BasecampException {
+        try {
+            return createParser().parseToDoLists(childElements(query("/projects/" + projectId + "/todos/lists")));
+        } catch (XmlFormatException e) {
+            throw new BasecampException(e);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
     }
 
-    public ToDoList readToDoList(ToDoList list) throws IOException, ParserConfigurationException, SAXException {
+    public ToDoList readToDoList(ToDoList list) throws BasecampException {
         return readToDoList(list.getId());
     }
 
-    public ToDoList readToDoList(int listId) throws IOException, ParserConfigurationException, SAXException {
-        return createParser().parseToDoListWithItems(query("/todos/list/" + listId));
+    public ToDoList readToDoList(int listId) throws BasecampException {
+        try {
+            return createParser().parseToDoListWithItems(query("/todos/list/" + listId));
+        } catch (XmlFormatException e) {
+            throw new BasecampException(e);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
+    }
+    
+    public void complete(ToDoItem item) throws BasecampException {
+        complete(item.getId());
+    }
+    
+    public void complete(int itemId) throws BasecampException {
+        try {
+            query("/todos/complete_item/" + itemId);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
+    }
+    
+    public void uncomplete(ToDoItem item) throws BasecampException  {
+        uncomplete(item.getId());
+    }
+    
+    public void uncomplete(int itemId) throws BasecampException  {
+        try {
+            query("/todos/uncomplete_item/" + itemId);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
+    }
+    
+    public ToDoItem rename(ToDoItem item, String newText) throws BasecampException  {
+        return rename(item.getId(), newText);
+    }
+    
+    public ToDoItem rename(int itemId, String newText) throws BasecampException  {
+        try {
+            return createParser().parseToDoItem(query("/todos/update_item/" + itemId, "<item><content>" + escapeXml(newText)
+                    + "</content></item>"));
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
+    }
+    
+    public ToDoItem createItem(ToDoList item, String newText) throws BasecampException  {
+        return createItem(item.getId(), newText);
+    }
+    
+    public ToDoItem createItem(int listId, String newText) throws BasecampException  {
+        try {
+            return createParser().parseToDoItem(query("/todos/create_item/" + listId, "<content>" + escapeXml(newText)
+                    + "</content>"));
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
     }
     
     private Element query(String relativePath) throws HttpException, IOException,
+    ParserConfigurationException, SAXException {
+        return query(relativePath, "");
+    }
+    
+    private Element query(String relativePath, String request) throws HttpException, IOException,
             ParserConfigurationException, SAXException {
         PostMethod post = new PostMethod(appendPath(url, relativePath).toExternalForm());
         post.setRequestHeader("Accept", "application/xml");
-        StringRequestEntity entity = new StringRequestEntity("<request></request>", "application/xml",
-                "utf-8");
+        StringRequestEntity entity = new StringRequestEntity("<request>" + request + "</request>",
+                "application/xml", "utf-8");
         post.setRequestEntity(entity);
         
         int result = client.executeMethod(post);
         String resp = post.getResponseBodyAsString();
-        if (result != 200)
+        if (result != 200 && result != 201)
             throw new IOException("Failed to communicate with Basecamp: result is " + result + "(url was "
                     + relativePath + ")\n" + resp);
         System.out.println(resp);
