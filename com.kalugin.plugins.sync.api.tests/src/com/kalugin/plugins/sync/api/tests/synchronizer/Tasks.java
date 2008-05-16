@@ -14,8 +14,15 @@ public class Tasks extends AbstractSynchronizerTest {
         go();
     }
     
+    // local removal does NOT remove remote tasks
     @Test
     public void locallyRemoved() throws Exception {
+        go();
+    }
+    
+    // tagging a task with @remove removes it from the remote side
+    @Test
+    public void locallyTaggedWithRemove() throws Exception {
         go();
     }
     

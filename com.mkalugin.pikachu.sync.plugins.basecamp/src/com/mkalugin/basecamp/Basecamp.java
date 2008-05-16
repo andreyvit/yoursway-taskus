@@ -133,6 +133,22 @@ public class Basecamp {
         }
     }
     
+    public void deleteItem(ToDoItem item) throws BasecampException  {
+        deleteItem(item.getId());
+    }
+    
+    public void deleteItem(int itemId) throws BasecampException  {
+        try {
+            query("/todos/delete_item/" + itemId);
+        } catch (IOException e) {
+            throw new BasecampException(e);
+        } catch (ParserConfigurationException e) {
+            throw new BasecampException(e);
+        } catch (SAXException e) {
+            throw new BasecampException(e);
+        }
+    }
+    
     public ToDoItem rename(ToDoItem item, String newText) throws BasecampException  {
         return rename(item.getId(), newText);
     }

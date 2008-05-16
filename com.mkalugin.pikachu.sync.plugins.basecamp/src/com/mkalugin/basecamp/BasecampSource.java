@@ -109,7 +109,12 @@ public class BasecampSource implements Source {
                 }
                 
                 public void visitRemoval(SynchronizableTask task) {
-                    throw new UnsupportedOperationException();
+                    try {
+                        BasecampTask btask = (BasecampTask) task;
+                        basecamp.deleteItem(btask.item());
+                    } catch (BasecampException e) {
+                        throw new SourceQueryFailed(e);
+                    }
                 }
                 
                 public void visitRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {

@@ -89,15 +89,32 @@ final class LocalizingVisitor implements ChangeVisitor {
         else {
             SynchronizableTag localTag = map(localTask, newerRemoteTag);
             if (localTag == null)
-                result.add(new LocalTagAddition(localTask, newerRemoteTag));
+                missingTag(localTask, newerRemoteTag);
             else if (!localTag.valueEquals(newerRemoteTag))
                 result.add(new LocalTagValueChange(localTask, localTag, newerRemoteTag));
         }
     }
     
-    private void missingTask(SynchronizableTask remoteTask) {
+    public void missingTask(SynchronizableTask remoteTask) {
         result.add(new LocalIgnoredTaskAddition(remoteTask));
     }
+    
+    public void missingTag(SynchronizableTask localTask, SynchronizableTag newerRemoteTag) {
+        result.add(new LocalTagAddition(localTask, newerRemoteTag));
+    }
+    
+    
+    public void missingTagWithLookup(SynchronizableTask remoteTask, SynchronizableTag remoteTag) {
+        SynchronizableTask localTask = map(remoteTask);
+        if (localTask == null)
+            missingTask(remoteTask);
+        else {
+            SynchronizableTag localTag = map(localTask, remoteTag);
+            if (localTag == null)
+                missingTag(localTask, remoteTag);
+        }
+    }
+
 
     SynchronizableTask map(SynchronizableTask task) {
         TaskId id = task.getId();

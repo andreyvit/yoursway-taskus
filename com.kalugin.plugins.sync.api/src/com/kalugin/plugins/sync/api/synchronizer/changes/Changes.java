@@ -124,19 +124,19 @@ public class Changes {
         }
         
     }
-    
-    public static final Predicate<SynchronizableTask> HAS_ID = new Predicate<SynchronizableTask>() {
-
-        public boolean apply(SynchronizableTask t) {
-            return t.getId() != null;
-        }
-        
-    };
 
     public static Collection<Change> compare(List<? extends SynchronizableTask> older, List<? extends SynchronizableTask> newer) {
         TaskChangesBuilder builder = new TaskChangesBuilder();
         compare(newArrayList(filter(older, HAS_ID)), newArrayList(filter(newer, HAS_ID)), TASK_TO_ID, builder);
         return builder.getChanges();
     }
+    
+    public static final Predicate<SynchronizableTask> HAS_ID = new Predicate<SynchronizableTask>() {
+        
+        public boolean apply(SynchronizableTask t) {
+            return t.getId() != null;
+        }
+        
+    };
 
 }
