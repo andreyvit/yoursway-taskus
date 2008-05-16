@@ -244,12 +244,13 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
                 : InitialShellPosition.SYSTEM_DEFAULT);
         final SwtCocoaWindow window = new SwtCocoaWindow(display, dsp, callback, pos);
+        activeWindow = window;
         documentWindows.add(window);
         window.getShell().addDisposeListener(new DisposeListener() {
             
             public void widgetDisposed(DisposeEvent e) {
                 documentWindows.remove(window);
-                if (activeWindow == window)
+                if (activeWindow == window)	
                     setActiveWindow(null);
             }
             
