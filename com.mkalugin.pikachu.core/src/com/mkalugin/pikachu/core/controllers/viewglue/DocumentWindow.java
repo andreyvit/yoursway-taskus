@@ -23,5 +23,9 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, S
     void chooseFileNameToSaveInto(DocumentBinding binding, DocumentTypeDefinition documentTypeDefinition, FileNameRequestor requestor);
 
     void reportSavingFailed(File file);
+
+	void openSynchProgressSheet();
+
+	void closeSynchProgressSheet();
     
 }

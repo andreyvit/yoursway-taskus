@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.cocoa;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.Callback;
@@ -9,10 +9,8 @@ import org.eclipse.swt.internal.cocoa.NSAlert;
 import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.internal.cocoa.NSWindow;
 import org.eclipse.swt.internal.cocoa.OS;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 
 public abstract class CocoaAlert {
     

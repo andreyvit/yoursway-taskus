@@ -37,8 +37,10 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     }
     
     public void startSynchronization() {
+    	window.openSynchProgressSheet();
         SynchronizationController controller = new SynchronizationController(document);
         controller.run();
+        window.closeSynchProgressSheet();
     }
     
     public void openDocumentWindow() {

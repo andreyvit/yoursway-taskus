@@ -27,6 +27,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 
+import com.mkalugin.corchy.internal.cocoa.CocoaAlert;
+import com.mkalugin.corchy.internal.cocoa.SimpleCocoaAlert;
+import com.mkalugin.corchy.internal.dialogs.SheetDialog;
+import com.mkalugin.corchy.internal.dialogs.SynchronizationProgressDialog;
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
@@ -34,7 +38,6 @@ import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.search.SearchCallback;
 import com.mkalugin.pikachu.core.controllers.search.SearchControls;
-import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
@@ -71,6 +74,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 
 	private SearchCallback searchCallback;
 
+	private SheetDialog synchProgressSheet;
+
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -95,6 +100,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
             }
             
         });
+        
+        synchProgressSheet = new SynchronizationProgressDialog(shell);
         
         BottomBarComposition composition = new BottomBarComposition(shell);
         createControls(composition.body());
@@ -351,6 +358,14 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	public void findPrevious() {
 		if (searchComposition.navigationEnabled())
 			searchCallback.previousMatch();
+	}
+
+	public void closeSynchProgressSheet() {
+		synchProgressSheet.dismiss();
+	}
+
+	public void openSynchProgressSheet() {
+		synchProgressSheet.open();
 	}
 	
 }

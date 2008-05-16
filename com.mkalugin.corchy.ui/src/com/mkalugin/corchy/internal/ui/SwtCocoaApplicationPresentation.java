@@ -23,6 +23,9 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.mkalugin.corchy.internal.cocoa.CocoaAlert;
+import com.mkalugin.corchy.internal.cocoa.SimpleCocoaAlert;
+import com.mkalugin.corchy.internal.dialogs.SheetDialog;
 import com.mkalugin.corchy.internal.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
@@ -176,7 +179,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             }
         });
         builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
-            public void run() {
+            public void run() {            	
                 callback.openDocument();
             }
         });
