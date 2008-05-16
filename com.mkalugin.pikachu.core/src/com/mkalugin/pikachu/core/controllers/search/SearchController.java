@@ -53,19 +53,31 @@ public class SearchController implements SearchCallback {
 	public void nextMatch() {
 		if (currentResult == null)
 			throw new IllegalStateException();
-		if (currentHighlightedMatch < currentResult.matchesCount() - 1) {
-			++currentHighlightedMatch;
-			controls.hightlightMatch(currentHighlightedMatch);
+		if (currentResult.matchesCount() > 0) {
+			currentHighlightedMatch = (currentHighlightedMatch + 1)%(currentResult.matchesCount());
+			highlightAndSelectCurrent();
 		}
 	}
 
 	public void previousMatch() {
 		if (currentResult == null)
 			throw new IllegalStateException();
-		if (currentHighlightedMatch > 0) {
+		int matchesCount = currentResult.matchesCount();
+		if (matchesCount > 0) {
 			--currentHighlightedMatch;
-			controls.hightlightMatch(currentHighlightedMatch);
+			if (currentHighlightedMatch < 0)
+				currentHighlightedMatch = matchesCount - 1;
+			highlightAndSelectCurrent();
 		}
+	}
+	
+	private SearchMatch currentMatch() {
+		return currentResult.getMatchWithNumber(currentHighlightedMatch); 
+	}
+	
+	private void highlightAndSelectCurrent() {		
+		controls.hightlightMatch(currentHighlightedMatch);
+		controls.setEditorSelectionTo(currentMatch());		
 	}
 
 	public void setSearchPattern(String pattern) {
@@ -78,12 +90,14 @@ public class SearchController implements SearchCallback {
 		}
 		currentHighlightedMatch = 0;
 		controls.showSearchResult(currentResult);
+		if (currentResult.matchesCount() > 0)
+			highlightAndSelectCurrent();
 	}
 
 	private SearchResult performSearch(String pattern) {
 		pattern = pattern.toLowerCase();
 		String content = document.getContent().toLowerCase();
-		StandardSearchResult result = new StandardSearchResult(pattern);
+		StandardSearchResult result = new StandardSearchResult();
 		int patternLength = pattern.length();
 		int pos, lastMatchEnd = -1;
 		while (-1 != (pos = content.indexOf(pattern, lastMatchEnd + 1))) {
@@ -92,5 +106,24 @@ public class SearchController implements SearchCallback {
 		}
 		return result;
 	}
+	
+	
+	
+	private void stopSearch() {
+		SearchMatch currentMatch = currentMatch();
+		controls.clearSearchField();
+		controls.switchFocusToEditor();
+		controls.setEditorSelectionTo(currentMatch);
+	}
+	
+	public void escPressed() {
+		stopSearch();
+	}
+
+	public void returnPressed() {
+		stopSearch();
+	}
+
+	
 
 }

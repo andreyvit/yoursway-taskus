@@ -29,6 +29,7 @@ import com.mkalugin.pikachu.core.ast.ATaskLevelVisitor;
 import com.mkalugin.pikachu.core.ast.ATaskLine;
 import com.mkalugin.pikachu.core.ast.ATaskName;
 import com.mkalugin.pikachu.core.ast.ATextLine;
+import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
@@ -270,6 +271,14 @@ public class SwtCocoaSourceView implements SourceView {
 	
 	public void highlightMatch(int number) {
 		sourceViewer.highlightMatch(number);
+	}
+
+	public void setEditorSelectionToMatch(SearchMatch match) {
+		sourceViewer.setEditorSelectionToMatch(match);
+	}
+
+	public void setFocus() {
+		sourceViewer.getControl().setFocus();
 	}
     
 }

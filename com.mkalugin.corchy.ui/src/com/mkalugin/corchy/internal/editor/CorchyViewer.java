@@ -37,10 +37,6 @@ public class CorchyViewer extends SourceViewer {
 			if (count == 0)
 				return;
 
-//			gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
-//			gc.setAlpha(10);
-//			gc.fillRectangle(styledText.getClientArea());
-
 			for (int i = 0; i < count; i++) {
 				gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 				if (i == activeMatchNumber) {
@@ -94,22 +90,24 @@ public class CorchyViewer extends SourceViewer {
 	}
 
 	public void highlightSearchResults(SearchResult result) {
+		if (result == null)
+			throw new IllegalArgumentException("result is null");
 		searchResult = result;
-		if (searchResult != null && searchResult.matchesCount() > 0)
-			highlightMatch(0);
-		else {			
-			styledText.setSelection(0);
-			styledText.redraw();
-		}
+		activeMatchNumber = 0;
+		styledText.redraw();
 	}
 
 	public void highlightMatch(int number) {
-		activeMatchNumber = number;
-		SearchMatch match = searchResult.getMatchWithNumber(number);
+		activeMatchNumber = number;		
+		styledText.redraw();
+	}
+
+	public void setEditorSelectionToMatch(SearchMatch match) {
+		if (match == null)
+			throw new IllegalArgumentException("match is null");
 		int startOffset = match.startOffset();
 		int endOffset = match.endOffset() + 1;
 		styledText.setSelection(startOffset, endOffset);
-		styledText.redraw();
 	}
 
 }

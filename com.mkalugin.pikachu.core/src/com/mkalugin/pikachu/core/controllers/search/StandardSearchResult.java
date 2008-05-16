@@ -5,13 +5,9 @@ import java.util.List;
 
 class StandardSearchResult implements SearchResult {
 
-	private final String pattern;
 	private final List<SearchMatch> matches;
 
-	StandardSearchResult(String pattern) {
-		if (pattern == null)
-			throw new IllegalArgumentException("pattern is null");
-		this.pattern = pattern;
+	StandardSearchResult() {
 		this.matches = new ArrayList<SearchMatch>();
 	}
 	

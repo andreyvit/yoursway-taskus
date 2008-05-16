@@ -10,4 +10,8 @@ public interface SearchControls {
 	
 	void hightlightMatch(int number);
 	
+	void switchFocusToEditor();
+
+	void setEditorSelectionTo(SearchMatch matchWithNumber);
+	
 }

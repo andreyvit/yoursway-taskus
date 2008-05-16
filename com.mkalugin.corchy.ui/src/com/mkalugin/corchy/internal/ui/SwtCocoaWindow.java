@@ -32,7 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
@@ -46,6 +45,7 @@ import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.search.SearchCallback;
 import com.mkalugin.pikachu.core.controllers.search.SearchControls;
+import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
@@ -236,6 +236,25 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 			}
         	
         });
+        searchField.addKeyListener(new KeyListener() {
+
+			public void keyPressed(KeyEvent e) {
+				switch (e.character) {
+					case SWT.ESC:
+						searchCallback.escPressed();
+						e.doit = false;
+						break;
+					case SWT.CR:
+						searchCallback.returnPressed();
+						e.doit = false;
+						break;	
+				}
+			}
+
+			public void keyReleased(KeyEvent e) {
+			}
+        	
+        });
         
         Composite endSpace = new Composite(bottomBar, SWT.NONE);
         endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
@@ -246,9 +265,6 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     }
     
     private void createSearchNavigationControls(Composite composite) {
-    	Composite space = new Composite(composite, SWT.NONE);
-    	space.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).create());
-        
     	matchesCountLabel = new Label(composite, SWT.RIGHT);
     	matchesCountLabel.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
                 .indent(0, 5).grab(true, false).minSize(75, SWT.DEFAULT).create());
@@ -276,7 +292,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
             }
         });
     	
-    	GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(0, 0, 0, 0).margins(0, 0)
+    	GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(0, 0, 0, 0).margins(0, 0)
         .spacing(8, 0).generateLayout(composite);
 	}
 
@@ -390,7 +406,11 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 		Display.getCurrent().syncExec(new Runnable() {
 
 			public void run() {
-				matchesCountLabel.setText(result.matchesCount() + " matches");
+				int matchesCount = (result != null)?result.matchesCount():0;
+				if (matchesCount != 1)
+					matchesCountLabel.setText(matchesCount + " matches");
+				else
+					matchesCountLabel.setText(matchesCount + " match");
 			}
     		
     	});
@@ -399,6 +419,14 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 
 	public void clearSearchField() {
 		searchField.setText("");
+	}
+
+	public void setEditorSelectionTo(SearchMatch match) {
+		sourceView.setEditorSelectionToMatch(match);
+	}
+
+	public void switchFocusToEditor() {
+		sourceView.setFocus();
 	}
     
 }
