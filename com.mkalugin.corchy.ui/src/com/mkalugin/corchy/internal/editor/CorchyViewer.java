@@ -102,12 +102,8 @@ public class CorchyViewer extends SourceViewer {
 		styledText.redraw();
 	}
 
-	public void setEditorSelectionToMatch(SearchMatch match) {
-		if (match == null)
-			throw new IllegalArgumentException("match is null");
-		int startOffset = match.startOffset();
-		int endOffset = match.endOffset() + 1;
-		styledText.setSelection(startOffset, endOffset);
+	public void setSelectionTo(int start, int end) {
+		styledText.setSelection(start, end);
 	}
 
 }

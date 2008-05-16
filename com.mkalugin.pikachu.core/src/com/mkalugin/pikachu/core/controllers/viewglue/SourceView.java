@@ -8,4 +8,6 @@ public interface SourceView {
 
     void highlightAccordingTo(ADocument documentNode);
     
+    void setSelection(int start, int end);
+    
 }

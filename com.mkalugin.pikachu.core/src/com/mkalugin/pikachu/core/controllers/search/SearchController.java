@@ -79,7 +79,8 @@ public class SearchController implements SearchCallback {
 	
 	private void highlightAndSelectCurrent() {		
 		controls.hightlightMatch(currentHighlightedMatch);
-		controls.setEditorSelectionTo(currentMatch());		
+		SearchMatch match = currentMatch();
+		controls.setEditorSelection(match.startOffset(), match.endOffset() + 1);		
 	}
 
 	public void setSearchPattern(String pattern) {
@@ -112,11 +113,11 @@ public class SearchController implements SearchCallback {
 	
 	
 	private void stopSearch() {
-		SearchMatch currentMatch = currentMatch();
+		SearchMatch match = currentMatch();
 		controls.clearSearchField();
 		controls.switchFocusToEditor();
-		if (currentMatch != null)
-			controls.setEditorSelectionTo(currentMatch);
+		if (match != null)
+			controls.setEditorSelection(match.startOffset(), match.endOffset() + 1);
 	}
 	
 	public void escPressed() {

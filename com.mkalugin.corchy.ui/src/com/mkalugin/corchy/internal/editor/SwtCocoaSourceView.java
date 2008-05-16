@@ -273,8 +273,8 @@ public class SwtCocoaSourceView implements SourceView {
 		sourceViewer.highlightMatch(number);
 	}
 
-	public void setEditorSelectionToMatch(SearchMatch match) {
-		sourceViewer.setEditorSelectionToMatch(match);
+	public void setSelection(int start, int end) {
+		sourceViewer.setSelectionTo(start, end);
 	}
 
 	public void setFocus() {

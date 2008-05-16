@@ -12,6 +12,6 @@ public interface SearchControls {
 	
 	void switchFocusToEditor();
 
-	void setEditorSelectionTo(SearchMatch matchWithNumber);
+	void setEditorSelection(int start, int end);
 	
 }

@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
-import com.mkalugin.corchy.internal.images.CorchyImages;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
@@ -332,8 +331,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 		searchComposition.setText("");
 	}
 
-	public void setEditorSelectionTo(SearchMatch match) {
-		sourceView.setEditorSelectionToMatch(match);
+	public void setEditorSelection(int start, int end) {
+		sourceView.setSelection(start, end);
 	}
 
 	public void switchFocusToEditor() {
