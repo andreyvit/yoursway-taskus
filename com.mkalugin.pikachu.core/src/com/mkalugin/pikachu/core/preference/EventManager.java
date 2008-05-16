@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.ui.core.preference;
+package com.mkalugin.pikachu.core.preference;
 
 import org.eclipse.core.runtime.ListenerList;
 

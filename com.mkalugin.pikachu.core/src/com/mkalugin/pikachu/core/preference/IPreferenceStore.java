@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.ui.core.preference;
+package com.mkalugin.pikachu.core.preference;
 
 /**
  * The <code>IPreferenceStore</code> interface represents a table mapping

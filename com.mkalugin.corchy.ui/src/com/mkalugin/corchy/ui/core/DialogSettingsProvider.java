@@ -1,7 +1,7 @@
 package com.mkalugin.corchy.ui.core;
 
-import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
-import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
+import com.mkalugin.pikachu.core.preference.IPreferenceStore;
+import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
 
 public class DialogSettingsProvider {
     

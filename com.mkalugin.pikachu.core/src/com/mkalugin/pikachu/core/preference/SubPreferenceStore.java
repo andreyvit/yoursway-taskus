@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.ui.core.preference;
+package com.mkalugin.pikachu.core.preference;
 
 import static com.yoursway.utils.Listeners.newListenersByIdentity;
 

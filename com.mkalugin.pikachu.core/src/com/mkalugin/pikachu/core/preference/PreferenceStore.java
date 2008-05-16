@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.ui.core.preference;
+package com.mkalugin.pikachu.core.preference;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

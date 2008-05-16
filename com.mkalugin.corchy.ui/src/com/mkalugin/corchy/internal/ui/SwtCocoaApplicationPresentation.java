@@ -29,13 +29,13 @@ import com.mkalugin.corchy.internal.ui.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.util.MenuBuilder;
 import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
-import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
-import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
+import com.mkalugin.pikachu.core.preference.IPreferenceStore;
+import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
 
 public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     

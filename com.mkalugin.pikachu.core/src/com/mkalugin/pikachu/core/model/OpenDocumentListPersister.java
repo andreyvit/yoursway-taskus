@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
+import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 
 public class OpenDocumentListPersister implements ApplicationModelListener {
     

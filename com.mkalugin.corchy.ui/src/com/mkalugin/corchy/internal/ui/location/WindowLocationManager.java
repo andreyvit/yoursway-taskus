@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
+import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 
 public class WindowLocationManager {
     
