@@ -84,10 +84,11 @@ public class BasecampResultsParser {
     
     private ToDoList parseToDoList(Element list) {
         int id = intValue(list, "id");
+        String name = stringValue(list, "name");
         String description = stringValue(list, "description");
         Element itemsEl = childElementOrNull(list, "todo-items");
         Collection<ToDoItem> items = (itemsEl == null ? null : parseToDoItems(childElements(itemsEl)));
-        return new ToDoList(id, description, items);
+        return new ToDoList(id, name, description, items);
     }
     
     public Collection<ToDoItem> parseToDoItems(Iterable<Element> elements) throws XmlFormatException {

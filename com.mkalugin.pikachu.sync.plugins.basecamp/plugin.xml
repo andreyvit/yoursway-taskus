@@ -13,5 +13,11 @@
          </run>
       </application>
    </extension>
+   <extension
+         point="com.kalugin.plugins.sync.api.sourceFactories">
+      <sourceFactory
+            class="com.mkalugin.basecamp.BasecampSourceFactory">
+      </sourceFactory>
+   </extension>
 
 </plugin>

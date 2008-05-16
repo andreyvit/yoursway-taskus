@@ -28,6 +28,8 @@ import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
 import com.kalugin.plugins.sync.api.synchronizer.TaskId;
 import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 import com.kalugin.plugins.sync.api.synchronizer.changes.ChangeVisitor;
+import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChange;
+import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChangeVisitor;
 import com.kalugin.plugins.sync.api.tests.AllTests;
 import com.kalugin.plugins.sync.api.tests.synchronizer.mocks.SynchronizableTaskImpl;
 import com.kalugin.plugins.sync.api.tests.utils.IdAssigner;
@@ -68,7 +70,7 @@ public class AbstractSynchronizerTest {
         // false test passes caused by possible parsing/formatting errors
         
         if (expectedLocalTasksEntry != null || expectedRemoteTasksEntry != null) {
-            Collection<SynchronizableTask> resultingLocalTasks = apply(localTasks, result
+            Collection<SynchronizableTask> resultingLocalTasks = applyLocal(localTasks, result
                     .getChangesToApplyLocally());
             Collection<SynchronizableTask> resultingRemoteTasks = apply(remoteTasks, result
                     .getChangesToApplyRemotely());
@@ -143,6 +145,58 @@ public class AbstractSynchronizerTest {
                     if (existingTask == null)
                         throw new IllegalArgumentException("Task " + task + " did not exist");
                     return existingTask;
+                }
+                
+            });
+        }
+        return idsToTasks.values();
+    }
+    
+    private Collection<SynchronizableTask> applyLocal(List<SynchronizableTask> tasks, Collection<LocalChange> changes) {
+        final Map<TaskId, SynchronizableTask> idsToTasks = uniqueIndex(tasks, TASK_TO_ID);
+        for (LocalChange change : changes) {
+            change.accept(new LocalChangeVisitor() {
+                
+                public void visitAddition(SynchronizableTask task) {
+                    SynchronizableTask previousTask = idsToTasks.put(task.getId(), task);
+                    if (previousTask != null)
+                        throw new IllegalArgumentException("Task " + task + " already existed as "
+                                + previousTask);
+                }
+                
+                public void visitTaskRemoval(SynchronizableTask task) {
+                    SynchronizableTask oldTask = idsToTasks.remove(task.getId());
+                    if (oldTask == null)
+                        throw new IllegalArgumentException("Task " + task + " did not exist");
+                }
+                
+                public void visitRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {
+                    SynchronizableTask oldTask = idsToTasks.put(newerTask.getId(), newerTask);
+                    if (oldTask == null)
+                        throw new IllegalArgumentException("Task " + newerTask + " did not exist");
+                }
+                
+                public void visitTagAddition(SynchronizableTask task, SynchronizableTag tag) {
+                    getTask(task).addTag(tag);
+                }
+                
+                public void visitTagRemoval(SynchronizableTask task, SynchronizableTag tag) {
+                    getTask(task).removeTag(tag.getName());
+                }
+                
+                public void visitTagValueChange(SynchronizableTask task, SynchronizableTag olderTag, SynchronizableTag newerTag) {
+                    getTask(task).removeTag(newerTag.getName()).addTag(newerTag);
+                }
+                
+                private SynchronizableTaskImpl getTask(SynchronizableTask task) {
+                    SynchronizableTaskImpl existingTask = (SynchronizableTaskImpl) idsToTasks.put(task
+                            .getId(), task);
+                    if (existingTask == null)
+                        throw new IllegalArgumentException("Task " + task + " did not exist");
+                    return existingTask;
+                }
+
+                public void visitIgnoredTaskAddition(SynchronizableTask remoteTask) {
                 }
                 
             });

@@ -9,17 +9,25 @@ public class ToDoList {
     private final int id;
     private final String description;
     private final Collection<ToDoItem> items;
+    private final String name;
 
-    public ToDoList(int id, String description, Collection<ToDoItem> items) {
+    public ToDoList(int id, String name, String description, Collection<ToDoItem> items) {
+        if (name == null)
+            throw new NullPointerException("name is null");
         if (description == null)
             throw new NullPointerException("description is null");
         this.id = id;
+        this.name = name;
         this.description = description;
         this.items = (items == null ? null : newArrayList(items));
     }
     
     public int getId() {
         return id;
+    }
+    
+    public String getName() {
+        return name;
     }
     
     public String getDescription() {

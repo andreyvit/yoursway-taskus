@@ -2,6 +2,7 @@ package com.kalugin.plugins.sync.api;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
@@ -18,7 +19,8 @@ public class FakeTask implements SynchronizableTask {
     public FakeTask(int index, String idTagName) {
         this.id = new TaskId("F" + index);
         this.name = "Fake task " + index;
-        fakeTag = new FakeSynchronizableTag("faketag", "V" + (int) (Math.random() * 100));
+        if (Math.random() > 0.5)
+            fakeTag = new FakeSynchronizableTag("faketag", "V" + (int) (Math.random() * 100));
         idTag = new FakeSynchronizableTag(idTagName, id.stringValue());
     }
 
@@ -31,7 +33,11 @@ public class FakeTask implements SynchronizableTask {
     }
     
     public Collection<SynchronizableTag> tags() {
-        return newArrayList(fakeTag, idTag);
+        ArrayList<SynchronizableTag> result = newArrayList();
+        result.add(idTag);
+        if (fakeTag != null)
+            result.add(fakeTag);
+        return result;
     }
     
     public String toStringWithoutTags() {

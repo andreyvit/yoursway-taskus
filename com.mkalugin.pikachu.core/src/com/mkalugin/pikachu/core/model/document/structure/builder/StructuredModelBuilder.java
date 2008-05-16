@@ -44,7 +44,7 @@ public class StructuredModelBuilder {
         public void visitTag(ATag tagNode) {
             MTag tag = new MTag();
             tag.setName(tagNode.nameAsString());
-            tag.setRange(tagNode.range());
+            tag.setNode(tagNode);
             ATagValue value = tagNode.getValue();
             tag.setValue(value == null ? null : value.getText());
             task.addTag(tag);
@@ -76,6 +76,7 @@ public class StructuredModelBuilder {
         
         public void visitTaskLine(ATaskLine taskNode) {
             MTask task = new MTask();
+            task.setNode(taskNode);
             TaskLevelVisitor visitor = new TaskLevelVisitor(task);
             for (ATaskLevelNode node : taskNode.getChildren())
                 node.accept(visitor);

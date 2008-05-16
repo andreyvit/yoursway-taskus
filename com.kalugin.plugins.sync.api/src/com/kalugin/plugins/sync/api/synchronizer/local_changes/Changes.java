@@ -1,4 +1,4 @@
-package com.kalugin.plugins.sync.api.synchronizer.changes;
+package com.kalugin.plugins.sync.api.synchronizer.local_changes;
 
 import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Lists.newArrayList;
@@ -60,67 +60,63 @@ public class Changes {
     
     private static class TaskChangesBuilder implements ChangesRequestor<SynchronizableTask> {
         
-        private Collection<Change> changes = newArrayList();
+        private Collection<LocalChange> localChanges = newArrayList();
 
         public void added(SynchronizableTask item) {
-            changes.add(new Addition(item));
+            localChanges.add(new LocalTaskAddition(item));
         }
 
         public void common(SynchronizableTask oldItem, SynchronizableTask newItem) {
-            compareTasks(oldItem, newItem, changes);
+            checkRename(oldItem, newItem);
+            checkTagChanges(oldItem, newItem);
         }
 
         public void removed(SynchronizableTask item) {
-            changes.add(new Removal(item));
+            localChanges.add(new LocalTaskRemoval(item));
         }
         
-        public Collection<Change> getChanges() {
-            return changes;
+        public Collection<LocalChange> getChanges() {
+            return localChanges;
         }
         
-    }
-    
-    public static void compareTasks(SynchronizableTask oldItem, SynchronizableTask newItem, Collection<Change> changes) {
-        checkRename(oldItem, newItem, changes);
-        checkTagChanges(oldItem, newItem, changes);
-    }
-    
-    private static void checkRename(SynchronizableTask olderTask, SynchronizableTask newerTask, Collection<Change> changes) {
-        String olderName = olderTask.getName();
-        String newerName = newerTask.getName();
-        if (!olderName.equals(newerName))
-            changes.add(new Rename(olderTask, newerTask));
-    }
-    
-    private static void checkTagChanges(SynchronizableTask olderTask, SynchronizableTask newerTask, Collection<Change> changes) {
-        compare(olderTask.tags(), newerTask.tags(), TAG_TO_NAME, new TagChangesBuilder(newerTask, changes));
+        private void checkRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {
+            String olderName = olderTask.getName();
+            String newerName = newerTask.getName();
+            if (!olderName.equals(newerName))
+                localChanges.add(new LocalTaskRename(olderTask, newerTask));
+        }
+        
+        private void checkTagChanges(SynchronizableTask olderTask, SynchronizableTask newerTask) {
+            compare(olderTask.tags(), newerTask.tags(), TAG_TO_NAME, new TagChangesBuilder(newerTask, localChanges));
+        }
+        
     }
     
     private static class TagChangesBuilder implements ChangesRequestor<SynchronizableTag> {
         
-        private final Collection<Change> changes;
+        private final Collection<LocalChange> localChanges;
         private final SynchronizableTask task;
 
-        public TagChangesBuilder(SynchronizableTask task, Collection<Change> changes) {
+        public TagChangesBuilder(SynchronizableTask task, Collection<LocalChange> localChanges) {
             if (task == null)
                 throw new NullPointerException("task is null");
-            if (changes == null)
+            if (localChanges == null)
                 throw new NullPointerException("changes is null");
             this.task = task;
-            this.changes = changes;
+            this.localChanges = localChanges;
         }
 
         public void added(SynchronizableTag item) {
-            changes.add(new TagAddition(task, item));
+            localChanges.add(new LocalTagAddition(task, item));
         }
 
         public void common(SynchronizableTag oldItem, SynchronizableTag newItem) {
             if (!newItem.valueEquals(oldItem))
-                changes.add(new TagValueChange(task, oldItem, newItem));
+                localChanges.add(new LocalTagValueChange(task, oldItem, newItem));
         }
 
         public void removed(SynchronizableTag item) {
-            changes.add(new TagRemoval(task, item));
+            localChanges.add(new LocalTagRemoval(task, item));
         }
         
     }
@@ -133,7 +129,7 @@ public class Changes {
         
     };
 
-    public static Collection<Change> compare(List<? extends SynchronizableTask> older, List<? extends SynchronizableTask> newer) {
+    public static Collection<LocalChange> compare(List<? extends SynchronizableTask> older, List<? extends SynchronizableTask> newer) {
         TaskChangesBuilder builder = new TaskChangesBuilder();
         compare(newArrayList(filter(older, HAS_ID)), newArrayList(filter(newer, HAS_ID)), TASK_TO_ID, builder);
         return builder.getChanges();

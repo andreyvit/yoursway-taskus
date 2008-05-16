@@ -10,8 +10,10 @@ public class RandomSource implements Source {
     
     public List<SynchronizableTask> computeTasks() {
         List<SynchronizableTask> result = newArrayList();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++) 
             result.add(new FakeTask(i, idTagName()));
+        if (Math.random() > 0.5)
+            result.add(new FakeTask(42, idTagName()));
         return result;
     }
     

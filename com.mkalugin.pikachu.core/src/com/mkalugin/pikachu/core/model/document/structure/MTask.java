@@ -4,11 +4,15 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 
+import com.mkalugin.pikachu.core.ast.ATaskLine;
+
 public class MTask extends MElement {
     
     private String name;
     
     private Collection<MTag> tags = newArrayList();
+    
+    private ATaskLine node;
     
     public String getName() {
         return name;
@@ -37,6 +41,14 @@ public class MTask extends MElement {
     @Override
     public String toString() {
         return "Task " + name;
+    }
+
+    public void setNode(ATaskLine node) {
+        this.node = node;
+    }
+
+    public ATaskLine getNode() {
+        return node;
     }
     
 }

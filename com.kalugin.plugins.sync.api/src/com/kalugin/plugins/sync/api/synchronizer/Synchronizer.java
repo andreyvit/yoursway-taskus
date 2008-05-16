@@ -1,11 +1,16 @@
 package com.kalugin.plugins.sync.api.synchronizer;
 
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Iterables.filter;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.kalugin.plugins.sync.api.synchronizer.RemovalCheckVisitor.IS_REMOVAL;
 import static com.kalugin.plugins.sync.api.synchronizer.changes.Changes.compare;
 
 import java.util.Collection;
 import java.util.List;
 
 import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
+import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChange;
 
 public class Synchronizer {
     
@@ -31,9 +36,29 @@ public class Synchronizer {
     }
     
     public SynchronizationResult synchronize() {
-        Collection<Change> localChanges = compare(oldLocalTasks, newLocalTasks);
-        Collection<Change> remoteChanges = compare(oldRemoteTasks, newRemoteTasks);
-        return new SynchronizationResult(remoteChanges, localChanges);
+        Collection<Change> changesToApplyLocally;
+        if (oldRemoteTasks != null)
+            changesToApplyLocally = compare(oldRemoteTasks, newRemoteTasks);
+        else {
+            Collection<Change> changes = compare(newLocalTasks, newRemoteTasks);
+            changesToApplyLocally = newArrayList(filter(changes, not(IS_REMOVAL)));
+        }
+        Collection<LocalChange> changesToApplyLocally2 = 
+            localize(newLocalTasks, changesToApplyLocally);
+        Collection<Change> changesToApplyRemotely;
+        if (oldLocalTasks != null)
+            changesToApplyRemotely = compare(oldLocalTasks, newLocalTasks);
+        else
+            changesToApplyRemotely = newArrayList();
+        return new SynchronizationResult(changesToApplyLocally2, changesToApplyRemotely);
+    }
+
+    private Collection<LocalChange> localize(List<? extends SynchronizableTask> localTasks,
+            Collection<Change> changes) {
+        final Collection<LocalChange> result = newArrayList();
+        for (Change change : changes)
+            change.accept(new LocalizingVisitor(result, localTasks));
+        return result;
     }
     
 }

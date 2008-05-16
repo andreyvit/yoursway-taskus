@@ -14,4 +14,12 @@ public class ParsingUtils {
         return start;
     }
     
+    public static int adjustStartBySkippingWhitespaceBackward(int startLimit, int start, CharSequence source) {
+        while (start > startLimit && Character.isWhitespace(source.charAt(start)))
+            --start;
+        if (start > startLimit)
+            ++start;
+        return start;
+    }
+    
 }

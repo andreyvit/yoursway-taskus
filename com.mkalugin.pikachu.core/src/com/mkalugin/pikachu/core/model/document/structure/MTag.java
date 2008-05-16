@@ -1,6 +1,6 @@
 package com.mkalugin.pikachu.core.model.document.structure;
 
-import com.mkalugin.pikachu.core.ast.ARange;
+import com.mkalugin.pikachu.core.ast.ATag;
 
 public class MTag {
     
@@ -8,7 +8,7 @@ public class MTag {
     
     private String value;
     
-    private ARange range;
+    private ATag node;
     
     public String getName() {
         return name;
@@ -30,12 +30,12 @@ public class MTag {
         return value != null;
     }
 
-    public void setRange(ARange range) {
-        this.range = range;
+    public void setNode(ATag node) {
+        this.node = node;
     }
 
-    public ARange getRange() {
-        return range;
+    public ATag getNode() {
+        return node;
     }
     
 }

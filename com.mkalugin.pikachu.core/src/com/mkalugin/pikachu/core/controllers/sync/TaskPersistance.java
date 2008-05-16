@@ -5,7 +5,6 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.yoursway.utils.StringExtractor.WHITESPACE;
 import static com.yoursway.utils.YsIterables.sort;
-import static com.yoursway.utils.YsStrings.sortedToStringUsing;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -46,7 +45,7 @@ public class TaskPersistance {
         
         extractor.mustBeEnd();
         
-        LocalTask task = new LocalTask(ttt, idTagName);
+        PersistedTask task = new PersistedTask(ttt, idTagName);
         result.add(task);
     }
 
