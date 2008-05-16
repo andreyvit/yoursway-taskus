@@ -18,7 +18,7 @@ public abstract class SheetDialog {
 		if (proc == 0)
 			SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
 
-		String className = "SWTProgressDelegate";
+		String className = "SWTSheetDelegate";
 		int cls = OS.objc_allocateClassPair(OS.class_NSObject, className, 0);
 		OS.class_addIvar(cls, "tag", OS.PTR_SIZEOF, (byte) (Math.log(OS.PTR_SIZEOF) / Math.log(2)),
 				"i");
