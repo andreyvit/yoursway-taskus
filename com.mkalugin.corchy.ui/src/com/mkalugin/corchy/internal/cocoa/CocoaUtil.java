@@ -1,8 +1,13 @@
 package com.mkalugin.corchy.internal.cocoa;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.internal.cocoa.NSButton;
 import org.eclipse.swt.internal.cocoa.NSRange;
 import org.eclipse.swt.internal.cocoa.NSRect;
 import org.eclipse.swt.internal.cocoa.NSSize;
+import org.eclipse.swt.internal.cocoa.OS;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 
 public class CocoaUtil {
 
@@ -27,6 +32,13 @@ public class CocoaUtil {
 		r.location = location;
 		r.length = length;
 		return r;
+	}
+	
+	public static Button texturedButton(Composite parent) {
+		Button button = new Button(parent, SWT.NONE | SWT.PUSH);
+        ((NSButton) button.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
+        ((NSButton) button.view).setImagePosition(OS.NSImageOnly);
+        return button;
 	}
 	
 }

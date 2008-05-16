@@ -1,5 +1,6 @@
 package com.mkalugin.corchy.internal.ui;
 
+import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.texturedButton;
 import static com.mkalugin.corchy.internal.images.CorchyImages.ICN_SYNC;
 
 import java.io.File;
@@ -7,10 +8,6 @@ import java.io.File;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -18,13 +15,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.internal.cocoa.NSButton;
-import org.eclipse.swt.internal.cocoa.NSObject;
-import org.eclipse.swt.internal.cocoa.NSSearchField;
-import org.eclipse.swt.internal.cocoa.NSSearchFieldCell;
-import org.eclipse.swt.internal.cocoa.NSSegmentedControl;
 import org.eclipse.swt.internal.cocoa.NSString;
-import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -32,11 +23,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
@@ -78,13 +67,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     
     private WindowLocationManager locationManager;
 
-	private SearchCallback searchCallback;
+	private SearchComposition searchComposition;
 
-	private Composite searchNavigationComposite;
-
-	private Label matchesCountLabel;
-
-	private Text searchField;
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -198,16 +182,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
                 .generateLayout(parent);
     }
     
-    private Button createBottomBarButtonForImage(Composite parent) {
-    	Button button = new Button(parent, SWT.NONE | SWT.PUSH);
-        ((NSButton) button.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
-        ((NSButton) button.view).setImagePosition(OS.NSImageOnly);
-        return button;
-    }
-    
     private void fillBottomBar(Composite bottomBar) {
-        // Sync button
-        Button syncButton = createBottomBarButtonForImage(bottomBar);
+        Button syncButton = texturedButton(bottomBar);
         syncButton.setImage(ICN_SYNC.get());
         syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING, SWT.BEGINNING)
                 .indent(0, 0).create());
@@ -218,84 +194,19 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
             }
         });
         
-        searchNavigationComposite = new Composite(bottomBar, SWT.NONE);
-        searchNavigationComposite.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).create());
-        createSearchNavigationControls(searchNavigationComposite);
-        searchNavigationComposite.setVisible(false);
-        
-        searchField = new Text(bottomBar, SWT.SINGLE | SWT.SEARCH);
-        NSSearchField nsSearchField = (NSSearchField) searchField.view;
-        NSSearchFieldCell theCell = new NSSearchFieldCell(nsSearchField.cell());
-        theCell.setPlaceholderString(NSString.stringWith("Search"));
-        searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).align(SWT.END, SWT.BEGINNING).grab(false, false)
-                .indent(8, 0).create());
-        searchField.addModifyListener(new ModifyListener() {
-
-			public void modifyText(ModifyEvent e) {
-				searchCallback.setSearchPattern(searchField.getText());
-			}
-        	
-        });
-        searchField.addKeyListener(new KeyListener() {
-
-			public void keyPressed(KeyEvent e) {
-				switch (e.character) {
-					case SWT.ESC:
-						searchCallback.escPressed();
-						e.doit = false;
-						break;
-					case SWT.CR:
-						searchCallback.returnPressed();
-						e.doit = false;
-						break;	
-				}
-			}
-
-			public void keyReleased(KeyEvent e) {
-			}
-        	
-        });
+        searchComposition = new SearchComposition(bottomBar);     
+        searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).
+				grab(true, false).indent(0, 0).create());
         
         Composite endSpace = new Composite(bottomBar, SWT.NONE);
         endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
                 15, SWT.DEFAULT).create());
         
-        GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(8, 8, 4, 0).margins(0, 0)
+        GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
     }
     
-    private void createSearchNavigationControls(Composite composite) {
-    	matchesCountLabel = new Label(composite, SWT.RIGHT);
-    	matchesCountLabel.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
-                .indent(0, 5).grab(true, false).minSize(75, SWT.DEFAULT).create());
-    	matchesCountLabel.setText("<foo>");    	
-    	
-    	Button prevButton = createBottomBarButtonForImage(composite);    	
-    	prevButton.setImage(ICN_SYNC.get());
-    	prevButton.setLayoutData(GridDataFactory.defaultsFor(prevButton).align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).create());
-    	prevButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {            	
-                searchCallback.previousMatch();
-            }
-        });
-    	
-    	Button nextButton = createBottomBarButtonForImage(composite);    	
-    	nextButton.setImage(ICN_SYNC.get());
-    	nextButton.setLayoutData(GridDataFactory.defaultsFor(nextButton).align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).create());
-    	nextButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                searchCallback.nextMatch();
-            }
-        });
-    	
-    	GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(0, 0, 0, 0).margins(0, 0)
-        .spacing(8, 0).generateLayout(composite);
-	}
-
+    
 	public void highlightUsing(ADocument document) {
         // TODO Auto-generated method stub
     }
@@ -390,7 +301,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     }
 
 	public SearchControls bindSearchControls(SearchCallback callback) {
-		searchCallback = callback;		
+		searchComposition.setCallback(callback);		
 		return this;
 	}
 
@@ -399,18 +310,14 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	}
 
 	public void setMatchesNavigationEnabled(boolean enabled) {
-		searchNavigationComposite.setVisible(enabled);
+		searchComposition.setNavigationVisible(enabled);
 	}
 
 	public void showSearchResult(final SearchResult result) {
 		Display.getCurrent().syncExec(new Runnable() {
 
 			public void run() {
-				int matchesCount = (result != null)?result.matchesCount():0;
-				if (matchesCount != 1)
-					matchesCountLabel.setText(matchesCount + " matches");
-				else
-					matchesCountLabel.setText(matchesCount + " match");
+				searchComposition.setMatchesCount(result.matchesCount());
 			}
     		
     	});
@@ -418,7 +325,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
 	}
 
 	public void clearSearchField() {
-		searchField.setText("");
+		searchComposition.setText("");
 	}
 
 	public void setEditorSelectionTo(SearchMatch match) {
