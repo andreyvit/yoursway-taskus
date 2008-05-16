@@ -6,6 +6,8 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.runtime.OperationCanceledException;
+
 import com.kalugin.plugins.sync.api.Source;
 import com.kalugin.plugins.sync.api.SourceCallback;
 import com.kalugin.plugins.sync.api.SourceQueryFailed;

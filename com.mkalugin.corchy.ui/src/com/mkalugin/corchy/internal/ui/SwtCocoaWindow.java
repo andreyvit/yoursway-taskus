@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.FileSheet;
+import com.mkalugin.corchy.internal.ui.dialogs.PasswordSheet;
 import com.mkalugin.corchy.internal.ui.dialogs.SheetDialog;
 import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.SynchronizationProgressDialog;
@@ -51,6 +52,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.FileNameRequestor;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.PasswordQueryAgent;
+import com.mkalugin.pikachu.core.controllers.viewglue.PasswordResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.SaveDiscardCancel;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
@@ -71,12 +73,12 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
     private final DialogSettingsProvider preferenceStorageProvider;
     
     private WindowLocationManager locationManager;
-
-	private SearchComposition searchComposition;
-
-	private SearchCallback searchCallback;
-
-	private SheetDialog synchProgressSheet;
+    
+    private SearchComposition searchComposition;
+    
+    private SearchCallback searchCallback;
+    
+    private SynchronizationProgressDialog synchProgressSheet;
     
     public SwtCocoaWindow(Display display, DialogSettingsProvider preferenceStorageProvider,
             DocumentWindowCallback callback, InitialShellPosition initialPosition) {
@@ -102,8 +104,6 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
             }
             
         });
-        
-        synchProgressSheet = new SynchronizationProgressDialog(shell);
         
         BottomBarComposition composition = new BottomBarComposition(shell);
         createControls(composition.body());
@@ -305,66 +305,67 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
         alert.setInformativeText(String.format("Could not write into file “%s”.", file.getPath()));
         alert.openModal();
     }
-
-	public SearchControls bindSearchControls(SearchCallback callback) {
-		searchCallback = callback;
-		searchComposition.setCallback(callback);		
-		return this;
-	}
-
-	public void hightlightMatch(int number) {
-		sourceView.highlightMatch(number);
-	}
-
-	public void setMatchesNavigationEnabled(boolean enabled) {
-		searchComposition.setNavigationVisible(enabled);
-	}
-
-	public void showSearchResult(final SearchResult result) {
-		Display.getCurrent().syncExec(new Runnable() {
-
-			public void run() {
-				searchComposition.setMatchesCount(result.matchesCount());
-			}
-    		
-    	});
-		sourceView.highlightSearchResults(result);
-	}
-
-	public void clearSearchField() {
-		searchComposition.setText("");
-	}
-
-	public void setEditorSelection(int start, int end) {
-		sourceView.setSelection(start, end);
-	}
-
-	public void switchFocusToEditor() {
-		sourceView.setFocus();
-	}
-
-	public void switchFocusToSearch() {
-		searchComposition.setFocus();
-	}
-
-	public void findNext() {
-		if (searchComposition.navigationEnabled())
-			searchCallback.nextMatch();
-	}
     
-	public void findPrevious() {
-		if (searchComposition.navigationEnabled())
-			searchCallback.previousMatch();
-	}
-
-	public void closeSynchProgressSheet() {
-		synchProgressSheet.dismiss();
-	}
-
-	public void openSynchProgressSheet() {
-		synchProgressSheet.open();
-	}
-
+    public SearchControls bindSearchControls(SearchCallback callback) {
+        searchCallback = callback;
+        searchComposition.setCallback(callback);
+        return this;
+    }
+    
+    public void hightlightMatch(int number) {
+        sourceView.highlightMatch(number);
+    }
+    
+    public void setMatchesNavigationEnabled(boolean enabled) {
+        searchComposition.setNavigationVisible(enabled);
+    }
+    
+    public void showSearchResult(final SearchResult result) {
+        Display.getCurrent().syncExec(new Runnable() {
+            
+            public void run() {
+                searchComposition.setMatchesCount(result.matchesCount());
+            }
+            
+        });
+        sourceView.highlightSearchResults(result);
+    }
+    
+    public void clearSearchField() {
+        searchComposition.setText("");
+    }
+    
+    public void setEditorSelection(int start, int end) {
+        sourceView.setSelection(start, end);
+    }
+    
+    public void switchFocusToEditor() {
+        sourceView.setFocus();
+    }
+    
+    public void switchFocusToSearch() {
+        searchComposition.setFocus();
+    }
+    
+    public void findNext() {
+        if (searchComposition.navigationEnabled())
+            searchCallback.nextMatch();
+    }
+    
+    public void findPrevious() {
+        if (searchComposition.navigationEnabled())
+            searchCallback.previousMatch();
+    }
+    
+    public void closeSynchProgressSheet() {
+        synchProgressSheet.dismiss();
+    }
+    
+    public void openSynchProgressSheet() {
+        synchProgressSheet = new SynchronizationProgressDialog(shell);
+        synchProgressSheet.open();
+    }
+    
     public void fileSynchronizeNow() {
         callback.startSynchronization();
     }
@@ -373,91 +374,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
         return this;
     }
     
-    public String askPassword(String domain, String login) {
-        final Shell dialog = new Shell(shell);
-        dialog.setText("Login");
-        
-        Label icon = new Label(dialog, SWT.NONE);
-        icon.setImage(CorchyImages.IMG_KEYCHAIN.get());
-        icon.setLayoutData(GridDataFactory.fillDefaults().align(SWT.CENTER, SWT.TOP).create());
-        
-        Composite content = new Composite(dialog, SWT.NONE);
-        
-        Label label = new Label(content, SWT.WRAP);
-        label.setText(String.format("Please login to %s.", domain));
-        label.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, false)
-                .create());
-        
-        Composite inputComposite = new Composite(content, SWT.NONE);
-        inputComposite.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).grab(true, true).create());
-        
-        Font regularFont = new Font(shell.getDisplay(), "Arial", 16, SWT.NONE);
-        
-        Label nameLabel = new Label(inputComposite, SWT.NONE);
-        nameLabel.setText("Name:");
-        nameLabel.setFont(regularFont);
-        
-        Label nameValue = new Label(inputComposite, SWT.NONE);
-        nameValue.setText(login);
-        nameValue.setFont(regularFont);
-        
-        Label passwordLabel = new Label(inputComposite, SWT.PASSWORD);
-        passwordLabel.setText("Password:");
-        
-        final Text passwordValue = new Text(inputComposite, SWT.BORDER);
-        passwordValue.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
-        
-        GridLayoutFactory.fillDefaults().numColumns(2).spacing(8, 8).generateLayout(inputComposite);
-        
-        Button storeInKeyChainCheckbox = new Button(content, SWT.CHECK);
-        storeInKeyChainCheckbox.setText("Remember this password in my keychain");
-        storeInKeyChainCheckbox.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).create());
-        
-        Composite buttons = new Composite(content, SWT.NONE);
-        buttons.setLayoutData(GridDataFactory.fillDefaults().indent(0, 4).grab(true, false).align(SWT.TRAIL,
-                SWT.CENTER).create());
-        
-        Button cancelButton = new Button(buttons, SWT.NONE);
-        cancelButton.setText("    Cancel    ");
-        cancelButton.setLayoutData(GridDataFactory.fillDefaults().minSize(100, 0).create());
-        
-        Button loginButton = new Button(buttons, SWT.NONE);
-        loginButton.setText("    Login    ");
-        dialog.setDefaultButton(loginButton);
-        loginButton.setLayoutData(GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).hint(150, 0)
-                .create());
-        
-        GridLayoutFactory.fillDefaults().numColumns(2).spacing(2, 8).generateLayout(buttons);
-        
-        GridLayoutFactory.fillDefaults().spacing(8, 8).generateLayout(content);
-        
-        GridLayoutFactory.fillDefaults().margins(24, 20).spacing(8, 8).numColumns(2).generateLayout(dialog);
-        
-        dialog.setSize(dialog.computeSize(420, SWT.DEFAULT));
-        
-        final String[] result = new String[1];
-        cancelButton.addSelectionListener(new SelectionAdapter() {
-            
-            public void widgetSelected(SelectionEvent e) {
-                dialog.dispose();
-            }
-            
-        });
-        loginButton.addSelectionListener(new SelectionAdapter() {
-            
-            public void widgetSelected(SelectionEvent e) {
-                result[0] = passwordValue.getText();
-                dialog.dispose();
-            }
-            
-        });
-        
-        dialog.open();
-        Display display = dialog.getDisplay();
-        while (!dialog.isDisposed())
-            if (!display.readAndDispatch())
-                display.sleep();
-        return result[0];
+    public PasswordResult askPassword(String domain, String login) {
+        closeSynchProgressSheet();
+        try {
+            PasswordSheet sheet = new PasswordSheet(shell, domain, login);
+            return sheet.runModal();
+        } finally {
+            openSynchProgressSheet();
+        }
     }
-    
 }

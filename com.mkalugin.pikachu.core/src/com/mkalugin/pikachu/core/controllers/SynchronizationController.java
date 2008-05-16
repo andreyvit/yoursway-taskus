@@ -12,16 +12,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.runtime.OperationCanceledException;
+
 import com.kalugin.plugins.sync.api.Source;
 import com.kalugin.plugins.sync.api.SourceCallback;
+import com.kalugin.plugins.sync.api.SourceQueryFailed;
 import com.kalugin.plugins.sync.api.SyncPluginsRegistry;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
-import com.kalugin.plugins.sync.api.synchronizer.SynchronizationResult;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
-import com.kalugin.plugins.sync.api.synchronizer.TaskId;
 import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
-import com.kalugin.plugins.sync.api.synchronizer.changes.ChangeVisitor;
 import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChange;
 import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChangeVisitor;
 import com.mkalugin.pikachu.core.ast.ADocument;
@@ -80,7 +80,12 @@ public class SynchronizationController {
     
     private void synchronize(MProject project, List<SynchronizationDefinition> definitions, File muflaFufla) {
         for (SynchronizationDefinition definition : definitions) 
-            synchronize(project, definition, muflaFufla);
+            try {
+                synchronize(project, definition, muflaFufla);
+            } catch (OperationCanceledException e) {
+            } catch (SourceQueryFailed e) {
+                e.printStackTrace(System.err);
+            }
     }
 
     private void synchronize(MProject project, final SynchronizationDefinition definition, File animals) {

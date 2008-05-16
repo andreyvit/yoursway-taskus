@@ -41,13 +41,12 @@ public abstract class SheetDialog {
 
 		this.parent = parent;
 		application = parent.getDisplay().getApplication();
-		
-		dialog = createShell();
 	}
 	
 	protected abstract Shell createShell();
 
 	public void open() {
+	    dialog = createShell();
 		if (parent == null)
 			throw new NullPointerException("parent shell is null");
 
@@ -59,9 +58,13 @@ public abstract class SheetDialog {
 		delegate.setTag(ref);
 
 		NSWindow sheetWindow = dialog.view.window();
-		sheetWindow.setReleasedWhenClosed(false);
+//		sheetWindow.setReleasedWhenClosed(false);
 		application.beginSheet(sheetWindow, parent.view.window(), delegate,
 				sel_sheetDidEnd_returnCode_contextInfo_, 0);
+		
+//		Shell shell = new Shell();
+//		shell.open();
+//		shell.dispose();
 	}
 
 	static int delegateProc(int id, int sel, int arg0, int arg1, int arg2) {
@@ -75,6 +78,7 @@ public abstract class SheetDialog {
 		application.endSheet_(dialog.view.window());
 		dialog.view.window().close();
 		parent.setActive();
+		dialog.dispose();
 	}
 
 }
