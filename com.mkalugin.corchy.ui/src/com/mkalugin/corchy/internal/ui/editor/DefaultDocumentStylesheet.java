@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.editor;
+package com.mkalugin.corchy.internal.ui.editor;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -14,10 +14,8 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
     private Font textFont;
     private Color tagColor;
     private Color textColor;
-    private final Display display;
 
 	public DefaultDocumentStylesheet(Display display) {
-        this.display = display;
         projectFont = new Font(display, "Helvetica", 16, SWT.BOLD);
 		textFont = new Font(display, "Helvetica", 13, 0);
 		taskFont = new Font(display, "Helvetica", 13, 0);
@@ -29,10 +27,6 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 	public void styleProject(TextStyle style) {
 		style.underline = true;
 		style.font = projectFont;
-//		Color projectForegroundColor = display.getSystemColor(SWT.COLOR_WHITE);
-//		Color projectBackgroundColor = display.getSystemColor(SWT.COLOR_BLACK);
-//		style.background = projectBackgroundColor;
-//		style.foreground = projectForegroundColor;
 	}
 
 	public void styleTaskLeader(TextStyle style) {

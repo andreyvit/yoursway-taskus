@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.ui.util;
 
 import org.eclipse.jface.dialogs.IDialogSettings;
 

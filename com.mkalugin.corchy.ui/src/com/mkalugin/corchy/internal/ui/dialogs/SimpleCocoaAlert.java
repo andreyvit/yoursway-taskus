@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.cocoa;
+package com.mkalugin.corchy.internal.ui.dialogs;
 
 import org.eclipse.swt.widgets.Shell;
 

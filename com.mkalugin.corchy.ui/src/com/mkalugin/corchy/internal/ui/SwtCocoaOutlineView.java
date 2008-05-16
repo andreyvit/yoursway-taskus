@@ -9,7 +9,6 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.internal.cocoa.NSColor;
 import org.eclipse.swt.internal.cocoa.NSOutlineView;
 import org.eclipse.swt.widgets.Composite;

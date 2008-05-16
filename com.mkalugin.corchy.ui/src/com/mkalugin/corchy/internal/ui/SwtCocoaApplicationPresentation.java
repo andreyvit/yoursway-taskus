@@ -23,11 +23,12 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.mkalugin.corchy.internal.cocoa.CocoaAlert;
-import com.mkalugin.corchy.internal.cocoa.SimpleCocoaAlert;
-import com.mkalugin.corchy.internal.dialogs.SheetDialog;
-import com.mkalugin.corchy.internal.editor.CorchyViewer;
+import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
+import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
+import com.mkalugin.corchy.internal.ui.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
+import com.mkalugin.corchy.internal.ui.util.MenuBuilder;
+import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
 import com.mkalugin.corchy.ui.core.preference.IPreferenceStore;
 import com.mkalugin.corchy.ui.core.preference.SubPreferenceStore;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;

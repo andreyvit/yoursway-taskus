@@ -1,8 +1,8 @@
 package com.mkalugin.corchy.internal.ui;
 
-import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.texturedButton;
-import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_LEFT_ARROW;
-import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_RIGHT_ARROW;
+import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_LEFT_ARROW;
+import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_RIGHT_ARROW;
+import static com.mkalugin.corchy.internal.ui.util.CocoaUtil.texturedButton;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;

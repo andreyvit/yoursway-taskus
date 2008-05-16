@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.editor;
+package com.mkalugin.corchy.internal.ui.editor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;

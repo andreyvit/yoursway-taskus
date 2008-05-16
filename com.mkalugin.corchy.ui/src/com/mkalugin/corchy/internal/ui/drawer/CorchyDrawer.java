@@ -1,11 +1,13 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.ui.drawer;
 
-import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.NSMakeSize;
+import static com.mkalugin.corchy.internal.ui.util.CocoaUtil.NSMakeSize;
 
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.widgets.Drawer;
 import org.eclipse.swt.widgets.Shell;
+
+import com.mkalugin.corchy.internal.ui.SwtCocoaOutlineView;
 
 public class CorchyDrawer {
 

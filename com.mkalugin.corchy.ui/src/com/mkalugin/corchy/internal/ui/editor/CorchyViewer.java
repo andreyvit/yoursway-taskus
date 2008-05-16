@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.mkalugin.corchy.internal.editor;
+package com.mkalugin.corchy.internal.ui.editor;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;

@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.editor;
+package com.mkalugin.corchy.internal.ui.editor;
 
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;

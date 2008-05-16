@@ -1,15 +1,15 @@
-package com.mkalugin.corchy.internal.cocoa;
+package com.mkalugin.corchy.internal.ui.dialogs;
 
 import org.eclipse.swt.internal.cocoa.NSObject;
 import org.eclipse.swt.internal.cocoa.OS;
 
-public class SWTAlertDelegate extends NSObject {
+public class SWTFileSheetDelegate extends NSObject {
 
-    public SWTAlertDelegate() {
+    public SWTFileSheetDelegate() {
         super(0);
     }
         
-    public SWTAlertDelegate(int id) {
+    public SWTFileSheetDelegate(int id) {
         super(id);
     }
 
@@ -17,7 +17,6 @@ public class SWTAlertDelegate extends NSObject {
         int[] tag = new int[1];
         OS.object_getInstanceVariable(id, "tag", tag);    
         return tag[0];
-//        return OS.objc_msgSend(id, OS.sel_tag);
     }
 
     public void setTag(int tag) {

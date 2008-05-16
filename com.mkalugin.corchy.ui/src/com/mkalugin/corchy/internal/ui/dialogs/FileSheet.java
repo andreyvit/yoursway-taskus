@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui;
+package com.mkalugin.corchy.internal.ui.dialogs;
 
 import static com.google.common.collect.Iterables.newArray;
 
@@ -13,6 +13,7 @@ import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
+
 
 public abstract class FileSheet extends FileDialog {
     

@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.dialogs;
+package com.mkalugin.corchy.internal.ui.dialogs;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;

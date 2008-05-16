@@ -1,7 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
-import static com.mkalugin.corchy.internal.cocoa.CocoaUtil.texturedButton;
-import static com.mkalugin.corchy.internal.images.CorchyImages.IMG_SYNC;
+import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_SYNC;
+import static com.mkalugin.corchy.internal.ui.util.CocoaUtil.texturedButton;
 
 import java.io.File;
 
@@ -27,15 +27,16 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 
-import com.mkalugin.corchy.internal.cocoa.CocoaAlert;
-import com.mkalugin.corchy.internal.cocoa.SimpleCocoaAlert;
-import com.mkalugin.corchy.internal.dialogs.SheetDialog;
-import com.mkalugin.corchy.internal.dialogs.SynchronizationProgressDialog;
-import com.mkalugin.corchy.internal.editor.SwtCocoaSourceView;
+import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
+import com.mkalugin.corchy.internal.ui.dialogs.FileSheet;
+import com.mkalugin.corchy.internal.ui.dialogs.SheetDialog;
+import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
+import com.mkalugin.corchy.internal.ui.dialogs.SynchronizationProgressDialog;
+import com.mkalugin.corchy.internal.ui.editor.SwtCocoaSourceView;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
-import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
 import com.mkalugin.pikachu.core.controllers.search.SearchCallback;
 import com.mkalugin.pikachu.core.controllers.search.SearchControls;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
@@ -52,11 +53,7 @@ import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 
 public class SwtCocoaWindow implements DocumentWindow, SearchControls {
     
-    private static final String DIALOG_ID = "mainWindow";
-    
     private static final String APP_TITLE = "Corchy";
-    
-    private static final String EXT = ".corchy";
     
     private SwtCocoaSourceView sourceView;
     private SwtCocoaOutlineView outlineView;
@@ -214,11 +211,6 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls {
         
         GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
-    }
-    
-    
-	public void highlightUsing(ADocument document) {
-        // TODO Auto-generated method stub
     }
     
     public void setText(String text) {

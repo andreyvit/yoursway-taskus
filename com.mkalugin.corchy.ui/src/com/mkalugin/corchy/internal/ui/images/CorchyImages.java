@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.images;
+package com.mkalugin.corchy.internal.ui.images;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,16 +1,14 @@
-package com.mkalugin.corchy.internal.editor;
+package com.mkalugin.corchy.internal.ui.editor;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextPresentation;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Composite;
 
@@ -29,9 +27,7 @@ import com.mkalugin.pikachu.core.ast.ATaskLevelVisitor;
 import com.mkalugin.pikachu.core.ast.ATaskLine;
 import com.mkalugin.pikachu.core.ast.ATaskName;
 import com.mkalugin.pikachu.core.ast.ATextLine;
-import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
-import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
 
@@ -39,16 +35,11 @@ public class SwtCocoaSourceView implements SourceView {
     
     private CorchyViewer sourceViewer;
     private Document document;
-    //	private Workspace workspace;
-    private boolean consuming;
     private DocumentStylesheet stylesheet;
     private SourceViewCallback callback;
     
     public SwtCocoaSourceView(Composite parent) {
         createControls(parent);
-        //		workspace = CorchyApplication.workspace();
-        //		workspace.registerConsumer(this);
-        consuming = false;
     }
     
     private void createControls(Composite parent) {
@@ -95,36 +86,10 @@ public class SwtCocoaSourceView implements SourceView {
             sourceViewer.getUndoManager().redo();
     }
     
-    //	public synchronized void consume(final WorkspaceSnapshot snapshot) {
-    //		consuming = true;
-    //		String current = document.get();
-    //		final String fresh = snapshot.content();
-    //		if (!current.equals(fresh)) {
-    //			Display.getDefault().asyncExec(new Runnable() {
-    //
-    //				public void run() {
-    //				    if (isVirgin) {
-    //				        document.set(fresh);
-    //				        isVirgin = false;
-    //				    }
-    //				}
-    //
-    //			});
-    //
-    //		}
-    //		Display.getDefault().asyncExec(new Runnable() {
-    //
-    //            public void run() {
-    //                updateHighlighting(snapshot);
-    //            }
-    //		    
-    //		});
-    //		consuming = false;
-    //	}
-    
     private boolean settingPresentationFirstTime = true;
     
-    protected void updateHighlighting(ADocument document) {
+    @SuppressWarnings("unchecked")
+	protected void updateHighlighting(ADocument document) {
         TextPresentation presentation = new TextPresentation();
         for (ADocumentLevelNode p : document.getChildren())
             highlight(presentation, p);
@@ -143,7 +108,6 @@ public class SwtCocoaSourceView implements SourceView {
             settingPresentationFirstTime = false;
         } else
             runnable.run();
-        //        sourceViewer.changeTextPresentation(presentation, true);
     }
     
     private void highlight(final TextPresentation presentation, ADocumentLevelNode node) {
@@ -176,14 +140,6 @@ public class SwtCocoaSourceView implements SourceView {
         style.rise = 5;
         stylesheet.styleProject(style);
         presentation.addStyleRange(style);
-        
-        //        try {
-        //            int line = document.getLineOfOffset(range.start());
-        //            sourceViewer.getTextWidget().setLineBackground(line, 1, 
-        //                    sourceViewer.getTextWidget().getDisplay().getSystemColor(SWT.COLOR_BLUE));
-        //        } catch (BadLocationException e) {
-        //            e.printStackTrace();
-        //        }
     }
     
     protected void highlightText(TextPresentation presentation, ANode node) {

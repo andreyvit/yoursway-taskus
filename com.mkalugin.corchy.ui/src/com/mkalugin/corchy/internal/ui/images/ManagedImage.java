@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.images;
+package com.mkalugin.corchy.internal.ui.images;
 
 import org.eclipse.swt.graphics.Image;
 
