@@ -60,7 +60,9 @@ public class SynchronizationController {
         MDocument structure = new StructuredModelBuilder().buildStructure(ast);
         for (MElement element : structure.getChildren())
             if (element instanceof MProject) {
-                process((MProject) element);
+            	MProject project = (MProject) element;
+				callback.setProgressMessage("Synchronizing project " + project.getName());
+                process(project);
             }
         document.setContent(session.commit(), this);
     }
@@ -84,7 +86,16 @@ public class SynchronizationController {
                 synchronize(project, definition, muflaFufla);
             } catch (OperationCanceledException e) {
             } catch (SourceQueryFailed e) {
-                e.printStackTrace(System.err);
+            	Throwable initial = e;
+            	while (true) {
+            		Throwable cause = initial.getCause();
+					if (cause == null || cause == initial)
+            			break;
+        			initial = cause;
+            	}
+            	callback.abortWithMessage(initial.getMessage());
+            } catch (Exception e) {
+            	callback.abortWithMessage("Totally unexpected exception: " + e.getMessage());
             }
     }
 

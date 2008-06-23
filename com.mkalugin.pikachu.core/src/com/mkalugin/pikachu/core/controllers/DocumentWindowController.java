@@ -22,7 +22,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     
     private ProjectSelection projectSelection;
 
-    private PasswordQueryController passwordQueryController;
+    private SynchronizationCallback synchCallback;
     
     public DocumentWindowController(Document document, DocumentWindowFactory factory) {
         if (document == null)
@@ -36,14 +36,23 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
         new SourceViewController(document, projectSelection, window);
         new SearchController(document, window);
         savingAgent = new DocumentSavingAgent(document);
-        passwordQueryController = new PasswordQueryController(window);
+        synchCallback = new SynchronizationCallback(window);
     }
     
     public void startSynchronization() {
     	window.openSynchProgressSheet();
-        SynchronizationController controller = new SynchronizationController(document, passwordQueryController);
-        controller.run();
-        window.closeSynchProgressSheet();
+    	new Thread(new Runnable() {
+
+			public void run() {
+				try {
+					SynchronizationController controller = new SynchronizationController(document, synchCallback);
+			        controller.run();
+				} finally {
+					window.closeSynchProgressSheet();
+				}
+			}
+
+		}).start();
     }
     
     public void openDocumentWindow() {

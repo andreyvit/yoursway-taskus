@@ -6,8 +6,6 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.runtime.OperationCanceledException;
-
 import com.kalugin.plugins.sync.api.Source;
 import com.kalugin.plugins.sync.api.SourceCallback;
 import com.kalugin.plugins.sync.api.SourceQueryFailed;
@@ -115,6 +113,7 @@ public class BasecampSource implements Source {
     }
 
     private void doApplyChanges(Collection<Change> changes) {
+    	verifySource();
         for (Change change : changes)
             change.accept(new ChangeVisitor() {
                 
@@ -172,5 +171,12 @@ public class BasecampSource implements Source {
                 
             });
     }
+
+	private void verifySource() {
+		if (project == null)
+			throw new SourceQueryFailed("No such project: " + projectName);
+		if (list == null)
+			throw new SourceQueryFailed("No such TODO list: " + listName);
+	}
     
 }

@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class SynchronizationProgressDialog extends SheetDialog {
 
+	private Label label;
+
 	public SynchronizationProgressDialog(Shell parent) {
 		super(parent);
 	}
@@ -17,11 +19,10 @@ public class SynchronizationProgressDialog extends SheetDialog {
 	protected Shell createShell() {
 		Shell dialog = new Shell();		
 		dialog.setSize(350, 100);
-		dialog.setVisible(false);
 
-		Label label = new Label(dialog, SWT.NONE);
-		label.setText("Synchronizing...");
-		label.setLayoutData(GridDataFactory.swtDefaults().create());
+		label = new Label(dialog, SWT.NONE);
+		label.setText("Synchronizing...");		
+		label.setLayoutData(GridDataFactory.swtDefaults().minSize(300, SWT.DEFAULT).hint(300, SWT.DEFAULT).create());
 
 		ProgressBar progressBar = new ProgressBar(dialog, SWT.INDETERMINATE);
 		progressBar.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
@@ -29,6 +30,10 @@ public class SynchronizationProgressDialog extends SheetDialog {
 		GridLayoutFactory.swtDefaults().extendedMargins(30, 30, 20, 30).spacing(8, 8).margins(0, 0)
 				.generateLayout(dialog);
 		return dialog;
+	}
+	
+	public void setText(String text) {
+		label.setText(text);
 	}
 
 }

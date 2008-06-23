@@ -42,29 +42,28 @@ public abstract class SheetDialog {
 		this.parent = parent;
 		application = parent.getDisplay().getApplication();
 	}
-	
+
 	protected abstract Shell createShell();
 
 	public void open() {
-	    dialog = createShell();
+		dialog = createShell();
 		if (parent == null)
 			throw new NullPointerException("parent shell is null");
 
-		SWTSheetDelegate delegate = (SWTSheetDelegate) new SWTSheetDelegate().alloc()
-				.init();
+		SWTSheetDelegate delegate = (SWTSheetDelegate) new SWTSheetDelegate().alloc().init();
 		int ref = OS.NewGlobalRef(this);
 		if (ref == 0)
 			SWT.error(SWT.ERROR_NO_HANDLES);
 		delegate.setTag(ref);
 
 		NSWindow sheetWindow = dialog.view.window();
-//		sheetWindow.setReleasedWhenClosed(false);
+		// sheetWindow.setReleasedWhenClosed(false);
 		application.beginSheet(sheetWindow, parent.view.window(), delegate,
 				sel_sheetDidEnd_returnCode_contextInfo_, 0);
-		
-//		Shell shell = new Shell();
-//		shell.open();
-//		shell.dispose();
+
+		// Shell shell = new Shell();
+		// shell.open();
+		// shell.dispose();
 	}
 
 	static int delegateProc(int id, int sel, int arg0, int arg1, int arg2) {
@@ -75,10 +74,12 @@ public abstract class SheetDialog {
 	}
 
 	public void dismiss() {
-		application.endSheet_(dialog.view.window());
-		dialog.view.window().close();
-		parent.setActive();
-		dialog.dispose();
+		if (dialog != null && !dialog.isDisposed()) {
+			application.endSheet_(dialog.view.window());
+			dialog.view.window().close();
+			parent.setActive();
+			dialog.dispose();
+		}
 	}
 
 }

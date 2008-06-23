@@ -14,6 +14,8 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, S
     void setDocumentBinding(DocumentBinding documentBinding, boolean isDocumentEmpty);
 
     void askSaveDiscardCancel(SaveDiscardCancel handler);
+    
+    void showAlertWithMessage(final String title, final String message);
 
     void close();
 
@@ -22,6 +24,8 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, S
     void reportSavingFailed(File file);
 
 	void openSynchProgressSheet();
+	
+	void setSynchProgressMessage(String text);
 
 	void closeSynchProgressSheet();
     

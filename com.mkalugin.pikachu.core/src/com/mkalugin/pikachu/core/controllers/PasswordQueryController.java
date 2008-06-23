@@ -8,7 +8,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.PasswordQueryAgent;
 import com.mkalugin.pikachu.core.controllers.viewglue.PasswordResult;
 
-public class PasswordQueryController implements SourceCallback {
+public class PasswordQueryController {
     
     private PasswordQueryAgent agent;
     
