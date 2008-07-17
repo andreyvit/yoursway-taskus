@@ -12,6 +12,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -81,10 +82,17 @@ public class SwtCocoaOutlineView implements OutlineView {
 	private void createControl(Composite parent) {
 		styledTextScrollable = new CoolStyledTextScrollable(parent, SWT.WRAP);
 		styledTextScrollable.styledText().setAlignment(SWT.RIGHT);
+		styledTextScrollable.styledText().setEditable(false);
+		styledTextScrollable.styledText().setFont(new Font(Display.getDefault(), "Gill Sans", 16, SWT.BOLD));
 		embedder = new StyledTextEmbedder(styledTextScrollable.styledText());
 		
-		Button button = new Button(styledTextScrollable.styledText(), 0);
-		embedder.setTextWithControls("\uFFFC\n\uFFFC", new Control[] {button});
+		OutlineItem item1 = new OutlineItem(styledTextScrollable.styledText());
+		item1.setText("Foo");
+		OutlineItem item2 = new OutlineItem(styledTextScrollable.styledText());
+		item2.setText("Bar");
+		item2.setActive(true);
+		
+		embedder.setTextWithControls("Projects:\n\n\uFFFC\n\uFFFC", new Control[] {item1, item2});
 		
 		
 		
