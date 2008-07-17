@@ -3,7 +3,12 @@
  */
 package com.mkalugin.pikachu.core.controllers;
 
+import java.util.List;
+
 import com.mkalugin.pikachu.core.DocumentListener;
+import com.mkalugin.pikachu.core.ast.ADocument;
+import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
+import com.mkalugin.pikachu.core.ast.AProjectLine;
 import com.mkalugin.pikachu.core.ast.AProjectName;
 import com.mkalugin.pikachu.core.ast.ARange;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
@@ -58,7 +63,17 @@ public class SourceViewController implements SourceViewCallback, DocumentListene
 	}
 
 	public void selectionChanged(int start, int end) {
-		// TODO
+		ADocument node = document.getDocumentNode();
+		List<ADocumentLevelNode> children = node.getChildren();
+		AProjectLine line = null;
+		for (ADocumentLevelNode n : children) {
+			if (n  instanceof AProjectLine && n.range().start() <= start) {
+				line = (AProjectLine) n;
+			} 
+			if (n.range().start() > start)
+				break;
+		}
+		projectSelection.setToProject((line == null)?null:line.name(), this);
 	}
 
 	public void projectSelectionChanged(Object sender) {

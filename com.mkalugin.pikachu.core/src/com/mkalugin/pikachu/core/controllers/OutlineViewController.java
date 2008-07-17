@@ -10,7 +10,7 @@ import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewFactory;
 import com.mkalugin.pikachu.core.model.Document;
 
-public class OutlineViewController implements OutlineViewCallback, DocumentListener {
+public class OutlineViewController implements OutlineViewCallback, DocumentListener, ProjectSelectionListener {
     
     private final OutlineView outlineView;
 	private final Document document;
@@ -19,6 +19,7 @@ public class OutlineViewController implements OutlineViewCallback, DocumentListe
     public OutlineViewController(Document document, ProjectSelection selection, OutlineViewFactory factory) {
         this.document = document;
 		this.projectSelection = selection;
+		projectSelection.addListener(this);
 		outlineView = factory.bindOutlineView(this);
 		pushDocumentToView();
         document.addListener(this);
@@ -43,6 +44,12 @@ public class OutlineViewController implements OutlineViewCallback, DocumentListe
 
 	public void projectSelected(AProjectName name) {
 		projectSelection.setToProject(name, this);
+	}
+
+	public void projectSelectionChanged(Object sender) {
+		if (sender != this) {
+			outlineView.setActiveProject(projectSelection.selectedProject());
+		}
 	}
     
 }
