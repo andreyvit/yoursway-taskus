@@ -85,13 +85,13 @@ public class SearchComposition {
 	private void createSearchNavigationControls(Composite composite) {
     	matchesCountLabel = new Label(composite, SWT.RIGHT);
     	matchesCountLabel.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING)
-                .indent(0, 5).grab(true, false).minSize(100, SWT.DEFAULT).create());
+                .indent(0, 5).grab(true, false).minSize(70, SWT.DEFAULT).create());
     	matchesCountLabel.setText("stub");    	
     	
     	Button prevButton = texturedButton(composite);    	
     	prevButton.setImage(IMG_LEFT_ARROW.get());
     	prevButton.setLayoutData(GridDataFactory.defaultsFor(prevButton).align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).create());
+                .indent(0, 0).hint(32, SWT.DEFAULT).create());
     	prevButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {            	
@@ -102,7 +102,7 @@ public class SearchComposition {
     	Button nextButton = texturedButton(composite);    	
     	nextButton.setImage(IMG_RIGHT_ARROW.get());
     	nextButton.setLayoutData(GridDataFactory.defaultsFor(nextButton).align(SWT.END, SWT.BEGINNING)
-                .indent(0, 0).create());
+                .indent(0, 0).hint(32, SWT.DEFAULT).create());
     	nextButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {

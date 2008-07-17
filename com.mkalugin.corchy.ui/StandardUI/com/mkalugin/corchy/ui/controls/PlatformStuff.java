@@ -84,7 +84,7 @@ public class PlatformStuff {
 	}
 	
 	public static Button texturedButton(Composite parent) {
-		Button button = new Button(parent, SWT.NONE | SWT.PUSH);
+		Button button = new Button(parent, SWT.FLAT);
         return button;
 	}
 	

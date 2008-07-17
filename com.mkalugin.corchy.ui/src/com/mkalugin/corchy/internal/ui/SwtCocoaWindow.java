@@ -194,7 +194,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 		Button syncButton = texturedButton(bottomBar);
 		syncButton.setImage(IMG_SYNC.get());
 		syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING,
-				SWT.BEGINNING).indent(0, 0).create());
+				SWT.BEGINNING).indent(0, 0).hint(32, SWT.DEFAULT).create());
 		syncButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

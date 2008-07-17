@@ -25,7 +25,7 @@ public class BottomBarComposition {
         bottomBar = new Composite(parent, SWT.NONE);
         bottomBar.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).minSize(SWT.DEFAULT, BOTTOM_BAR_SIZE)
                 .hint(SWT.DEFAULT, BOTTOM_BAR_SIZE).create());
-        GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 0).spacing(0, 0).numColumns(1)
+        GridLayoutFactory.fillDefaults().extendedMargins(0, 0, 0, 3).spacing(0, 0).numColumns(1)
                 .generateLayout(parent);
     }
     
