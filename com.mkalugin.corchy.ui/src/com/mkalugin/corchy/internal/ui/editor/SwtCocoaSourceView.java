@@ -4,13 +4,22 @@ import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextPresentation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
@@ -46,7 +55,7 @@ public class SwtCocoaSourceView implements SourceView {
     private void createControls(Composite parent) {
         stylesheet = new DefaultDocumentStylesheet(parent.getDisplay());
         sourceViewer = new CorchyViewer(parent);
-        sourceViewer.getControl().setFocus(); 
+        sourceViewer.getTextWidget().setFocus(); 
         document = createDocument();
         sourceViewer.setDocument(document);
         document.addDocumentListener(new IDocumentListener() {
@@ -88,6 +97,8 @@ public class SwtCocoaSourceView implements SourceView {
     }
     
     private boolean settingPresentationFirstTime = true;
+    private List<Control> perProjectConrols = new ArrayList<Control>();
+    
     
     @SuppressWarnings("unchecked")
 	protected void updateHighlighting(ADocument document) {
@@ -96,14 +107,70 @@ public class SwtCocoaSourceView implements SourceView {
             highlight(presentation, p);
         final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation
                 .getAllStyleRangeIterator());
+        final List<Integer> offsets = new ArrayList<Integer>();
+        final List<ARange> projectLines = new ArrayList<ARange>();
+        final boolean[] flag = { false };
+        for (ADocumentLevelNode p : document.getChildren()) {
+        	p.accept(new ADocumentLevelVisitor() {
+
+				public void visitEmptyLine(AEmptyLine line) {
+					if (flag[0])
+						offsets.add(line.range().start());
+				}
+
+				public void visitProjectLine(AProjectLine line) {
+					flag[0] = true;
+					projectLines.add(line.range());
+				}
+
+				public void visitTaskLine(ATaskLine line) {
+					if (flag[0])
+						offsets.add(line.range().start());
+				}
+
+				public void visitTextLine(ATextLine line) {
+					if (flag[0])
+						offsets.add(line.range().start());	
+				}
+        		
+        	});
+        }        
+        
         Runnable runnable = new Runnable() {
-            
-            public void run() {
-                sourceViewer.getTextWidget().setStyleRanges(
-                        (StyleRange[]) ranges.toArray(new StyleRange[ranges.size()]));
-            }
-            
-        };
+        	
+        	public void run() {
+        		StyledText textWidget = sourceViewer.getTextWidget();
+        		
+				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
+        		IDocument doc = sourceViewer.getDocument();
+        		for (int off : offsets) {
+        			try {
+						int ln = doc.getLineOfOffset(off);
+						textWidget.setLineIndent(ln, 1, 20);
+					} catch (BadLocationException e) {
+					}
+        			
+        		}
+        		textWidget.setStyleRanges(
+        				(StyleRange[]) ranges.toArray(new StyleRange[ranges.size()]));
+        		
+        		for (Control c : perProjectConrols)
+        			c.dispose();
+        		
+        		perProjectConrols.clear();
+        		
+        		for (ARange r : projectLines) {
+        			Rectangle bounds = textWidget.getTextBounds(r.end(), r.end());
+        			Button button = new Button(textWidget, SWT.FLAT);
+            		button.setText("sync now");
+            		button.pack();
+            		button.setLocation(bounds.x + 10, bounds.y);
+            		button.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
+            		perProjectConrols.add(button);
+        		}
+        	}
+        	
+        };          
         if (settingPresentationFirstTime) {
             sourceViewer.getTextWidget().getDisplay().asyncExec(runnable);
             settingPresentationFirstTime = false;
@@ -138,7 +205,7 @@ public class SwtCocoaSourceView implements SourceView {
         ARange range = project.range();
         style.start = range.start();
         style.length = range.length();
-        style.rise = 5;
+//        style.rise = 5;
         stylesheet.styleProject(style);
         presentation.addStyleRange(style);
     }

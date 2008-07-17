@@ -16,16 +16,16 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
     private Color textColor;
 
 	public DefaultDocumentStylesheet(Display display) {
-        projectFont = new Font(display, "Helvetica", 16, SWT.BOLD);
-		textFont = new Font(display, "Helvetica", 13, 0);
-		taskFont = new Font(display, "Helvetica", 13, 0);
-		tagFont = new Font(display, "Helvetica", 13, SWT.ITALIC);
+        projectFont = new Font(display, "Georgia", 24, SWT.BOLD);
+		textFont = new Font(display, "Helvetica Neue", 13, 0);
+		taskFont = new Font(display, "Helvetica Neue", 13, 0);
+		tagFont = new Font(display, "Helvetica Neue", 13, 0);
 		tagColor = display.getSystemColor(SWT.COLOR_GRAY);
-		textColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+		textColor = display.getSystemColor(SWT.COLOR_BLACK);
 	}
 
 	public void styleProject(TextStyle style) {
-		style.underline = true;
+//		style.underline = true;
 		style.font = projectFont;
 	}
 

@@ -12,12 +12,16 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 
 import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
+import com.mkalugin.swthell.CoolStyledTextScrollable;
 
 public class CorchyViewer extends SourceViewer {
 
@@ -72,6 +76,7 @@ public class CorchyViewer extends SourceViewer {
 
 	private StyledText styledText;
 	private SearchResultHighlighter searchResultHighlighter;
+	private CoolStyledTextScrollable styledTextScrollable;
 
 	CorchyViewer(Composite parent) {
 		super(parent, null, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
@@ -79,16 +84,26 @@ public class CorchyViewer extends SourceViewer {
 	}
 
 	@Override
+	public Control getControl() {
+		return styledTextScrollable;
+	}
+	
+	@Override
 	protected StyledText createTextWidget(Composite parent, int styles) {
-		styledText = super.createTextWidget(parent, styles);
+		styledText = super.createTextWidget(parent, styles ^ SWT.V_SCROLL);
+		styledTextScrollable = new CoolStyledTextScrollable(parent, styledText);
+		((GridLayout)(styledTextScrollable.getLayout())).marginLeft = 20;
 		styledText.setIndent(15);
-		styledText.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL,
+		styledText.setLineSpacing(4);
+		
+		styledTextScrollable.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL,
 				SWT.FILL).create());
+		
 		styledText.setData(VIEWER_KEY, this);
 		searchResultHighlighter = new SearchResultHighlighter();
 		styledText.addPaintListener(searchResultHighlighter);
 		return styledText;
-	}
+	}	
 
 	@Override
 	protected Layout createLayout() {
