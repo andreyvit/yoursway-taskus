@@ -190,14 +190,21 @@ public class SwtCocoaSourceView implements SourceView {
 
 				perProjectConrols.clear();
 
+				Rectangle clientArea = textWidget.getClientArea();
+				
 				for (ARange r : projectLines) {
 					Rectangle bounds = textWidget.getTextBounds(r.end(), r.end());
-					Button button = new Button(textWidget, SWT.FLAT);
-					button.setText("sync now");
-					button.pack();
-					button.setLocation(bounds.x + 10, bounds.y);
+					InEditorButton button = new InEditorButton(textWidget);
+					button.setText("sync it");
+					button.setBounds(clientArea.width - 150, bounds.y + 5, 70, 20);
 					button.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
 					perProjectConrols.add(button);
+					
+					InEditorButton button2 = new InEditorButton(textWidget);
+					button2.setText("focus");
+					button2.setBounds(clientArea.width - 70, bounds.y + 5, 65, 20);
+					button2.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
+					perProjectConrols.add(button2);
 				}
 			}
 
