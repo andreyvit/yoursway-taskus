@@ -205,7 +205,6 @@ public class SwtCocoaSourceView implements SourceView {
         ARange range = project.range();
         style.start = range.start();
         style.length = range.length();
-//        style.rise = 5;
         stylesheet.styleProject(style);
         presentation.addStyleRange(style);
     }

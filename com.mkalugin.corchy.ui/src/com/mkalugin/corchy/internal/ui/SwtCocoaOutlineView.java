@@ -12,7 +12,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
 import com.google.common.collect.Iterables;
@@ -20,6 +22,8 @@ import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.AProjectLine;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
+import com.mkalugin.swthell.CoolStyledTextScrollable;
+import com.mkalugin.swthell.StyledTextEmbedder;
 
 public class SwtCocoaOutlineView implements OutlineView {
 
@@ -67,46 +71,58 @@ public class SwtCocoaOutlineView implements OutlineView {
 	private TreeViewer viewer;
     private OutlineViewCallback callback;
 	private Color bgColor;
+	private CoolStyledTextScrollable styledTextScrollable;
+	private StyledTextEmbedder embedder;
 
 	public SwtCocoaOutlineView(Composite parent) {
 		createControl(parent);
 	}
 
 	private void createControl(Composite parent) {
-		viewer = new TreeViewer(parent, SWT.V_SCROLL);
-//		NSOutlineView tableView = (NSOutlineView) viewer.getControl().view;
-//		tableView.setBackgroundColor(NSColor.colorWithDeviceRed((float) 209.0 / 255,
-//				(float) 215.0 / 255, (float) 226.0 / 255, 1));
-		// TODO: fix setBackground in SWT/Cocoa
-		bgColor = new Color(Display.getDefault(), 209, 215, 226);
-		viewer.getTree().setBackground(bgColor);
-		viewer.setContentProvider(new OutlineContentProvider());
-		viewer.setLabelProvider(new OutlineLabelProvider());
-		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
-
-			public void selectionChanged(SelectionChangedEvent event) {
-				ISelection selection = event.getSelection();
-				if (selection instanceof IStructuredSelection) {
-					IStructuredSelection s = (IStructuredSelection) selection;
-					if (!s.isEmpty()) {
-					    AProjectLine element = (AProjectLine) s.getFirstElement();
-					    callback.projectSelected(element.name());					
-					}
-				}
-			}
-			
-		});
-		viewer.getTree().addDisposeListener(new DisposeListener() {
-
-			public void widgetDisposed(DisposeEvent e) {
-				bgColor.dispose();
-			}
-			
-		});
+		styledTextScrollable = new CoolStyledTextScrollable(parent, SWT.WRAP);
+		styledTextScrollable.styledText().setAlignment(SWT.RIGHT);
+		embedder = new StyledTextEmbedder(styledTextScrollable.styledText());
+		
+		Button button = new Button(styledTextScrollable.styledText(), 0);
+		embedder.setTextWithControls("\uFFFC\n\uFFFC", new Control[] {button});
+		
+		
+		
+//		viewer = new TreeViewer(parent, SWT.V_SCROLL);
+////		NSOutlineView tableView = (NSOutlineView) viewer.getControl().view;
+////		tableView.setBackgroundColor(NSColor.colorWithDeviceRed((float) 209.0 / 255,
+////				(float) 215.0 / 255, (float) 226.0 / 255, 1));
+//		// TODO: fix setBackground in SWT/Cocoa
+//		bgColor = new Color(Display.getDefault(), 209, 215, 226);
+//		viewer.getTree().setBackground(bgColor);
+//		viewer.setContentProvider(new OutlineContentProvider());
+//		viewer.setLabelProvider(new OutlineLabelProvider());
+//		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+//
+//			public void selectionChanged(SelectionChangedEvent event) {
+//				ISelection selection = event.getSelection();
+//				if (selection instanceof IStructuredSelection) {
+//					IStructuredSelection s = (IStructuredSelection) selection;
+//					if (!s.isEmpty()) {
+//					    AProjectLine element = (AProjectLine) s.getFirstElement();
+//					    callback.projectSelected(element.name());					
+//					}
+//				}
+//			}
+//			
+//		});
+//		viewer.getTree().addDisposeListener(new DisposeListener() {
+//
+//			public void widgetDisposed(DisposeEvent e) {
+//				bgColor.dispose();
+//			}
+//			
+//		});
 	}
 
 	public void setLayoutData(Object outlineData) {
-		viewer.getControl().setLayoutData(outlineData);
+//		viewer.getControl().setLayoutData(outlineData);
+		styledTextScrollable.setLayoutData(outlineData);
 	}
 
     public OutlineView bind(OutlineViewCallback callback) {
@@ -122,7 +138,7 @@ public class SwtCocoaOutlineView implements OutlineView {
 		Display.getDefault().syncExec(new Runnable() {
 
 			public void run() {
-				viewer.setInput(documentNode);
+				//viewer.setInput(documentNode);
 			}
 			
 		});

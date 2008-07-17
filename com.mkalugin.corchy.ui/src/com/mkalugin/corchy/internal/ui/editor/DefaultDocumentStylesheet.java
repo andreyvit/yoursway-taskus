@@ -21,7 +21,7 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 		taskFont = new Font(display, "Helvetica Neue", 13, 0);
 		tagFont = new Font(display, "Helvetica Neue", 13, 0);
 		tagColor = display.getSystemColor(SWT.COLOR_GRAY);
-		textColor = display.getSystemColor(SWT.COLOR_BLACK);
+		textColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
 	}
 
 	public void styleProject(TextStyle style) {

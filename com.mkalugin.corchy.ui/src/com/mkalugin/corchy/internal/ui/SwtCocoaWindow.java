@@ -33,7 +33,6 @@ import com.mkalugin.corchy.internal.ui.editor.SwtCocoaSourceView;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
-import com.mkalugin.corchy.ui.controls.BottomBarComposition;
 import com.mkalugin.corchy.ui.controls.BasicAlert;
 import com.mkalugin.corchy.ui.controls.FileSheet;
 import com.mkalugin.corchy.ui.controls.PlatformStuff;
@@ -90,7 +89,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 		shell = new Shell();
 		shell.setData(this);
 		shell.setText(computeTitle());
-		shell.setMinimumSize(420, 200); // I love 42
+		shell.setMinimumSize(420, 200); 
 
 		shell.addShellListener(new ShellAdapter() {
 
@@ -101,12 +100,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 
 		});
 
-		BottomBarComposition composition = new BottomBarComposition(shell);
-		createControls(composition.body());
-		fillBottomBar(composition.bottomBar());
+//		BottomBarComposition composition = new BottomBarComposition(shell);
+//		createControls(composition.body());
+		createControls(shell);
+//		fillBottomBar(composition.bottomBar());
 
 		locationManager = new WindowLocationManager(shell, new WindowLocationConfiguration()
-				.initialPosition(initialPosition).size(500, 600));
+				.initialPosition(initialPosition).size(400, 600));
 	}
 
 	public void setDocumentBinding(DocumentBinding documentBinding, boolean isDocumentEmpty) {
@@ -128,57 +128,28 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	private void createEditorAndOutline(final Composite parent) {
-		outlineView = new SwtCocoaOutlineView(parent);
+		
 		sourceView = new SwtCocoaSourceView(parent);
 		final Sash sash = new Sash(parent, SWT.VERTICAL);
-
-		final FormLayout form = new FormLayout();
-		form.spacing = 0;
-		parent.setLayout(form);
-
-		FormData outlineData = new FormData();
-		outlineData.left = new FormAttachment(0, 0);
-		outlineData.right = new FormAttachment(sash, 0);
-		outlineData.top = new FormAttachment(0, 0);
-		outlineData.bottom = new FormAttachment(100, 0);
-		outlineView.setLayoutData(outlineData);
-
-		// min 100 px for the outline, 150 px initially
-		final int limit = 100, byDefault = 150;
-		final FormData sashData = new FormData();
-		sashData.left = new FormAttachment(0, byDefault);
-		sashData.top = new FormAttachment(0, 0);
-		sashData.bottom = new FormAttachment(100, 0);
-		sashData.width = 1;
-		sash.setLayoutData(sashData);
-		sash.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
-				Rectangle sashRect = sash.getBounds();
-				Rectangle shellRect = parent.getClientArea();
-				int right = shellRect.width - sashRect.width - limit;
-				e.x = Math.max(Math.min(e.x, right), limit);
-				if (e.x != sashRect.x) {
-					sashData.left = new FormAttachment(0, e.x);
-					parent.layout();
-				}
-			}
-		});
 		sash.addPaintListener(new PaintListener() {
 
 			public void paintControl(PaintEvent e) {
 				Rectangle sashRect = sash.getBounds();
 				e.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
+				e.gc.setLineStyle(SWT.LINE_DOT);
 				e.gc.drawLine(0, 0, 0, sashRect.height);
 			}
 
 		});
+		outlineView = new SwtCocoaOutlineView(parent);
 
-		FormData editorData = new FormData();
-		editorData.left = new FormAttachment(sash, 0);
-		editorData.right = new FormAttachment(100, 0);
-		editorData.top = new FormAttachment(0, 0);
-		editorData.bottom = new FormAttachment(100, 0);
-		sourceView.setLayoutData(editorData);
+		sourceView.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
+		
+		sash.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(1, SWT.DEFAULT).hint(1, SWT.DEFAULT).create());
+		
+		outlineView.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(150, SWT.DEFAULT).hint(150, SWT.DEFAULT).create());
+		
+		GridLayoutFactory.fillDefaults().numColumns(3).spacing(0, 0).generateLayout(parent);
 	}
 
 	private void createControls(Composite parent) {
@@ -329,7 +300,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 
 	public SearchControls bindSearchControls(SearchCallback callback) {
 		searchCallback = callback;
-		searchComposition.setCallback(callback);
+		if (searchComposition != null)
+			searchComposition.setCallback(callback);
 		return this;
 	}
 
@@ -353,7 +325,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	public void clearSearchField() {
-		searchComposition.setText("");
+		if (searchComposition != null)
+			searchComposition.setText("");
 	}
 
 	public void setEditorSelection(int start, int end) {
