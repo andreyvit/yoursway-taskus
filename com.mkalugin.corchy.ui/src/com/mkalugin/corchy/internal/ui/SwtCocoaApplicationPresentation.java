@@ -1,6 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.mkalugin.corchy.ui.controls.PlatformStuff.setApplicationMenuBar;
 
 import java.io.File;
 import java.util.List;
@@ -23,11 +24,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
-import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
+import com.mkalugin.corchy.internal.ui.dialogs.GotItAlert;
 import com.mkalugin.corchy.internal.ui.editor.CorchyViewer;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.util.MenuBuilder;
+import com.mkalugin.corchy.ui.controls.BasicAlert;
 import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCallback;
@@ -61,7 +62,9 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         display = new Display();
         
         hiddenShell = new Shell();
-        display.setApplicationMenuBar(createMenuBar(hiddenShell));
+
+        setApplicationMenuBar(display, createMenuBar(hiddenShell));
+        
         //        display.setApplicationMenuName("Corchy");
     }
     
@@ -269,7 +272,8 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     
     void setActiveWindow(SwtCocoaWindow window) {
         this.activeWindow = window;
-        fileClose.setEnabled(activeWindow != null);
+        if (!fileClose.isDisposed())
+        	fileClose.setEnabled(activeWindow != null);
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
@@ -324,14 +328,14 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public void displayFailedToOpenError(File file) {
-        CocoaAlert alert = new SimpleCocoaAlert(null);
+        BasicAlert alert = new GotItAlert(null);
         alert.setMessageText("Opening failed");
         alert.setInformativeText(String.format("Could not read from file “%s”.", file.getPath()));
         alert.openModal();
     }
 
     public void displayFailedToCreateEmptyDocumentError() {
-        CocoaAlert alert = new SimpleCocoaAlert(null);
+        BasicAlert alert = new GotItAlert(null);
         alert.setMessageText("Failed to create a document");
         alert.setInformativeText("You've just triggered a disk I/O error #-4982063, you bastard!");
         alert.openModal();

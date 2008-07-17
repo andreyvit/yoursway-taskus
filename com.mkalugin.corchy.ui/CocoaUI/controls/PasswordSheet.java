@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui.dialogs;
+package com.mkalugin.corchy.ui.controls;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -6,6 +6,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.internal.cocoa.NSText;
+import org.eclipse.swt.internal.cocoa.NSTextField;
+import org.eclipse.swt.internal.cocoa.NSTextFieldCell;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -14,7 +17,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.mkalugin.corchy.internal.ui.images.CorchyImages;
-import com.mkalugin.corchy.ui.controls.SheetDialog;
 import com.mkalugin.pikachu.core.controllers.viewglue.PasswordResult;
 
 public class PasswordSheet extends SheetDialog {

@@ -1,7 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_SYNC;
-import static com.mkalugin.corchy.internal.ui.util.CocoaUtil.texturedButton;
+import static com.mkalugin.corchy.ui.controls.PlatformStuff.texturedButton;
 
 import java.io.File;
 
@@ -14,10 +14,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.internal.cocoa.NSString;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -25,23 +22,21 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
-import com.mkalugin.corchy.internal.ui.dialogs.CocoaAlert;
-import com.mkalugin.corchy.internal.ui.dialogs.FileSheet;
+import com.mkalugin.corchy.internal.ui.dialogs.GotItAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.PasswordSheet;
-import com.mkalugin.corchy.internal.ui.dialogs.SheetDialog;
-import com.mkalugin.corchy.internal.ui.dialogs.SimpleCocoaAlert;
 import com.mkalugin.corchy.internal.ui.dialogs.SynchronizationProgressDialog;
 import com.mkalugin.corchy.internal.ui.editor.SwtCocoaSourceView;
-import com.mkalugin.corchy.internal.ui.images.CorchyImages;
 import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
+import com.mkalugin.corchy.ui.controls.BottomBarComposition;
+import com.mkalugin.corchy.ui.controls.BasicAlert;
+import com.mkalugin.corchy.ui.controls.FileSheet;
+import com.mkalugin.corchy.ui.controls.PlatformStuff;
 import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
 import com.mkalugin.pikachu.core.controllers.search.SearchCallback;
 import com.mkalugin.pikachu.core.controllers.search.SearchControls;
@@ -118,9 +113,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 		locationManager.setDialogSettings(preferenceStorageProvider.forKey(documentBinding
 				.getUniqueKey()));
 		shell.setText(documentBinding.getFile().getName());
-		shell.view.window().setRepresentedFilename(
-				NSString.stringWith(documentBinding.getFile().getPath()));
-		shell.view.window().setDocumentEdited(documentBinding.isUntitled() && !isDocumentEmpty);
+		PlatformStuff.setRepresentedFileName(shell, documentBinding.getFile().getPath());
+		PlatformStuff.setDocumentEdited(shell, documentBinding.isUntitled() && !isDocumentEmpty);
 	}
 
 	public Shell getShell() {
@@ -242,7 +236,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	public void askSaveDiscardCancel(final SaveDiscardCancel handler) {
-		CocoaAlert alert = new CocoaAlert(shell) {
+		BasicAlert alert = new BasicAlert(shell) {
 
 			{
 				setMessageText("Save or discard?");
@@ -275,7 +269,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	public void showAlertWithMessage(final String title, final String message) {
-		CocoaAlert alert = new CocoaAlert(shell) {
+		final BasicAlert alert = new BasicAlert(shell) {
 
 			{
 				setMessageText(title);
@@ -289,7 +283,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 			}
 
 		};
-		alert.open();
+		Display.getDefault().syncExec(new Runnable() {
+
+			public void run() {
+				alert.open();
+			}
+			
+		});
 	}
 
 	public void close() {
@@ -321,7 +321,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	public void reportSavingFailed(File file) {
-		CocoaAlert alert = new SimpleCocoaAlert(null);
+		BasicAlert alert = new GotItAlert(null);
 		alert.setMessageText("Saving failed");
 		alert.setInformativeText(String.format("Could not write into file “%s”.", file.getPath()));
 		alert.openModal();
@@ -426,4 +426,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 			openSynchProgressSheet();
 		}
 	}
+
+	public void runAsync(Runnable runnable) {
+		Display.getDefault().asyncExec(runnable);
+	}
+	
+	public void runSync(Runnable runnable) {
+		Display.getDefault().syncExec(runnable);
+	}
+	
 }

@@ -34,11 +34,4 @@ public class CocoaUtil {
 		return r;
 	}
 	
-	public static Button texturedButton(Composite parent) {
-		Button button = new Button(parent, SWT.NONE | SWT.PUSH);
-        ((NSButton) button.view).setBezelStyle(OS.NSTexturedRoundedBezelStyle);
-        ((NSButton) button.view).setImagePosition(OS.NSImageOnly);
-        return button;
-	}
-	
 }

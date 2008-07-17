@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui.dialogs;
+package com.mkalugin.corchy.ui.controls;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.Callback;

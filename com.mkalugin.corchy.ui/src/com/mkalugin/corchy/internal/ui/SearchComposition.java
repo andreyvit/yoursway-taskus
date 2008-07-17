@@ -2,7 +2,8 @@ package com.mkalugin.corchy.internal.ui;
 
 import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_LEFT_ARROW;
 import static com.mkalugin.corchy.internal.ui.images.CorchyImages.IMG_RIGHT_ARROW;
-import static com.mkalugin.corchy.internal.ui.util.CocoaUtil.texturedButton;
+import static com.mkalugin.corchy.ui.controls.PlatformStuff.setPlaceholderString;
+import static com.mkalugin.corchy.ui.controls.PlatformStuff.texturedButton;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -46,7 +47,7 @@ public class SearchComposition {
         searchNavigationComposite.setVisible(false);
         
         searchField = new Text(composite, SWT.SINGLE | SWT.SEARCH);
-        searchField.setPlaceholderString("Search");        
+        setPlaceholderString(searchField, "Search");
         searchField.setLayoutData(GridDataFactory.defaultsFor(searchField).
         		align(SWT.END, SWT.BEGINNING).grab(false, false)
                 .indent(8, 0).create());

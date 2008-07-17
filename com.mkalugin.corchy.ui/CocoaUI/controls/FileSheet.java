@@ -1,4 +1,4 @@
-package com.mkalugin.corchy.internal.ui.dialogs;
+package com.mkalugin.corchy.ui.controls;
 
 import static com.google.common.collect.Iterables.newArray;
 

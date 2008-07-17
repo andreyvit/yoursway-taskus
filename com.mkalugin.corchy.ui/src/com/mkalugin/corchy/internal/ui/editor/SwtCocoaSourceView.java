@@ -11,6 +11,7 @@ import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
@@ -204,8 +205,8 @@ public class SwtCocoaSourceView implements SourceView {
         stylesheet.dispose();
     }
     
-    public void setText(String text) {
-        document.set(text);
+    public void setText(final String text) {
+		document.set(text);
     }
     
     public SourceView bind(SourceViewCallback callback) {

@@ -2,9 +2,11 @@ package com.mkalugin.corchy.internal.ui.dialogs;
 
 import org.eclipse.swt.widgets.Shell;
 
-public class SimpleCocoaAlert extends CocoaAlert {
+import com.mkalugin.corchy.ui.controls.BasicAlert;
 
-    public SimpleCocoaAlert(Shell parent) {
+public class GotItAlert extends BasicAlert {
+
+    public GotItAlert(Shell parent) {
         super(parent);
         addButton("Got it");
     }

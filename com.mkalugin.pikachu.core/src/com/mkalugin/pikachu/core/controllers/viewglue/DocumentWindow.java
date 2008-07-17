@@ -28,5 +28,9 @@ public interface DocumentWindow extends OutlineViewFactory, SourceViewFactory, S
 	void setSynchProgressMessage(String text);
 
 	void closeSynchProgressSheet();
+
+	void runAsync(Runnable runnable);
+
+	void runSync(Runnable runnable);
     
 }

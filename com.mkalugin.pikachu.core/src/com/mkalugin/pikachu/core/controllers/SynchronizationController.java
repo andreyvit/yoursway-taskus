@@ -28,6 +28,7 @@ import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.sync.LocalTag;
 import com.mkalugin.pikachu.core.controllers.sync.LocalTask;
 import com.mkalugin.pikachu.core.controllers.sync.rewriting.RewritingSession;
+import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.model.Document;
 import com.mkalugin.pikachu.core.model.document.structure.MDocument;
 import com.mkalugin.pikachu.core.model.document.structure.MElement;
@@ -54,7 +55,7 @@ public class SynchronizationController {
         this.callback = callback;
     }
     
-    public void run() {
+    public void run(DocumentWindow window) {
         ADocument ast = document.getDocumentNode();
         session = new RewritingSession(document.getContent());
         MDocument structure = new StructuredModelBuilder().buildStructure(ast);
@@ -63,8 +64,14 @@ public class SynchronizationController {
             	MProject project = (MProject) element;
 				callback.setProgressMessage("Synchronizing project " + project.getName());
                 process(project);
-            }
-        document.setContent(session.commit(), this);
+            }        
+        window.runSync(new Runnable() {
+
+			public void run() {
+				document.setContent(session.commit(), this);
+			}
+        	
+        });
     }
 
     private void process(MProject project) {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.mkalugin.corchy.internal.ui.dialogs;
+package com.mkalugin.corchy.ui.controls;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.Callback;
@@ -11,7 +11,7 @@ import org.eclipse.swt.internal.cocoa.NSWindow;
 import org.eclipse.swt.internal.cocoa.OS;
 import org.eclipse.swt.widgets.Shell;
 
-public abstract class CocoaAlert {
+public abstract class BasicAlert {
 
 	private static final int sel_alertDidEnd_returnCode_contextInfo_ = OS
 			.sel_registerName("alertDidEnd:returnCode:contextInfo:");
@@ -19,7 +19,7 @@ public abstract class CocoaAlert {
 	private NSAlert alert;
 
 	private static void initClass() {
-		Callback callback = new Callback(CocoaAlert.class, "delegateProc", 5);
+		Callback callback = new Callback(BasicAlert.class, "delegateProc", 5);
 		int proc = callback.getAddress();
 		if (proc == 0)
 			SWT.error(SWT.ERROR_NO_MORE_CALLBACKS);
@@ -36,7 +36,7 @@ public abstract class CocoaAlert {
 		initClass();
 	}
 
-	public CocoaAlert(Shell parent) {
+	public BasicAlert(Shell parent) {
 		this.parent = parent;
 		alert = (NSAlert) new NSAlert().alloc().init();
 	}
@@ -78,7 +78,7 @@ public abstract class CocoaAlert {
 	static int delegateProc(int id, int sel, int arg0, int arg1, int arg2) {
 		SWTAlertDelegate delegate = new SWTAlertDelegate(id);
 		int ref = delegate.tag();
-		CocoaAlert cocoaAlert = (CocoaAlert) OS.JNIGetObject(ref);
+		BasicAlert cocoaAlert = (BasicAlert) OS.JNIGetObject(ref);
 		OS.DeleteGlobalRef(ref);
 		cocoaAlert.finished(arg1 - OS.NSAlertFirstButtonReturn);
 		return 0;

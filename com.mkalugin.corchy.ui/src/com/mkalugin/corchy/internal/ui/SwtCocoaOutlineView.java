@@ -9,9 +9,11 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.internal.cocoa.NSColor;
-import org.eclipse.swt.internal.cocoa.NSOutlineView;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 import com.google.common.collect.Iterables;
 import com.mkalugin.pikachu.core.ast.ADocument;
@@ -64,6 +66,7 @@ public class SwtCocoaOutlineView implements OutlineView {
 
 	private TreeViewer viewer;
     private OutlineViewCallback callback;
+	private Color bgColor;
 
 	public SwtCocoaOutlineView(Composite parent) {
 		createControl(parent);
@@ -71,9 +74,12 @@ public class SwtCocoaOutlineView implements OutlineView {
 
 	private void createControl(Composite parent) {
 		viewer = new TreeViewer(parent, SWT.V_SCROLL);
-		NSOutlineView tableView = (NSOutlineView) viewer.getControl().view;
-		tableView.setBackgroundColor(NSColor.colorWithDeviceRed((float) 209.0 / 255,
-				(float) 215.0 / 255, (float) 226.0 / 255, 1));
+//		NSOutlineView tableView = (NSOutlineView) viewer.getControl().view;
+//		tableView.setBackgroundColor(NSColor.colorWithDeviceRed((float) 209.0 / 255,
+//				(float) 215.0 / 255, (float) 226.0 / 255, 1));
+		// TODO: fix setBackground in SWT/Cocoa
+		bgColor = new Color(Display.getDefault(), 209, 215, 226);
+		viewer.getTree().setBackground(bgColor);
 		viewer.setContentProvider(new OutlineContentProvider());
 		viewer.setLabelProvider(new OutlineLabelProvider());
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -87,6 +93,13 @@ public class SwtCocoaOutlineView implements OutlineView {
 					    callback.projectSelected(element.name());					
 					}
 				}
+			}
+			
+		});
+		viewer.getTree().addDisposeListener(new DisposeListener() {
+
+			public void widgetDisposed(DisposeEvent e) {
+				bgColor.dispose();
 			}
 			
 		});
@@ -105,8 +118,14 @@ public class SwtCocoaOutlineView implements OutlineView {
         return this;
     }
 
-	public void setDocument(ADocument documentNode) {
-		viewer.setInput(documentNode);
+	public void setDocument(final ADocument documentNode) {
+		Display.getDefault().syncExec(new Runnable() {
+
+			public void run() {
+				viewer.setInput(documentNode);
+			}
+			
+		});
 	}
 
 }

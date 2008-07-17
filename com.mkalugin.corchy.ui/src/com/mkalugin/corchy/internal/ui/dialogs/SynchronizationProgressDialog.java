@@ -7,6 +7,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
+import com.mkalugin.corchy.ui.controls.SheetDialog;
+
 public class SynchronizationProgressDialog extends SheetDialog {
 
 	private Label label;
@@ -33,7 +35,8 @@ public class SynchronizationProgressDialog extends SheetDialog {
 	}
 	
 	public void setText(String text) {
-		label.setText(text);
+		if (!label.isDisposed())
+			label.setText(text);
 	}
 
 }
