@@ -24,10 +24,11 @@ public class InEditorButton extends Canvas {
 				e.gc.setFont(font);
 				e.gc.setAlpha(50);
 				e.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
-				e.gc.fillRoundRectangle(e.x, e.y, e.width, e.height, 5, 5);
+				e.gc.fillRoundRectangle(e.x, e.y, e.width, e.height, 10, 10);
 				Point textExtent = e.gc.textExtent(text);
 				e.gc.setAlpha(100);
 				e.gc.drawText(text, (e.width - textExtent.x)/2, (e.height - textExtent.y)/2, true);
+				e.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 			}
 			
 		});

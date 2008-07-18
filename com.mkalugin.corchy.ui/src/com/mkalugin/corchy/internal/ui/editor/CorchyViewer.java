@@ -120,6 +120,7 @@ public class CorchyViewer extends SourceViewer {
 			}
 			
 		});
+		styledTextScrollable.layout();
 		return styledText;
 	}	
 
@@ -152,6 +153,7 @@ public class CorchyViewer extends SourceViewer {
 	
 	public void resetFocusRange() {
 		this.focusRange = null;
+		styledText.getParent().setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 	}
 
 }

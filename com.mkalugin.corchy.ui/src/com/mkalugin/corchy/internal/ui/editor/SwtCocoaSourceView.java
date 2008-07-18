@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
@@ -88,7 +89,7 @@ public class SwtCocoaSourceView implements SourceView {
 					callback.selectionChanged(range.x, range.x + range.y);
 				}
 			}
-			
+
 		});
 		sourceViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
@@ -195,36 +196,48 @@ public class SwtCocoaSourceView implements SourceView {
 				Rectangle clientArea = textWidget.getClientArea();
 				for (int i = 0; i < projectLines.size(); i++) {
 					final ARange r = projectLines.get(i);
-					final ARange r2 = (i < projectLines.size() - 1)?projectLines.get(i + 1):null;
+					final ARange r2 = (i < projectLines.size() - 1) ? projectLines.get(i + 1)
+							: null;
 					Rectangle bounds = textWidget.getTextBounds(r.end(), r.end());
 					InEditorButton button = new InEditorButton(textWidget);
 					button.setText("sync it");
 					button.setBounds(clientArea.width - 150, bounds.y + 5, 70, 20);
 					button.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
 					perProjectConrols.add(button);
-					
-					InEditorButton button2 = new InEditorButton(textWidget);
+
+					final InEditorButton button2 = new InEditorButton(textWidget);
 					button2.setText("focus");
 					button2.setBounds(clientArea.width - 70, bounds.y + 5, 65, 20);
 					button2.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
 					button2.addMouseListener(new MouseListener() {
 
+						boolean active = false;
+
 						public void mouseDoubleClick(MouseEvent e) {
 							// TODO Auto-generated method stub
-							
+
 						}
 
 						public void mouseDown(MouseEvent e) {
 							// TODO Auto-generated method stub
-							
+
 						}
 
 						public void mouseUp(MouseEvent e) {
-							int end = (r2 == null)?(document.range().end() - 1):(r2.start() - 1);
-							sourceViewer.setFocusRange(r.start(), end);
-							sourceViewer.getTextWidget().redraw();
+							if (!active) {
+								int end = (r2 == null) ? (document.range().end() - 1)
+										: (r2.start() - 1);
+								sourceViewer.setFocusRange(r.start(), end);
+								button2.setText("unfocus");
+								sourceViewer.getTextWidget().redraw();
+							} else {
+								sourceViewer.resetFocusRange();
+								button2.setText("focus");
+								sourceViewer.getTextWidget().redraw();
+							}
+							active = !active;
 						}
-						
+
 					});
 					perProjectConrols.add(button2);
 				}
@@ -335,6 +348,7 @@ public class SwtCocoaSourceView implements SourceView {
 
 	public void setText(final String text) {
 		document.set(text);
+		sourceViewer.getTextWidget().notifyListeners(SWT.Modify, new Event());
 	}
 
 	public SourceView bind(SourceViewCallback callback) {
