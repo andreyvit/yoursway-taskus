@@ -20,6 +20,8 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -132,7 +134,7 @@ public class SwtCocoaSourceView implements SourceView {
 	private List<Control> perProjectConrols = new ArrayList<Control>();
 
 	@SuppressWarnings("unchecked")
-	protected void updateHighlighting(ADocument document) {
+	protected void updateHighlighting(final ADocument document) {
 		TextPresentation presentation = new TextPresentation();
 		for (ADocumentLevelNode p : document.getChildren())
 			highlight(presentation, p);
@@ -191,8 +193,9 @@ public class SwtCocoaSourceView implements SourceView {
 				perProjectConrols.clear();
 
 				Rectangle clientArea = textWidget.getClientArea();
-				
-				for (ARange r : projectLines) {
+				for (int i = 0; i < projectLines.size(); i++) {
+					final ARange r = projectLines.get(i);
+					final ARange r2 = (i < projectLines.size() - 1)?projectLines.get(i + 1):null;
 					Rectangle bounds = textWidget.getTextBounds(r.end(), r.end());
 					InEditorButton button = new InEditorButton(textWidget);
 					button.setText("sync it");
@@ -204,6 +207,25 @@ public class SwtCocoaSourceView implements SourceView {
 					button2.setText("focus");
 					button2.setBounds(clientArea.width - 70, bounds.y + 5, 65, 20);
 					button2.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
+					button2.addMouseListener(new MouseListener() {
+
+						public void mouseDoubleClick(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						public void mouseDown(MouseEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						public void mouseUp(MouseEvent e) {
+							int end = (r2 == null)?(document.range().end() - 1):(r2.start() - 1);
+							sourceViewer.setFocusRange(r.start(), end);
+							sourceViewer.getTextWidget().redraw();
+						}
+						
+					});
 					perProjectConrols.add(button2);
 				}
 			}

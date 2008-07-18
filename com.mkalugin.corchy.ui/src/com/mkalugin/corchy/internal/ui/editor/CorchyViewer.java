@@ -10,10 +10,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -77,6 +78,7 @@ public class CorchyViewer extends SourceViewer {
 	private StyledText styledText;
 	private SearchResultHighlighter searchResultHighlighter;
 	private CoolStyledTextScrollable styledTextScrollable;
+	private Point focusRange;
 
 	CorchyViewer(Composite parent) {
 		super(parent, null, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
@@ -102,6 +104,22 @@ public class CorchyViewer extends SourceViewer {
 		styledText.setData(VIEWER_KEY, this);
 		searchResultHighlighter = new SearchResultHighlighter();
 		styledText.addPaintListener(searchResultHighlighter);
+		styledText.addPaintListener(new PaintListener() {
+
+			public void paintControl(PaintEvent e) {
+				if (focusRange != null) {
+					Rectangle clientArea = styledText.getClientArea();
+					Rectangle bounds = styledText.getTextBounds(focusRange.x, focusRange.y);
+					int y1 = bounds.y;
+					int y2 = bounds.y + bounds.height;
+					e.gc.setAlpha(100);
+					e.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
+					e.gc.fillRectangle(0, 0, clientArea.width, y1);
+					e.gc.fillRectangle(0, y2, clientArea.width, clientArea.height - y2);
+				}
+			}
+			
+		});
 		return styledText;
 	}	
 
@@ -125,6 +143,15 @@ public class CorchyViewer extends SourceViewer {
 
 	public void setSelectionTo(int start, int end) {
 		styledText.setSelection(start, end);
+	}
+
+	public void setFocusRange(int start, int end) {
+		this.focusRange = new Point(start, end);
+		styledText.getParent().setBackground(new Color(Display.getDefault(), 155, 155, 155));
+	}
+	
+	public void resetFocusRange() {
+		this.focusRange = null;
 	}
 
 }

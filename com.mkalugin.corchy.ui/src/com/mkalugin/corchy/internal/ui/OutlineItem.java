@@ -1,5 +1,6 @@
 package com.mkalugin.corchy.internal.ui;
 
+import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -15,7 +16,7 @@ public class OutlineItem extends Canvas {
 	private boolean active;
 	private Font font;
 	private Font activeFont;
-	
+
 	public OutlineItem(Composite parent) {
 		super(parent, SWT.NONE);
 		font = new Font(Display.getDefault(), "Gill Sans", 16, 0);
@@ -24,19 +25,19 @@ public class OutlineItem extends Canvas {
 		this.addPaintListener(new PaintListener() {
 
 			public void paintControl(PaintEvent e) {
-				e.gc.setFont(active?activeFont:font);
+				e.gc.setFont(active ? activeFont : font);
 				Point textExtent = e.gc.textExtent(text);
 				e.gc.drawText(text, e.width - textExtent.x, 0);
 			}
-			
+
 		});
 		this.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
 	}
-	
+
 	public void setText(String text) {
 		this.text = text;
 	}
-	
+
 	public String getText() {
 		return text;
 	}
@@ -44,11 +45,11 @@ public class OutlineItem extends Canvas {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-	
+
 	@Override
 	public Point computeSize(int hint, int hint2, boolean changed) {
 		Point computedSize = super.computeSize(hint, hint2, changed);
-			return new Point(computedSize.x, 20);
+		return new Point(Math.max(computedSize.x, 120), 20);
 	}
-	
+
 }

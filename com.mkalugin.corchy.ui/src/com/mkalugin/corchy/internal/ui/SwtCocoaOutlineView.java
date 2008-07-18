@@ -89,6 +89,7 @@ public class SwtCocoaOutlineView implements OutlineView {
 							public void mouseUp(MouseEvent e) {
 								AProjectName name = (AProjectName) e.widget.getData();
 								callback.projectSelected(name);
+								SwtCocoaOutlineView.this.setActiveProject(name);
 							}
 
 						});
