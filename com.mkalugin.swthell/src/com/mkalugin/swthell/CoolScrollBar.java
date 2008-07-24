@@ -40,6 +40,7 @@ public class CoolScrollBar extends Canvas {
     private class DragginMouseListener implements MouseListener, MouseMoveListener {
         
         private boolean dragMode;
+        private float mouseOffset;
         
         public void mouseDoubleClick(MouseEvent e) {
         }
@@ -48,6 +49,7 @@ public class CoolScrollBar extends Canvas {
             if (lastRunnerRect != null) {
                 dragMode = true;
                 if (!lastRunnerRect.contains(e.x, e.y)) {
+                    //> scrolling by pages 
                     float newPosition = positionForClick(e.x, e.y);
                     if (newPosition >= 0) {
                         position = newPosition;
@@ -55,6 +57,7 @@ public class CoolScrollBar extends Canvas {
                         CoolScrollBar.this.notifyListeners(SWT.Selection, new Event());
                     }
                 }
+                mouseOffset = e.y - clickForPosition(position);
             }
         }
         
@@ -64,13 +67,51 @@ public class CoolScrollBar extends Canvas {
         
         public void mouseMove(MouseEvent e) {
             if (dragMode) {
-                float newPosition = positionForClick(e.x, e.y);
+                float newPosition = positionForClick(e.x - mouseOffset, e.y - mouseOffset);
                 if (newPosition >= 0) {
                     position = newPosition;
                     redraw();
                     CoolScrollBar.this.notifyListeners(SWT.Selection, new Event());
                 }
             }
+        }
+        
+        private float positionForClick(float xc, float yc) {
+            float coord = (vertical ? yc : xc) - runnerLength() / 2;
+            
+            if (ratio() > 0.9) // nothing to show
+                return -1;
+            
+            float activeSpace = activeSpace();
+            
+            if (coord < beginMargin)
+                coord = beginMargin;
+            
+            if (coord > beginMargin + activeSpace)
+                coord = beginMargin + activeSpace;
+            
+            return (whole - visibleHeight) * (coord - beginMargin) / activeSpace;
+        }
+        
+        private float clickForPosition(float position) {
+            return position * activeSpace() / (whole - visibleHeight) + beginMargin + runnerLength() / 2;
+        }
+        
+        private float activeSpace() {
+            return length() - runnerLength() - beginMargin - endMargin;
+        }
+        
+        private float runnerLength() {
+            return Math.max(ratio() * length(), 10);
+        }
+        
+        private float length() {
+            Rectangle clientArea = CoolScrollBar.this.getClientArea();
+            return vertical ? clientArea.height : clientArea.width;
+        }
+        
+        private float ratio() {
+            return visibleHeight / whole;
         }
         
     }
@@ -88,27 +129,6 @@ public class CoolScrollBar extends Canvas {
             return new Rectangle(3, pos, 7, runnerLength);
         else
             return new Rectangle(pos, 3, runnerLength, 7);
-    }
-    
-    private float positionForClick(float xc, float yc) {
-        float coord = vertical ? yc : xc;
-        
-        float ratio = visibleHeight / whole;
-        if (ratio > 0.9) // nothing to show
-            return -1;
-        
-        Rectangle clientArea = CoolScrollBar.this.getClientArea();
-        float length = vertical ? clientArea.height : clientArea.width;
-        float runnerLength = Math.max(ratio * length, 10);
-        float activeSpace = length - runnerLength - beginMargin - endMargin;
-        
-        if (coord < beginMargin)
-            coord = beginMargin;
-        
-        if (coord > beginMargin + activeSpace)
-            coord = beginMargin + activeSpace;
-        
-        return (whole - visibleHeight) * (coord - beginMargin) / activeSpace;
     }
     
     public CoolScrollBar(Composite parent, int style, boolean vertical) {
