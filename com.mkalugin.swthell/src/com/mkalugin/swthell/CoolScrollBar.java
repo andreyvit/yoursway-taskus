@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Event;
 public class CoolScrollBar extends Canvas {
     
     private float whole;
-    private float visible;
+    private float visibleHeight;
     private float position;
     
     private float alpha;
@@ -76,14 +76,14 @@ public class CoolScrollBar extends Canvas {
     }
     
     private Rectangle calculateRunnerRect() {
-        float ratio = visible / whole;
+        float ratio = visibleHeight / whole;
         if (ratio > 0.9) // nothing to show
             return null;
         Rectangle clientArea = CoolScrollBar.this.getClientArea();
         int length = vertical ? clientArea.height : clientArea.width;
         int runnerLength = (int) Math.max(ratio * length, 10);
         int activeSpace = (int) (length - runnerLength - beginMargin - endMargin);
-        int pos = (int) (activeSpace * (position / (whole - visible)) + beginMargin);
+        int pos = (int) (activeSpace * (position / (whole - visibleHeight)) + beginMargin);
         if (vertical)
             return new Rectangle(3, pos, 7, runnerLength);
         else
@@ -93,7 +93,7 @@ public class CoolScrollBar extends Canvas {
     private float positionForClick(float xc, float yc) {
         float coord = vertical ? yc : xc;
         
-        float ratio = visible / whole;
+        float ratio = visibleHeight / whole;
         if (ratio > 0.9) // nothing to show
             return -1;
         
@@ -108,7 +108,7 @@ public class CoolScrollBar extends Canvas {
         if (coord > beginMargin + activeSpace)
             coord = beginMargin + activeSpace;
         
-        return (whole - visible) * (coord - beginMargin) / activeSpace;
+        return (whole - visibleHeight) * (coord - beginMargin) / activeSpace;
     }
     
     public CoolScrollBar(Composite parent, int style, boolean vertical) {
@@ -162,7 +162,7 @@ public class CoolScrollBar extends Canvas {
     
     public void setRunnerSize(float whole, float visible) {
         this.whole = whole;
-        this.visible = visible;
+        this.visibleHeight = visible;
         if (position > whole - visible)
             position = 0;
         redraw();
@@ -173,8 +173,8 @@ public class CoolScrollBar extends Canvas {
         //			throw new IllegalArgumentException("position is out of bounds");
         if (position < 0)
             position = 0;
-        if (position > whole - visible)
-            position = whole - visible;
+        if (position > whole - visibleHeight)
+            position = whole - visibleHeight;
         this.position = position;
         redraw();
     }
@@ -281,6 +281,10 @@ public class CoolScrollBar extends Canvas {
     
     public void animateHide() {
         animateAlpha(false);
+    }
+    
+    public boolean working() {
+        return calculateRunnerRect() != null;
     }
     
 }
