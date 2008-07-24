@@ -40,11 +40,7 @@ public class CoolScrollBarStyledTextBinding {
             
             public void handleEvent(Event event) {
                 widgetHeight = styledText.getBounds().height;
-                int charCount = styledText.getCharCount();
-                if (charCount > 0)
-                    textHeight = styledText.getTextBounds(0, charCount - 1).height;
-                else
-                    textHeight = 0;
+                textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
                 topPixel = styledText.getTopPixel();
                 vScrollBar.setRunnerSize(textHeight, widgetHeight);
                 vScrollBar.setPosition(topPixel);
