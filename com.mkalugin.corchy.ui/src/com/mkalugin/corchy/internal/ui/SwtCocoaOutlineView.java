@@ -1,60 +1,68 @@
 package com.mkalugin.corchy.internal.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.ietf.jgss.Oid;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.mkalugin.pikachu.core.ast.ADocument;
-import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
-import com.mkalugin.pikachu.core.ast.AProjectLine;
 import com.mkalugin.pikachu.core.ast.AProjectName;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
-import com.mkalugin.swthell.CoolStyledTextScrollable;
-import com.mkalugin.swthell.StyledTextEmbedder;
+import com.mkalugin.pikachu.core.model.document.structure.MDocument;
+import com.mkalugin.pikachu.core.model.document.structure.MElement;
+import com.mkalugin.pikachu.core.model.document.structure.MProject;
+import com.mkalugin.pikachu.core.model.document.structure.builder.StructuredModelBuilder;
 
 public class SwtCocoaOutlineView implements OutlineView {
 
 	private OutlineViewCallback callback;
-	private CoolStyledTextScrollable styledTextScrollable;
-	private StyledTextEmbedder embedder;
-	private Font font;
 
-	private List<OutlineItem> controls = new ArrayList<OutlineItem>();
+	private CoolOutlineView coolOutlineView;
 
 	public SwtCocoaOutlineView(Composite parent) {
 		createControl(parent);
 	}
 
 	private void createControl(Composite parent) {
-		styledTextScrollable = new CoolStyledTextScrollable(parent, SWT.WRAP);
-		styledTextScrollable.styledText().setAlignment(SWT.RIGHT);
-		styledTextScrollable.styledText().setEditable(false);
-		font = new Font(Display.getDefault(), "Gill Sans", 16, SWT.BOLD);
-		styledTextScrollable.styledText().setFont(font);
-		embedder = new StyledTextEmbedder(styledTextScrollable.styledText());
+		coolOutlineView = new CoolOutlineView(parent);
+		coolOutlineView.setTitle("Projects:");
+		coolOutlineView.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof MProject) {
+					return ((MProject) element).getName();
+				}
+				return super.getText(element);
+			}
+		});
+		coolOutlineView.addItemsMouseListener(new MouseListener() {
 
-		styledTextScrollable.addDisposeListener(new DisposeListener() {
-
-			public void widgetDisposed(DisposeEvent e) {
-				font.dispose();
+			public void mouseDoubleClick(MouseEvent e) {
 			}
 
+			public void mouseDown(MouseEvent e) {
+			}
+
+			public void mouseUp(MouseEvent e) {
+				MProject project = (MProject) e.widget.getData();
+				AProjectName name = project.getLine().name();
+				callback.projectSelected(name);
+				SwtCocoaOutlineView.this.setActiveProject(name);
+			}
+			
 		});
 	}
 
+
+	
 	public void setLayoutData(Object outlineData) {
-		styledTextScrollable.setLayoutData(outlineData);
+		coolOutlineView.setLayoutData(outlineData);
 	}
 
 	public OutlineView bind(OutlineViewCallback callback) {
@@ -70,60 +78,27 @@ public class SwtCocoaOutlineView implements OutlineView {
 		Display.getDefault().asyncExec(new Runnable() {
 
 			public void run() {
-				destroyControls();
-				List<ADocumentLevelNode> nodes = documentNode.getChildren();
-				for (ADocumentLevelNode n : nodes) {
-					if (n instanceof AProjectLine) {
-						final AProjectLine projectLine = (AProjectLine) n;
-						OutlineItem item = new OutlineItem(styledTextScrollable.styledText());
-						item.setText(projectLine.nameAsString());
-						item.setData(projectLine.name());
-						item.addMouseListener(new MouseListener() {
-
-							public void mouseDoubleClick(MouseEvent e) {
-							}
-
-							public void mouseDown(MouseEvent e) {
-							}
-
-							public void mouseUp(MouseEvent e) {
-								AProjectName name = (AProjectName) e.widget.getData();
-								callback.projectSelected(name);
-								SwtCocoaOutlineView.this.setActiveProject(name);
-							}
-
-						});
-						controls.add(item);
-					}
-				}
-				String text = "Projects:\n\n";
-				if (controls.size() == 0)
-					text += "(none)";
-				else {
-					for (int i = 0; i < controls.size(); i++)
-						text += "\uFFFC\n";
-				}
-				embedder.setTextWithControls(text, controls.toArray(new Control[controls.size()]));
+				StructuredModelBuilder modelBuilder = new StructuredModelBuilder();
+				MDocument document = modelBuilder.buildStructure(documentNode);
+				List<MElement> children = document.getChildren();
+				List<?> projects = Lists.newArrayList(Iterables.filter(children, MProject.class));
+				coolOutlineView.setElements((List<Object>) projects);
+				coolOutlineView.redraw();
 			}
 
 		});
-	}
-
-	protected void destroyControls() {
-		for (OutlineItem c : controls)
-			c.dispose();
-		controls.clear();
 	}
 
 	public void setActiveProject(final AProjectName selectedProject) {
 		Display.getDefault().asyncExec(new Runnable() {
 
 			public void run() {
-				for (OutlineItem item : controls) {
-					AProjectName name = (AProjectName) item.getData();
+				for (OutlineItem item : coolOutlineView.items()) {
+					MProject project = (MProject) item.getData();
+					AProjectName name = project.getLine().name();
 					item.setActive(name.equals(selectedProject));
 				}
-				styledTextScrollable.redraw();
+				coolOutlineView.redraw();
 			}
 		});
 	};

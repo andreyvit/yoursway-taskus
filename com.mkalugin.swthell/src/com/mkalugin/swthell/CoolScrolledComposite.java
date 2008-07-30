@@ -39,14 +39,6 @@ public class CoolScrolledComposite extends Composite {
 		return composite;
 	}
 	
-//	public CoolScrollBar horizontalBar() {
-//		return horizontalBar;
-//	}
-//	
-//	public CoolScrollBar verticalBar() {
-//		return verticalBar;
-//	}
-	
 	@Override
 	public ScrollBar getHorizontalBar() {
 		throw new UnsupportedOperationException();

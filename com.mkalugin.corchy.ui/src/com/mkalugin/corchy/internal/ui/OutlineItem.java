@@ -1,6 +1,5 @@
 package com.mkalugin.corchy.internal.ui;
 
-import org.eclipse.jface.text.TextUtilities;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -18,7 +17,12 @@ public class OutlineItem extends Canvas {
 	private Font activeFont;
 
 	public OutlineItem(Composite parent) {
+		this(parent, true, false);
+	}
+	
+	public OutlineItem(Composite parent, boolean handCursor, boolean initActive) {
 		super(parent, SWT.NONE);
+		active = initActive;
 		font = new Font(Display.getDefault(), "Gill Sans", 16, 0);
 		activeFont = new Font(Display.getDefault(), "Gill Sans", 16, SWT.BOLD);
 		this.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
@@ -27,11 +31,21 @@ public class OutlineItem extends Canvas {
 			public void paintControl(PaintEvent e) {
 				e.gc.setFont(active ? activeFont : font);
 				Point textExtent = e.gc.textExtent(text);
-				e.gc.drawText(text, e.width - textExtent.x, 0);
+				int width = OutlineItem.this.getSize().x;
+				if (textExtent.x > width) {
+					String newText = text; 
+					do {
+						newText = text.substring(0, newText.length() - 1);
+						textExtent = e.gc.textExtent(newText + "...");
+					} while (textExtent.x > width && newText.length() > 0);
+					e.gc.drawText(newText + "...", e.width - textExtent.x, 0);
+				} else 
+					e.gc.drawText(text, e.width - textExtent.x, 0);
 			}
 
 		});
-		this.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
+		if (handCursor)
+			this.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
 	}
 
 	public void setText(String text) {
