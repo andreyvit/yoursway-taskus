@@ -19,19 +19,13 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 
+import com.google.common.collect.Iterables;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelVisitor;
@@ -50,6 +44,9 @@ import com.mkalugin.pikachu.core.ast.ATextLine;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceView;
 import com.mkalugin.pikachu.core.controllers.viewglue.SourceViewCallback;
+import com.mkalugin.pikachu.core.model.document.structure.MDocument;
+import com.mkalugin.pikachu.core.model.document.structure.MProject;
+import com.mkalugin.pikachu.core.model.document.structure.builder.StructuredModelBuilder;
 
 public class SwtCocoaSourceView implements SourceView {
 
@@ -140,7 +137,6 @@ public class SwtCocoaSourceView implements SourceView {
 		final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation
 				.getAllStyleRangeIterator());
 		final List<Integer> offsets = new ArrayList<Integer>();
-		final List<ARange> projectLines = new ArrayList<ARange>();
 		final boolean[] flag = { false };
 		for (ADocumentLevelNode p : document.getChildren()) {
 			p.accept(new ADocumentLevelVisitor() {
@@ -152,7 +148,6 @@ public class SwtCocoaSourceView implements SourceView {
 
 				public void visitProjectLine(AProjectLine line) {
 					flag[0] = true;
-					projectLines.add(line.range());
 				}
 
 				public void visitTaskLine(ATaskLine line) {
@@ -171,74 +166,22 @@ public class SwtCocoaSourceView implements SourceView {
 		Runnable runnable = new Runnable() {
 
 			public void run() {
-				final StyledText textWidget = sourceViewer.getTextWidget();
-//
-//				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
-//				IDocument doc = sourceViewer.getDocument();
-//				for (int off : offsets) {
-//					try {
-//						int ln = doc.getLineOfOffset(off);
-//						textWidget.setLineIndent(ln, 1, 20);
-//					} catch (BadLocationException e) {
-//					}
-//
-//				}
+				StyledText textWidget = sourceViewer.getTextWidget();
+
+				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
+				IDocument doc = sourceViewer.getDocument();
+				for (int off : offsets) {
+					try {
+						int ln = doc.getLineOfOffset(off);
+						textWidget.setLineIndent(ln, 1, 20);
+					} catch (BadLocationException e) {
+					}
+
+				}
 				textWidget.setStyleRanges((StyleRange[]) ranges.toArray(new StyleRange[ranges
 						.size()]));
-//
-//				actionAnnotations.resetAnnotations();
-//
-//				for (int i = 0; i < projectLines.size(); i++) {
-//					final ARange r = projectLines.get(i);
-//					actionAnnotations.addAnnotation(new ActionAnnotation() {
-//						private boolean inside;
-//						@Override
-//						public Point computeSize() {
-//							return new Point(64, 24);
-//						}
-//						@Override
-//						public void render(GC gc, Point offset) {
-//							gc.setAlpha(50);
-//							if (inside)
-//								gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
-//							else
-//								gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-//							gc.fillRoundRectangle(offset.x, offset.y, 64, 24, 10, 10);
-//							gc.setAlpha(255);
-//							gc.drawText("Foo", offset.x, offset.y, true);
-//						}
-//						@Override
-//						public void mouseEnter(MouseEvent e) {
-//							inside = true;
-//							textWidget.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
-//							textWidget.redraw();
-//						}
-//						@Override
-//						public void mouseExit(MouseEvent e) {
-//							inside = false;
-//							textWidget.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_IBEAM));
-//							textWidget.redraw();
-//						}
-//						@Override
-//						public void doAction() {
-//							System.out.println("Wow!");
-//						}
-//					}, r.end());
-//					actionAnnotations.addAnnotation(new ActionAnnotation() {
-//						@Override
-//						public Point computeSize() {
-//							return new Point(32, 24);
-//						}
-//						@Override
-//						public void render(GC gc, Point offset) {
-//							gc.setAlpha(50);
-//							gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
-//							gc.fillRoundRectangle(offset.x, offset.y, 32, 24, 10, 10);
-//							gc.setAlpha(255);
-//							gc.drawText("Foo", offset.x, offset.y, true);
-//						}
-//					}, r.end());
-//				}
+
+				refreshAnnotations(document);
 			}
 
 		};
@@ -247,6 +190,24 @@ public class SwtCocoaSourceView implements SourceView {
 			settingPresentationFirstTime = false;
 		} else
 			runnable.run();
+	}
+
+	protected void refreshAnnotations(ADocument document) {
+		StyledText textWidget = sourceViewer.getTextWidget();
+
+		actionAnnotations.resetAnnotations();
+
+		StructuredModelBuilder builder = new StructuredModelBuilder();
+		MDocument document2 = builder.buildStructure(document);
+		Iterable<MProject> children = Iterables.filter(document2.getChildren(), MProject.class);
+		for (MProject project : children) {
+			int bindingOffset = project.getLine().range().end();
+			if (callback.projectSyncable(project))
+				actionAnnotations.addAnnotation(
+						new SyncProjectAnnotation(textWidget, callback, project), bindingOffset);
+			actionAnnotations.addAnnotation(new FocusActionAnnotation(textWidget, project),
+					bindingOffset);
+		}
 	}
 
 	private void highlight(final TextPresentation presentation, ADocumentLevelNode node) {

@@ -378,7 +378,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	public void fileSynchronizeNow() {
-		callback.startSynchronization();
+		callback.startSynchronization(null);
 	}
 
 	public PasswordQueryAgent bindPasswordQueryAgent() {

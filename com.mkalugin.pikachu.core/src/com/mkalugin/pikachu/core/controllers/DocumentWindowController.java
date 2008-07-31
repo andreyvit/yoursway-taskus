@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.mkalugin.pikachu.core.DocumentListener;
+import com.mkalugin.pikachu.core.ast.AProjectName;
 import com.mkalugin.pikachu.core.controllers.search.SearchController;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
@@ -33,13 +34,13 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
 		setBindingToWindow();
 		document.addListener(this);
 		new OutlineViewController(document, projectSelection, window);
-		new SourceViewController(document, projectSelection, window);
+		new SourceViewController(document, projectSelection, window, this);
 		new SearchController(document, window);
 		savingAgent = new DocumentSavingAgent(document);
 		synchCallback = new SynchronizationCallback(window);
 	}
 
-	public void startSynchronization() {
+	public void startSynchronization(final AProjectName projectName) {
 		window.openSynchProgressSheet();
 		new Thread(new Runnable() {
 
@@ -48,7 +49,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
 
 					SynchronizationController controller = new SynchronizationController(document,
 							synchCallback);
-					controller.run(window);
+					controller.run(window, projectName);
 
 				} finally {
 					window.closeSynchProgressSheet();
