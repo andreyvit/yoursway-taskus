@@ -168,7 +168,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
          
          MenuBuilder builder = new MenuBuilder(menu);
          
-         builder.item("Document Search", SWT.MOD1 + SWT.MOD3 + 'F', new Runnable() {
+         builder.item("Document Search", SWT.MOD1 + 'F', new Runnable() {
              public void run() {
                  activeWindow.switchFocusToSearch();
              }
