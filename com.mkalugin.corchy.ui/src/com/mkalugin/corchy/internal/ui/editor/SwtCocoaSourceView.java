@@ -15,21 +15,18 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextPresentation;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -60,6 +57,7 @@ public class SwtCocoaSourceView implements SourceView {
 	private Document document;
 	private DocumentStylesheet stylesheet;
 	private SourceViewCallback callback;
+	private ActionAnnotations actionAnnotations;
 
 	public SwtCocoaSourceView(Composite parent) {
 		createControls(parent);
@@ -69,6 +67,7 @@ public class SwtCocoaSourceView implements SourceView {
 		stylesheet = new DefaultDocumentStylesheet(parent.getDisplay());
 		sourceViewer = new CorchyViewer(parent);
 		sourceViewer.getTextWidget().setFocus();
+		actionAnnotations = new ActionAnnotations(sourceViewer.getTextWidget());
 		document = createDocument();
 		sourceViewer.setDocument(document);
 		document.addDocumentListener(new IDocumentListener() {
@@ -132,7 +131,6 @@ public class SwtCocoaSourceView implements SourceView {
 	}
 
 	private boolean settingPresentationFirstTime = true;
-	private List<Control> perProjectConrols = new ArrayList<Control>();
 
 	@SuppressWarnings("unchecked")
 	protected void updateHighlighting(final ADocument document) {
@@ -173,74 +171,74 @@ public class SwtCocoaSourceView implements SourceView {
 		Runnable runnable = new Runnable() {
 
 			public void run() {
-				StyledText textWidget = sourceViewer.getTextWidget();
-
-				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
-				IDocument doc = sourceViewer.getDocument();
-				for (int off : offsets) {
-					try {
-						int ln = doc.getLineOfOffset(off);
-						textWidget.setLineIndent(ln, 1, 20);
-					} catch (BadLocationException e) {
-					}
-
-				}
+				final StyledText textWidget = sourceViewer.getTextWidget();
+//
+//				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
+//				IDocument doc = sourceViewer.getDocument();
+//				for (int off : offsets) {
+//					try {
+//						int ln = doc.getLineOfOffset(off);
+//						textWidget.setLineIndent(ln, 1, 20);
+//					} catch (BadLocationException e) {
+//					}
+//
+//				}
 				textWidget.setStyleRanges((StyleRange[]) ranges.toArray(new StyleRange[ranges
 						.size()]));
-
-				for (Control c : perProjectConrols)
-					c.dispose();
-
-				perProjectConrols.clear();
-
-				Rectangle clientArea = textWidget.getClientArea();
-				for (int i = 0; i < projectLines.size(); i++) {
-					final ARange r = projectLines.get(i);
-					final ARange r2 = (i < projectLines.size() - 1) ? projectLines.get(i + 1)
-							: null;
-					Rectangle bounds = textWidget.getTextBounds(r.end(), r.end());
-					InEditorButton button = new InEditorButton(textWidget);
-					button.setText("sync it");
-					button.setBounds(clientArea.width - 150, bounds.y + 5, 70, 20);
-					button.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
-					perProjectConrols.add(button);
-
-					final InEditorButton button2 = new InEditorButton(textWidget);
-					button2.setText("focus");
-					button2.setBounds(clientArea.width - 70, bounds.y + 5, 65, 20);
-					button2.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
-					button2.addMouseListener(new MouseListener() {
-
-						boolean active = false;
-
-						public void mouseDoubleClick(MouseEvent e) {
-							// TODO Auto-generated method stub
-
-						}
-
-						public void mouseDown(MouseEvent e) {
-							// TODO Auto-generated method stub
-
-						}
-
-						public void mouseUp(MouseEvent e) {
-							if (!active) {
-								int end = (r2 == null) ? (document.range().end() - 1)
-										: (r2.start() - 1);
-								sourceViewer.setFocusRange(r.start(), end);
-								button2.setText("unfocus");
-								sourceViewer.getTextWidget().redraw();
-							} else {
-								sourceViewer.resetFocusRange();
-								button2.setText("focus");
-								sourceViewer.getTextWidget().redraw();
-							}
-							active = !active;
-						}
-
-					});
-					perProjectConrols.add(button2);
-				}
+//
+//				actionAnnotations.resetAnnotations();
+//
+//				for (int i = 0; i < projectLines.size(); i++) {
+//					final ARange r = projectLines.get(i);
+//					actionAnnotations.addAnnotation(new ActionAnnotation() {
+//						private boolean inside;
+//						@Override
+//						public Point computeSize() {
+//							return new Point(64, 24);
+//						}
+//						@Override
+//						public void render(GC gc, Point offset) {
+//							gc.setAlpha(50);
+//							if (inside)
+//								gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
+//							else
+//								gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+//							gc.fillRoundRectangle(offset.x, offset.y, 64, 24, 10, 10);
+//							gc.setAlpha(255);
+//							gc.drawText("Foo", offset.x, offset.y, true);
+//						}
+//						@Override
+//						public void mouseEnter(MouseEvent e) {
+//							inside = true;
+//							textWidget.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_ARROW));
+//							textWidget.redraw();
+//						}
+//						@Override
+//						public void mouseExit(MouseEvent e) {
+//							inside = false;
+//							textWidget.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_IBEAM));
+//							textWidget.redraw();
+//						}
+//						@Override
+//						public void doAction() {
+//							System.out.println("Wow!");
+//						}
+//					}, r.end());
+//					actionAnnotations.addAnnotation(new ActionAnnotation() {
+//						@Override
+//						public Point computeSize() {
+//							return new Point(32, 24);
+//						}
+//						@Override
+//						public void render(GC gc, Point offset) {
+//							gc.setAlpha(50);
+//							gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_BLUE));
+//							gc.fillRoundRectangle(offset.x, offset.y, 32, 24, 10, 10);
+//							gc.setAlpha(255);
+//							gc.drawText("Foo", offset.x, offset.y, true);
+//						}
+//					}, r.end());
+//				}
 			}
 
 		};
