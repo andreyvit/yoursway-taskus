@@ -22,24 +22,23 @@ public class CorchyCompletionProcessor implements IContentAssistProcessor {
 		Set<String> tags = new HashSet<String>();
 
 		String prefix = string.substring(Math.max(0, offset - 10), offset);
-		int atin = prefix.indexOf("@");
-		if (atin == -1)
+		int atMarkIndex = prefix.lastIndexOf("@");
+		if (atMarkIndex == -1)
 			return new ICompletionProposal[0];
 
-		prefix = prefix.substring(atin);
+		prefix = prefix.substring(atMarkIndex);
 
 		Pattern pattern = Pattern.compile("@\\w+");
 		Matcher matcher = pattern.matcher(string);
+		int prefixLength = prefix.length();
 		while (matcher.find()) {
 			String group = matcher.group();
-			if (group.startsWith(prefix) && group.length() > prefix.length())
+			if (group.startsWith(prefix) && group.length() > prefixLength)
 				tags.add(group);
 		}
 
 		for (String tag : tags) {
-			proposals.add(new CompletionProposal(tag.substring(prefix.length()), offset, 0, tag
-					.length()
-					- prefix.length()));
+			proposals.add(new CompletionProposal(tag, offset - prefixLength, prefixLength, tag.length()));
 		}
 
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
