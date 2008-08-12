@@ -70,6 +70,7 @@ public class StructuredModelBuilder {
         public void visitProjectLine(AProjectLine line) {
             MProject project = new MProject();
             project.setName(line.nameAsString());
+            project.setLine(line);
             currentProject = project;
             document.addChild(project);
         }

@@ -22,26 +22,18 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
-
 		final ContentAssistant assistant = new ContentAssistant();
-		
+
 		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-//			assistant.setRestoreCompletionProposalSize(getSettings("completion_proposal_size")); //$NON-NLS-1$
 		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
 		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		assistant.enableAutoActivation(true);
+		assistant.setAutoActivationDelay(0);
 
-		
-		alterContentAssistant(assistant);
-
-//			getContentAssistPreference().configure(assistant, fPreferenceStore);
+		assistant.setContentAssistProcessor(new CorchyCompletionProcessor(),
+				IDocument.DEFAULT_CONTENT_TYPE);
 
 		return assistant;
 	}
 
-	protected void alterContentAssistant(ContentAssistant assistant) {
-		assistant.setContentAssistProcessor(new CorchyCompletionProcessor(),
-				IDocument.DEFAULT_CONTENT_TYPE);
-	}
-	
 }

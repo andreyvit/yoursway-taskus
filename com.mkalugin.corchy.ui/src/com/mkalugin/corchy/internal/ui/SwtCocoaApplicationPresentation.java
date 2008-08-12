@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.DisposeEvent;
@@ -146,6 +147,19 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         
         builder.cascade("Find", -1, createFindMenu(shell));
         
+        builder.separator();
+        
+        builder.item("Complete word", SWT.CTRL + ' ', new Runnable() {
+            public void run() {
+                Control focusControl = Display.getCurrent().getFocusControl();
+                if (focusControl instanceof StyledText) {
+                	CorchyViewer viewer = CorchyViewer.fromControl((StyledText) focusControl);
+                    if (viewer != null)
+                    	viewer.doOperation(SourceViewer.CONTENTASSIST_PROPOSALS);
+                }
+            }
+        });
+        
         return menu;
     }
     
@@ -154,7 +168,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
          
          MenuBuilder builder = new MenuBuilder(menu);
          
-         builder.item("Document Search", SWT.MOD1 + SWT.MOD3 + 'F', new Runnable() {
+         builder.item("Document Search", SWT.MOD1 + 'F', new Runnable() {
              public void run() {
                  activeWindow.switchFocusToSearch();
              }

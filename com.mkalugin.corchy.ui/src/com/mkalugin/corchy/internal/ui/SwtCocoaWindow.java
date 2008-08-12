@@ -34,6 +34,7 @@ import com.mkalugin.corchy.internal.ui.location.InitialShellPosition;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationConfiguration;
 import com.mkalugin.corchy.internal.ui.location.WindowLocationManager;
 import com.mkalugin.corchy.ui.controls.BasicAlert;
+import com.mkalugin.corchy.ui.controls.BottomBarComposition;
 import com.mkalugin.corchy.ui.controls.FileSheet;
 import com.mkalugin.corchy.ui.controls.PlatformStuff;
 import com.mkalugin.corchy.ui.core.DialogSettingsProvider;
@@ -100,10 +101,10 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 
 		});
 
-//		BottomBarComposition composition = new BottomBarComposition(shell);
-//		createControls(composition.body());
-		createControls(shell);
-//		fillBottomBar(composition.bottomBar());
+		BottomBarComposition composition = new BottomBarComposition(shell);
+		createControls(composition.body());
+
+		fillBottomBar(composition.bottomBar());
 
 		locationManager = new WindowLocationManager(shell, new WindowLocationConfiguration()
 				.initialPosition(initialPosition).size(400, 600));
@@ -162,22 +163,22 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 	}
 
 	private void fillBottomBar(Composite bottomBar) {
-		Button syncButton = texturedButton(bottomBar);
-		syncButton.setImage(IMG_SYNC.get());
-		syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING,
-				SWT.BEGINNING).indent(0, 0).hint(32, SWT.DEFAULT).create());
-		syncButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				callback.startSynchronization();
-			}
-		});
+//		Button syncButton = texturedButton(bottomBar);
+//		syncButton.setImage(IMG_SYNC.get());
+//		syncButton.setLayoutData(GridDataFactory.defaultsFor(syncButton).align(SWT.BEGINNING,
+//				SWT.BEGINNING).indent(0, 0).hint(32, SWT.DEFAULT).create());
+//		syncButton.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				callback.startSynchronization();
+//			}
+//		});
 
 		searchComposition = new SearchComposition(bottomBar);
 		searchComposition.setLayoutData(GridDataFactory.swtDefaults()
 				.align(SWT.FILL, SWT.BEGINNING).grab(true, false).indent(0, 0).create());
 
-		Composite endSpace = new Composite(bottomBar, SWT.NONE);
+		Composite endSpace = new Composite(bottomBar, SWT.TRANSPARENT);
 		endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(
 				0, 0).hint(15, SWT.DEFAULT).create());
 
