@@ -16,6 +16,8 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 public class CorchyCompletionProcessor implements IContentAssistProcessor {
 
+	private static String SYNC_PROPOSAL = "Sync with <url>, project <project>, list <list>.";
+	
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		String string = viewer.getDocument().get();
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
@@ -23,8 +25,19 @@ public class CorchyCompletionProcessor implements IContentAssistProcessor {
 
 		String prefix = string.substring(Math.max(0, offset - 10), offset);
 		int atMarkIndex = prefix.lastIndexOf("@");
-		if (atMarkIndex == -1)
+		if (atMarkIndex == -1) {
+			int sIndex = prefix.indexOf("Sync");
+			if (sIndex != -1) {
+				String cmd = prefix.substring(sIndex);
+				String pattern = "Sync with".substring(0, cmd.length());
+				if (pattern.equals(cmd)) {
+					return new ICompletionProposal[] {
+							new CompletionProposal(SYNC_PROPOSAL, offset - cmd.length(), cmd.length(), 10)
+					};
+				}
+			}
 			return new ICompletionProposal[0];
+		}
 
 		prefix = prefix.substring(atMarkIndex);
 
@@ -40,6 +53,8 @@ public class CorchyCompletionProcessor implements IContentAssistProcessor {
 		for (String tag : tags) {
 			proposals.add(new CompletionProposal(tag, offset - prefixLength, prefixLength, tag.length()));
 		}
+		
+		
 
 		return proposals.toArray(new ICompletionProposal[proposals.size()]);
 	}
