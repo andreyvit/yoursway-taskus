@@ -15,7 +15,7 @@ import com.yoursway.utils.StringExtractor;
 
 public class BasecampSourceFactory implements SourceFactory {
     
-    private static final Pattern BASECAMP_URL = compile("^(?:(https?)://)?((?:[\\w\\d_.-]+)\\.(?:updatelog|clientsection|seework|grouphub|projectpath)\\.com)(?:/)?\\b");
+    private static final Pattern BASECAMP_URL = compile("^(?:(https?)://)?((?:[\\w\\d_.-]+)\\.(?:updatelog|clientsection|seework|grouphub|projectpath)\\.com)(/)?");
     
     private static final Pattern USERNAME = compile("^(?:,\\s*)?user(?:\\s*name)?\\s+[Ò\"']([^Ó\"']+)[Ó\"']",
             CASE_INSENSITIVE);
@@ -35,7 +35,7 @@ public class BasecampSourceFactory implements SourceFactory {
             String protocol = urlMatch.group(1);
             if (protocol == null)
                 protocol = "http";
-            String host = urlMatch.group(2);
+            String host = urlMatch.group(2);  
             URL url = new URL(protocol, host, "/");
             String userName = null;
             String projectName = null;

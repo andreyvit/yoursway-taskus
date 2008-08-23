@@ -16,7 +16,7 @@ import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
 public class CorchyCompletionProcessor implements IContentAssistProcessor {
 
-	private static String SYNC_PROPOSAL = "Sync with <url>, project <project>, list <list>.";
+	private static String SYNC_PROPOSAL = "Sync with http://yourproject.seework.com/, username \"<username>\", project \"<project>\", list \"<list>\".";
 	
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
 		String string = viewer.getDocument().get();
@@ -26,16 +26,18 @@ public class CorchyCompletionProcessor implements IContentAssistProcessor {
 		String prefix = string.substring(Math.max(0, offset - 10), offset);
 		int atMarkIndex = prefix.lastIndexOf("@");
 		if (atMarkIndex == -1) {
-			int sIndex = prefix.indexOf("Sync");
-			if (sIndex != -1) {
-				String cmd = prefix.substring(sIndex);
-				String pattern = "Sync with".substring(0, cmd.length());
-				if (pattern.equals(cmd)) {
-					return new ICompletionProposal[] {
-							new CompletionProposal(SYNC_PROPOSAL, offset - cmd.length(), cmd.length(), 10)
-					};
-				}
+			int matchLength = 0;
+			int prefixLength = prefix.length();
+			String beginning = "Sync with ";
+			for (matchLength = 0; matchLength < beginning.length(); matchLength++) {
+				if (beginning.charAt(matchLength) != prefix.charAt(prefixLength - 1 - matchLength))
+					break;
 			}
+			if (matchLength > 0) {
+				return new ICompletionProposal[] {
+						new CompletionProposal(SYNC_PROPOSAL, offset - matchLength, matchLength, 0)
+				};
+			}			
 			return new ICompletionProposal[0];
 		}
 
