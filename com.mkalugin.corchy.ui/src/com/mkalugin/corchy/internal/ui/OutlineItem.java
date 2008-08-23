@@ -23,8 +23,8 @@ public class OutlineItem extends Canvas {
 	public OutlineItem(Composite parent, boolean handCursor, boolean initActive) {
 		super(parent, SWT.NONE);
 		active = initActive;
-		font = new Font(Display.getDefault(), "Gill Sans", 16, 0);
-		activeFont = new Font(Display.getDefault(), "Gill Sans", 16, SWT.BOLD);
+		font = new Font(Display.getDefault(), "Gill Sans", 14, 0);
+		activeFont = new Font(Display.getDefault(), "Gill Sans", 14, SWT.BOLD);
 		this.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		this.addPaintListener(new PaintListener() {
 
