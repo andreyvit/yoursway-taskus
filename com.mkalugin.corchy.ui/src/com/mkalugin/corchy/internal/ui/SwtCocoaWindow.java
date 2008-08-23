@@ -130,7 +130,8 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 
 	private void createEditorAndOutline(final Composite parent) {
 		
-		sourceView = new SwtCocoaSourceView(parent);
+		
+		outlineView = new SwtCocoaOutlineView(parent);
 		final Sash sash = new Sash(parent, SWT.VERTICAL);
 		sash.addPaintListener(new PaintListener() {
 
@@ -142,13 +143,13 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
 			}
 
 		});
-		outlineView = new SwtCocoaOutlineView(parent);
+		sourceView = new SwtCocoaSourceView(parent);
 
-		sourceView.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
+		outlineView.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(150, SWT.DEFAULT).hint(150, SWT.DEFAULT).create());
 		
 		sash.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(1, SWT.DEFAULT).hint(1, SWT.DEFAULT).create());
 		
-		outlineView.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(150, SWT.DEFAULT).hint(150, SWT.DEFAULT).create());
+		sourceView.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).align(SWT.FILL, SWT.FILL).create());
 		
 		GridLayoutFactory.fillDefaults().numColumns(3).spacing(0, 0).generateLayout(parent);
 	}

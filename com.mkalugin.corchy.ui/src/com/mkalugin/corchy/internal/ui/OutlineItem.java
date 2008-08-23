@@ -38,9 +38,11 @@ public class OutlineItem extends Canvas {
 						newText = text.substring(0, newText.length() - 1);
 						textExtent = e.gc.textExtent(newText + "...");
 					} while (textExtent.x > width && newText.length() > 0);
-					e.gc.drawText(newText + "...", e.width - textExtent.x, 0);
+//					e.gc.drawText(newText + "...", e.width - textExtent.x, 0);
+					e.gc.drawText(newText + "...", 0, 0);
 				} else 
-					e.gc.drawText(text, e.width - textExtent.x, 0);
+					e.gc.drawText(text, 0, 0);
+					//e.gc.drawText(text, e.width - textExtent.x, 0);
 			}
 
 		});
