@@ -201,12 +201,12 @@ public class SwtCocoaSourceView implements SourceView {
 		MDocument document2 = builder.buildStructure(document);
 		Iterable<MProject> children = Iterables.filter(document2.getChildren(), MProject.class);
 		for (MProject project : children) {
-			int bindingOffset = project.getLine().range().end();
+			int bindingOffset = project.getLine().range().end() - 1;
 			if (callback.projectSyncable(project))
 				actionAnnotations.addAnnotation(
 						new SyncProjectAnnotation(textWidget, callback, project), bindingOffset);
-			actionAnnotations.addAnnotation(new FocusActionAnnotation(textWidget, project),
-					bindingOffset);
+//			actionAnnotations.addAnnotation(new FocusActionAnnotation(textWidget, project),
+//					bindingOffset);
 		}
 	}
 
