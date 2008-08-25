@@ -3,6 +3,7 @@ package com.mkalugin.corchy.internal.ui.editor;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -131,65 +132,68 @@ public class SwtCocoaSourceView implements SourceView {
 
 	@SuppressWarnings("unchecked")
 	protected void updateHighlighting(final ADocument document) {
-		TextPresentation presentation = new TextPresentation();
-		for (ADocumentLevelNode p : document.getChildren())
-			highlight(presentation, p);
-		final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation
-				.getAllStyleRangeIterator());
-		final List<Integer> offsets = new ArrayList<Integer>();
-		final boolean[] flag = { false };
-		for (ADocumentLevelNode p : document.getChildren()) {
-			p.accept(new ADocumentLevelVisitor() {
-
-				public void visitEmptyLine(AEmptyLine line) {
-					if (flag[0])
-						offsets.add(line.range().start());
-				}
-
-				public void visitProjectLine(AProjectLine line) {
-					flag[0] = true;
-				}
-
-				public void visitTaskLine(ATaskLine line) {
-					if (flag[0])
-						offsets.add(line.range().start());
-				}
-
-				public void visitTextLine(ATextLine line) {
-					if (flag[0])
-						offsets.add(line.range().start());
-				}
-
-			});
-		}
-
-		Runnable runnable = new Runnable() {
-
-			public void run() {
-				StyledText textWidget = sourceViewer.getTextWidget();
-
-				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
-				IDocument doc = sourceViewer.getDocument();
-				for (int off : offsets) {
-					try {
-						int ln = doc.getLineOfOffset(off);
-						textWidget.setLineIndent(ln, 1, 20);
-					} catch (BadLocationException e) {
-					}
-
-				}
-				textWidget.setStyleRanges((StyleRange[]) ranges.toArray(new StyleRange[ranges
-						.size()]));
-
-				refreshAnnotations(document);
-			}
-
-		};
-		if (settingPresentationFirstTime) {
-			sourceViewer.getTextWidget().getDisplay().asyncExec(runnable);
-			settingPresentationFirstTime = false;
-		} else
-			runnable.run();
+//		TextPresentation presentation = new TextPresentation();
+//		for (ADocumentLevelNode p : document.getChildren())
+//			highlight(presentation, p);
+//		final ArrayList<StyleRange> ranges = newArrayList((Iterator<StyleRange>) presentation
+//				.getAllStyleRangeIterator());
+////		final List<Integer> offsets = new ArrayList<Integer>();
+////		final boolean[] flag = { false };
+////		for (ADocumentLevelNode p : document.getChildren()) {
+////			p.accept(new ADocumentLevelVisitor() {
+////
+////				public void visitEmptyLine(AEmptyLine line) {
+////					if (flag[0])
+////						offsets.add(line.range().start());
+////				}
+////
+////				public void visitProjectLine(AProjectLine line) {
+////					flag[0] = true;
+////				}
+////
+////				public void visitTaskLine(ATaskLine line) {
+////					if (flag[0])
+////						offsets.add(line.range().start());
+////				}
+////
+////				public void visitTextLine(ATextLine line) {
+////					if (flag[0])
+////						offsets.add(line.range().start());
+////				}
+////
+////			});
+////		}
+//
+//		Runnable runnable = new Runnable() {
+//
+//			public void run() {
+//				StyledText textWidget = sourceViewer.getTextWidget();
+//
+////				textWidget.setLineIndent(0, textWidget.getLineCount(), 0);
+////				IDocument doc = sourceViewer.getDocument();
+////				for (int off : offsets) {
+////					try {
+////						int ln = doc.getLineOfOffset(off);
+////						textWidget.setLineIndent(ln, 1, 20);
+////					} catch (BadLocationException e) {
+////					}
+////
+////				}
+//				StyleRange[] styleRanges = textWidget.getStyleRanges();
+//				HashSet<StyleRange> newRanges = new HashSet<StyleRange>();
+//				styleRanges.
+////				textWidget.setStyleRanges((StyleRange[]) ranges.toArray(new StyleRange[ranges
+////						.size()]));
+//
+////				refreshAnnotations(document);
+//			}
+//
+//		};
+////		if (settingPresentationFirstTime) {
+////			sourceViewer.getTextWidget().getDisplay().asyncExec(runnable);
+////			settingPresentationFirstTime = false;
+////		} else
+//			runnable.run();
 	}
 
 	protected void refreshAnnotations(ADocument document) {
@@ -210,96 +214,7 @@ public class SwtCocoaSourceView implements SourceView {
 		}
 	}
 
-	private void highlight(final TextPresentation presentation, ADocumentLevelNode node) {
-		node.accept(new ADocumentLevelVisitor() {
-
-			public void visitEmptyLine(AEmptyLine line) {
-				highlightText(presentation, line);
-			}
-
-			public void visitProjectLine(AProjectLine line) {
-				highlightProject(presentation, line);
-			}
-
-			public void visitTaskLine(ATaskLine line) {
-				highlightTask(presentation, line);
-			}
-
-			public void visitTextLine(ATextLine line) {
-				highlightText(presentation, line);
-			}
-
-		});
-	}
-
-	protected void highlightProject(TextPresentation presentation, AProjectLine project) {
-		StyleRange style = new StyleRange();
-		ARange range = project.range();
-		style.start = range.start();
-		style.length = range.length();
-		stylesheet.styleProject(style);
-		presentation.addStyleRange(style);
-	}
-
-	protected void highlightText(TextPresentation presentation, ANode node) {
-		StyleRange style = new StyleRange();
-		ARange range = node.range();
-		style.start = range.start();
-		style.length = range.length();
-		stylesheet.styleText(style);
-		presentation.addStyleRange(style);
-	}
-
-	protected void highlightTask(TextPresentation presentation, ATaskLine task) {
-		boolean isDone = task.isDone();
-		for (ATaskLevelNode node : task.getChildren())
-			highlight(presentation, node, isDone);
-	}
-
-	private void highlight(final TextPresentation presentation, ATaskLevelNode node,
-			final boolean isDone) {
-		node.accept(new ATaskLevelVisitor() {
-
-			public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
-				highlightTaskText(presentation, fragment, false);
-			}
-
-			public void visitLeader(ATaskLeader leader) {
-				highlightTaskText(presentation, leader, false);
-			}
-
-			public void visitName(ATaskName name) {
-				highlightTaskText(presentation, name, isDone);
-			}
-
-			public void visitTag(ATag tag) {
-				highlightTaskTag(presentation, tag);
-			}
-
-		});
-	}
-
-	protected void highlightTaskText(TextPresentation presentation, ATaskLevelNode tag,
-			boolean isDone) {
-		StyleRange style = new StyleRange();
-		ARange range = tag.range();
-		style.start = range.start();
-		style.length = range.length();
-		if (isDone)
-			stylesheet.styleDoneTask(style);
-		else
-			stylesheet.styleTask(style);
-		presentation.addStyleRange(style);
-	}
-
-	protected void highlightTaskTag(TextPresentation presentation, ATag tag) {
-		StyleRange style = new StyleRange();
-		ARange range = tag.range();
-		style.start = range.start();
-		style.length = range.length();
-		stylesheet.styleTag(style);
-		presentation.addStyleRange(style);
-	}
+	
 
 	public void dispose() {
 		stylesheet.dispose();
