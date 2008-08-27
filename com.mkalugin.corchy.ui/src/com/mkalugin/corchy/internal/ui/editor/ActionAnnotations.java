@@ -44,7 +44,13 @@ public class ActionAnnotations {
 						.newArrayListMultimap();
 				Rectangle clientArea = styledText.getClientArea();
 				for (AnnotationBinding b : annotations) {
-					Rectangle bounds = styledText.getTextBounds(b.bindingOffset, b.bindingOffset);
+					Rectangle bounds;
+					try {
+						bounds = styledText.getTextBounds(b.bindingOffset,
+								b.bindingOffset);
+					} catch (IllegalArgumentException e1) {
+						continue;
+					}
 					if (bounds.y >= 0 && bounds.y < clientArea.height) {
 						yToAnnotations.get(bounds.y).add(b.annotation);
 					}
@@ -70,7 +76,7 @@ public class ActionAnnotations {
 
 	private class AnnotationsMouseWizard implements MouseListener, MouseTrackListener,
 			MouseMoveListener, MouseWheelListener {
-		
+
 		IActionAnnotation activeAnnotation;
 
 		public void mouseDoubleClick(MouseEvent e) {
@@ -97,7 +103,7 @@ public class ActionAnnotations {
 			}
 			return null;
 		}
-		
+
 		public void mouseEnter(MouseEvent e) {
 			updateActiveAnnotation(e);
 		}
@@ -121,7 +127,7 @@ public class ActionAnnotations {
 		public void mouseScrolled(MouseEvent e) {
 			updateActiveAnnotation(e);
 		}
-		
+
 		private void updateActiveAnnotation(MouseEvent e) {
 			IActionAnnotation annotationAtPoint = annotationAtPoint(new Point(e.x, e.y));
 			if (annotationAtPoint != activeAnnotation) {
@@ -160,7 +166,7 @@ public class ActionAnnotations {
 			annotations.clear();
 		}
 	}
-	
+
 	public void addAnnotation(IActionAnnotation annotation, int bindingOffset) {
 		if (annotation == null)
 			throw new IllegalArgumentException("annotation is null");
