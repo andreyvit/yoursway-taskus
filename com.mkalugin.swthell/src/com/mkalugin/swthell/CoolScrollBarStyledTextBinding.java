@@ -6,6 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -40,7 +41,14 @@ public class CoolScrollBarStyledTextBinding {
             
             public void handleEvent(Event event) {
                 widgetHeight = styledText.getBounds().height;
-                textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
+//                textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
+                int textLength = styledText.getText().length();
+                if (textLength == 0) {
+                	textLength = 0;
+                } else {
+					Rectangle textBounds = styledText.getTextBounds(textLength - 1, textLength - 1);
+					textHeight = textBounds.y + textBounds.height;
+                }
                 topPixel = styledText.getTopPixel();
                 vScrollBar.setRunnerSize(textHeight, widgetHeight);
                 vScrollBar.setPosition(topPixel);
