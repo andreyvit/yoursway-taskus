@@ -35,9 +35,9 @@ public class RewritingSession {
                 break;
         while (pos < sourceEnd && isEndOfLine(charAt(pos)))
             pos++;
-        if (pos == sourceEnd)
-            line = "\n" + line;
-        compound.add(new ReplaceEdit(pos, 0, line)); // + "\n"
+//        if (pos == sourceEnd)
+//            line = "\n" + line;
+        compound.add(new ReplaceEdit(pos, 0, line + "\n")); 
     }
     
     private String serializeTaskLine(MTask task) {
