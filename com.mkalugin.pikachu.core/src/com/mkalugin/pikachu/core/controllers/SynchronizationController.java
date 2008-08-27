@@ -1,6 +1,9 @@
 package com.mkalugin.pikachu.core.controllers;
 
+import static com.google.common.collect.Iterables.addAll;
+import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
 import static com.mkalugin.pikachu.core.controllers.sync.TaskPersistance.parseTasks;
 import static com.mkalugin.pikachu.core.controllers.sync.TaskPersistance.tasksToString;
 import static com.yoursway.utils.YsDigest.sha1;
@@ -10,6 +13,7 @@ import static com.yoursway.utils.YsFileUtils.writeString;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -20,6 +24,7 @@ import com.kalugin.plugins.sync.api.SourceQueryFailed;
 import com.kalugin.plugins.sync.api.SyncPluginsRegistry;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTag;
 import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTask;
+import com.kalugin.plugins.sync.api.synchronizer.SynchronizableTaskUtils;
 import com.kalugin.plugins.sync.api.synchronizer.Synchronizer;
 import com.kalugin.plugins.sync.api.synchronizer.changes.Change;
 import com.kalugin.plugins.sync.api.synchronizer.local_changes.LocalChange;
@@ -167,10 +172,13 @@ public class SynchronizationController {
 		source.applyChanges(changesToApplyRemotely, callback);
 		if (!changesToApplyRemotely.isEmpty()) {
 			// recompute the actual state of remote tasks
+			synchronizer.setOldRemoteTasks(remoteTasksObsessedWithGreen);
 			remoteTasksObsessedWithGreen = source.computeTasks(callback);
 			synchronizer.setNewRemoteTasks(remoteTasksObsessedWithGreen);
 		}
 
+		synchronizer.setOldLocalTasks(localTasksObsessedWithRed); // special street magic
+		
 		Collection<LocalChange> changesToApplyLocally = synchronizer.synchronizeLocal();
 		for (LocalChange change : changesToApplyLocally)
 			change.accept(new ChangeApplicator(definition, localTasksObsessedWithRed));
@@ -210,30 +218,75 @@ public class SynchronizationController {
 		public void visitAddition(SynchronizableTask task) {
 			MTask newTask = wrap(task);
 			session.addTask(newTask, definition.instruction);
+//			localTasks.add(new LocalTask(newTask, definition.source.idTagName()));
 		}
 
 		public void visitTaskRemoval(SynchronizableTask task) {
 			session.removeTask(((LocalTask) task).getTask().getNode());
+//			localTasks.remove(task);
 		}
 
 		public void visitRename(SynchronizableTask olderTask, SynchronizableTask newerTask) {
 			session.renameTask(((LocalTask) olderTask).getTask().getNode(), wrap(newerTask));
+//			localTasks.remove(olderTask);
+//			localTasks.add((LocalTask) newerTask);
 		}
 
 		public void visitTagAddition(SynchronizableTask task, SynchronizableTag tag) {
 			session.insertTag(((LocalTask) task).getTask(), wrap(tag));
+			MTask newTask = wrap(task);
+			newTask.addTag(wrap(tag));
+//			localTasks.remove(task);
+//			localTasks.add(new LocalTask(newTask, definition.source.idTagName()));
 		}
 
 		public void visitTagRemoval(SynchronizableTask task, SynchronizableTag tag) {
 			session.removeTag(((LocalTag) tag).getTag());
+			
+//			MTask newTask = wrap(task);
+//			newTask.removeTag(wrap(tag));
+//			localTasks.remove(task);
+//			localTasks.add(new LocalTask(newTask, definition.source.idTagName()));
+//			
 		}
 
 		public void visitTagValueChange(SynchronizableTask task, SynchronizableTag olderTag,
 				SynchronizableTag newerTag) {
 			session.changeTagValue(((LocalTag) olderTag).getTag(), wrap(newerTag));
+			
+//			MTask newTask = wrap(task);
+//			newTask.removeTag(wrap(olderTag));
+//			newTask.addTag(wrap(newerTag));
+//			localTasks.remove(task);
+//			localTasks.add(new LocalTask(newTask, definition.source.idTagName()));
+//			
 		}
 
+		private boolean falseIgnore(SynchronizableTask remoteTask) {
+			tasksLoop: for (LocalTask task:  localTasks) {
+				if (!remoteTask.getName().equals(task.getName()))
+	        		continue;
+	        	Collection<SynchronizableTag> tags1 = remoteTask.tags();
+	        	Collection<SynchronizableTag> tags2 = task.tags();
+	        	if (tags1.size() != tags2.size())
+	        		continue;
+	        	HashSet<String> tagNames = newHashSet();
+	        	addAll(tagNames, transform(tags1, SynchronizableTaskUtils.TAG_TO_NAME));
+	        	for (String name : transform(tags2, SynchronizableTaskUtils.TAG_TO_NAME)) {
+	        		if (!tagNames.contains(name) && !name.equals(definition.source.idTagName())) {
+	        			continue tasksLoop;
+	        		}
+	        	}
+	        	return true;
+			}
+			return false;
+			
+		}
+		
 		public void visitIgnoredTaskAddition(SynchronizableTask remoteTask) {
+			if (falseIgnore(remoteTask))
+				return;
+			
 			MTag tag = new MTag();
 			tag.setName("ignore");
 			MTask newTask = wrap(remoteTask);
