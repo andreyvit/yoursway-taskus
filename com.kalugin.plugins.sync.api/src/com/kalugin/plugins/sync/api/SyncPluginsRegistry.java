@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.Platform;
 
 public class SyncPluginsRegistry {
     
-    private static final Pattern PREFIX = Pattern.compile("^Sync(?:hronize)? with ");
+    private static final Pattern PREFIX = Pattern.compile("^\\s*Sync(?:hronize)? with ");
     
     private static Collection<SourceFactory> factories;
     
