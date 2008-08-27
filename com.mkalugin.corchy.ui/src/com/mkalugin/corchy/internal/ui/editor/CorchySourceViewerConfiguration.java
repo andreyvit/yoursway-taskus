@@ -41,27 +41,31 @@ import com.mkalugin.pikachu.core.workspace.DocumentParser;
 public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 
 	private static interface ISemanticHighlighter {
-		Collection<StyleRange> highlight(IDocument doc);
+		Collection<StyleRange> highlight(String doc);
 	}
-	
-	private static class SemanticDamagerRepairer implements IPresentationDamager, IPresentationRepairer {
+
+	private static class SemanticDamagerRepairer implements IPresentationDamager,
+			IPresentationRepairer {
 
 		private IDocument document;
 		private final ISemanticHighlighter highlighter;
-		
+		private Collection<StyleRange> ast;
+
 		public SemanticDamagerRepairer(ISemanticHighlighter highlighter) {
 			this.highlighter = highlighter;
 		}
-		
+
 		public IRegion getDamageRegion(ITypedRegion partition, DocumentEvent event,
 				boolean documentPartitioningChanged) {
-			Collection<StyleRange> oldRanges = highlighter.highlight(document);
-			
+			String oldDoc = document.get();
+			ast = highlighter.highlight(oldDoc);
+
 			int min = document.getLength();
 			int max = -1;
-			
-			for (StyleRange r : oldRanges) {
-				if (r.start > event.fOffset + event.fLength)
+
+			int eventTextLength = event.fText.length();
+			for (StyleRange r : ast) {
+				if (r.start > event.fOffset + event.fLength + eventTextLength)
 					continue;
 				if (r.start + r.length < event.fOffset)
 					continue;
@@ -70,9 +74,12 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 				if (r.start + r.length > max)
 					max = r.start + r.length;
 			}
-			
+
 			if (max == -1)
 				return new Region(0, 0);
+
+			min = Math.max(min - 100, 0);
+			max = Math.min(oldDoc.length(), max + 100); // don't kill me! :)
 			
 			return new Region(min, max - min);
 		}
@@ -84,8 +91,7 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 		}
 
 		public void createPresentation(TextPresentation presentation, ITypedRegion damage) {
-			Collection<StyleRange> ranges = highlighter.highlight(document);
-			for (StyleRange r : ranges) {
+			for (StyleRange r : ast) {
 				if (r.start > damage.getOffset() + damage.getLength())
 					continue;
 				if (r.start + r.length < damage.getOffset())
@@ -93,120 +99,125 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 				presentation.addStyleRange(r);
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
-		PresentationReconciler presentationReconciler = new PresentationReconciler();		
-		SemanticDamagerRepairer semanticDamagerRepairer = new SemanticDamagerRepairer(new ISemanticHighlighter() {
-			DocumentParser documentParser = new DocumentParser();
+		PresentationReconciler presentationReconciler = new PresentationReconciler();
+		SemanticDamagerRepairer semanticDamagerRepairer = new SemanticDamagerRepairer(
+				new ISemanticHighlighter() {
+					DocumentParser documentParser = new DocumentParser();
 
-			DocumentStylesheet stylesheet = new DefaultDocumentStylesheet(sourceViewer.getTextWidget().getDisplay());
-			
-			public Collection<StyleRange> highlight(IDocument doc) {
-				List<StyleRange> ranges = new ArrayList<StyleRange>();
-				
-				ADocument document = documentParser.parse(doc.get());
-				
-				for (ADocumentLevelNode p : document.getChildren())
-					highlight(ranges, p);
-				
-				return ranges;
-			}
-			
-			private void highlight(final Collection<StyleRange> presentation, ADocumentLevelNode node) {
-				node.accept(new ADocumentLevelVisitor() {
+					DocumentStylesheet stylesheet = new DefaultDocumentStylesheet(sourceViewer
+							.getTextWidget().getDisplay());
 
-					public void visitEmptyLine(AEmptyLine line) {
-						highlightText(presentation, line);
+					public Collection<StyleRange> highlight(String doc) {
+						long tm =  System.currentTimeMillis();
+						List<StyleRange> ranges = new ArrayList<StyleRange>();
+
+						ADocument document = documentParser.parse(doc);
+
+						for (ADocumentLevelNode p : document.getChildren())
+							highlight(ranges, p);
+						System.out.println("hightlight end, time =  " + (System.currentTimeMillis() - tm));
+						return ranges;
 					}
 
-					public void visitProjectLine(AProjectLine line) {
-						highlightProject(presentation, line);
+					private void highlight(final Collection<StyleRange> presentation,
+							ADocumentLevelNode node) {
+						node.accept(new ADocumentLevelVisitor() {
+
+							public void visitEmptyLine(AEmptyLine line) {
+								highlightText(presentation, line);
+							}
+
+							public void visitProjectLine(AProjectLine line) {
+								highlightProject(presentation, line);
+							}
+
+							public void visitTaskLine(ATaskLine line) {
+								highlightTask(presentation, line);
+							}
+
+							public void visitTextLine(ATextLine line) {
+								highlightText(presentation, line);
+							}
+
+						});
 					}
 
-					public void visitTaskLine(ATaskLine line) {
-						highlightTask(presentation, line);
+					protected void highlightProject(Collection<StyleRange> presentation,
+							AProjectLine project) {
+						StyleRange style = new StyleRange();
+						ARange range = project.range();
+						style.start = range.start();
+						style.length = range.length();
+						stylesheet.styleProject(style);
+						presentation.add(style);
 					}
 
-					public void visitTextLine(ATextLine line) {
-						highlightText(presentation, line);
+					protected void highlightText(Collection<StyleRange> presentation, ANode node) {
+						StyleRange style = new StyleRange();
+						ARange range = node.range();
+						style.start = range.start();
+						style.length = range.length();
+						stylesheet.styleText(style);
+						presentation.add(style);
+					}
+
+					protected void highlightTask(Collection<StyleRange> presentation, ATaskLine task) {
+						boolean isDone = task.isDone();
+						for (ATaskLevelNode node : task.getChildren())
+							highlight(presentation, node, isDone);
+					}
+
+					private void highlight(final Collection<StyleRange> presentation,
+							ATaskLevelNode node, final boolean isDone) {
+						node.accept(new ATaskLevelVisitor() {
+
+							public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
+								highlightTaskText(presentation, fragment, false);
+							}
+
+							public void visitLeader(ATaskLeader leader) {
+								highlightTaskText(presentation, leader, false);
+							}
+
+							public void visitName(ATaskName name) {
+								highlightTaskText(presentation, name, isDone);
+							}
+
+							public void visitTag(ATag tag) {
+								highlightTaskTag(presentation, tag);
+							}
+
+						});
+					}
+
+					protected void highlightTaskText(Collection<StyleRange> presentation,
+							ATaskLevelNode tag, boolean isDone) {
+						StyleRange style = new StyleRange();
+						ARange range = tag.range();
+						style.start = range.start();
+						style.length = range.length();
+						if (isDone)
+							stylesheet.styleDoneTask(style);
+						else
+							stylesheet.styleTask(style);
+						presentation.add(style);
+					}
+
+					protected void highlightTaskTag(Collection<StyleRange> presentation, ATag tag) {
+						StyleRange style = new StyleRange();
+						ARange range = tag.range();
+						style.start = range.start();
+						style.length = range.length();
+						stylesheet.styleTag(style);
+						presentation.add(style);
 					}
 
 				});
-			}
-
-			protected void highlightProject(Collection<StyleRange> presentation, AProjectLine project) {
-				StyleRange style = new StyleRange();
-				ARange range = project.range();
-				style.start = range.start();
-				style.length = range.length();
-				stylesheet.styleProject(style);
-				presentation.add(style);
-			}
-
-			protected void highlightText(Collection<StyleRange> presentation, ANode node) {
-				StyleRange style = new StyleRange();
-				ARange range = node.range();
-				style.start = range.start();
-				style.length = range.length();
-				stylesheet.styleText(style);
-				presentation.add(style);
-			}
-
-			protected void highlightTask(Collection<StyleRange> presentation, ATaskLine task) {
-				boolean isDone = task.isDone();
-				for (ATaskLevelNode node : task.getChildren())
-					highlight(presentation, node, isDone);
-			}
-
-			private void highlight(final Collection<StyleRange> presentation, ATaskLevelNode node,
-					final boolean isDone) {
-				node.accept(new ATaskLevelVisitor() {
-
-					public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
-						highlightTaskText(presentation, fragment, false);
-					}
-
-					public void visitLeader(ATaskLeader leader) {
-						highlightTaskText(presentation, leader, false);
-					}
-
-					public void visitName(ATaskName name) {
-						highlightTaskText(presentation, name, isDone);
-					}
-
-					public void visitTag(ATag tag) {
-						highlightTaskTag(presentation, tag);
-					}
-
-				});
-			}
-
-			protected void highlightTaskText(Collection<StyleRange> presentation, ATaskLevelNode tag,
-					boolean isDone) {
-				StyleRange style = new StyleRange();
-				ARange range = tag.range();
-				style.start = range.start();
-				style.length = range.length();
-				if (isDone)
-					stylesheet.styleDoneTask(style);
-				else
-					stylesheet.styleTask(style);
-				presentation.add(style);
-			}
-
-			protected void highlightTaskTag(Collection<StyleRange> presentation, ATag tag) {
-				StyleRange style = new StyleRange();
-				ARange range = tag.range();
-				style.start = range.start();
-				style.length = range.length();
-				stylesheet.styleTag(style);
-				presentation.add(style);
-			}
-			
-		});
 		presentationReconciler.setDamager(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
 		presentationReconciler.setRepairer(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
 		return presentationReconciler;
