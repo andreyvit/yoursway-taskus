@@ -26,16 +26,19 @@ public class CorchyCompletionProcessor implements IContentAssistProcessor {
 		String prefix = string.substring(Math.max(0, offset - 10), offset);
 		int atMarkIndex = prefix.lastIndexOf("@");
 		if (atMarkIndex == -1) {
-			int matchLength = 0;
+			int matchLength = 0, maxMatch = 0;
 			int prefixLength = prefix.length();
 			String beginning = "Sync with ";
-			for (matchLength = 0; matchLength < beginning.length(); matchLength++) {
-				if (beginning.charAt(matchLength) != prefix.charAt(prefixLength - 1 - matchLength))
-					break;
-			}
-			if (matchLength > 0) {
+			for (matchLength = 0; matchLength < Math.min(beginning.length(), prefixLength); matchLength++) {
+				String substring = prefix.substring(prefixLength - matchLength);
+				String substring2 = beginning.substring(0, matchLength);
+				if (substring.equalsIgnoreCase(substring2) && matchLength > maxMatch) {
+					maxMatch = matchLength;
+				}
+			}			
+			if (maxMatch > 0) {
 				return new ICompletionProposal[] {
-						new CompletionProposal(SYNC_PROPOSAL, offset - matchLength, matchLength, 0)
+						new CompletionProposal(SYNC_PROPOSAL, offset - maxMatch, maxMatch, maxMatch)
 				};
 			}			
 			return new ICompletionProposal[0];
