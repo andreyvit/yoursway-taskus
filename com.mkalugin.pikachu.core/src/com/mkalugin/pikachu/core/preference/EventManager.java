@@ -1,6 +1,5 @@
 package com.mkalugin.pikachu.core.preference;
 
-import org.eclipse.core.runtime.ListenerList;
 
 /**
  * <p>
