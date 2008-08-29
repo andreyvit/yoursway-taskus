@@ -9,10 +9,13 @@ import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationFac
 import com.mkalugin.pikachu.core.model.ApplicationModel;
 import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
+import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
+import com.yoursway.autoupdater.auxiliary.Suite;
+import com.yoursway.autoupdater.localrepository.LocalRepository;
 
 public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
     
-    private ApplicationPresentation applicationPresentation;
+    private final ApplicationPresentation applicationPresentation;
     private final ApplicationModel model;
     
     public ApplicationController(ApplicationModel model, ApplicationPresentationFactory presentationFactory) {
@@ -48,16 +51,25 @@ public class ApplicationController implements ApplicationPresentationCallback, A
             }
         }
     }
-
+    
+    public void updateApplication() {
+        try {
+            Suite suite = Suite.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
+            LocalRepository localRepository = LocalRepository.createForGUI();
+            applicationPresentation.openUpdater(suite, localRepository);
+        } catch (AutoupdaterException e) {
+            applicationPresentation.displayFailedToUpdate(e);
+        }
+    }
+    
     public void documentClosed(Document document) {
     }
-
+    
     public void documentOpened(Document document) {
-        DocumentWindowController controller = new DocumentWindowController(document,
-                applicationPresentation);
+        DocumentWindowController controller = new DocumentWindowController(document, applicationPresentation);
         controller.openDocumentWindow();
     }
-
+    
     public void documentFileChanged(Document document) {
     }
     

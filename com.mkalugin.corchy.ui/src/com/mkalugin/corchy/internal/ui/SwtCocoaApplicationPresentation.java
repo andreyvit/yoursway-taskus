@@ -38,11 +38,15 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
+import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
+import com.yoursway.autoupdater.auxiliary.Suite;
+import com.yoursway.autoupdater.gui.view.VersionsView;
+import com.yoursway.autoupdater.localrepository.LocalRepository;
 
 public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
-    private Display display;
-    private Shell hiddenShell;
+    private final Display display;
+    private final Shell hiddenShell;
     private final ApplicationPresentationCallback callback;
     private final IPreferenceStore preferenceStore;
     
@@ -63,7 +67,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         display = new Display();
         
         hiddenShell = new Shell();
-
+        
         setApplicationMenuBar(display, createMenuBar(hiddenShell));
         
         //        display.setApplicationMenuName("Corchy");
@@ -153,9 +157,9 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
-                	CorchyViewer viewer = CorchyViewer.fromControl((StyledText) focusControl);
+                    CorchyViewer viewer = CorchyViewer.fromControl((StyledText) focusControl);
                     if (viewer != null)
-                    	viewer.doOperation(SourceViewer.CONTENTASSIST_PROPOSALS);
+                        viewer.doOperation(SourceViewer.CONTENTASSIST_PROPOSALS);
                 }
             }
         });
@@ -164,30 +168,30 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     private Menu createFindMenu(Shell shell) {
-    	 Menu menu = new Menu(shell, SWT.DROP_DOWN);
-         
-         MenuBuilder builder = new MenuBuilder(menu);
-         
-         builder.item("Document Search", SWT.MOD1 + 'F', new Runnable() {
-             public void run() {
-                 activeWindow.switchFocusToSearch();
-             }
-         });
-         builder.separator();
-         builder.item("Find Next", SWT.MOD1 + 'G', new Runnable() {
-             public void run() {
-            	 activeWindow.findNext();
-             }
-         });
-         builder.item("Find Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
-             public void run() {
-            	 activeWindow.findPrevious();
-             }
-         });
-         return menu;
-	}
-
-	Menu createFileMenu(final Shell shell) {
+        Menu menu = new Menu(shell, SWT.DROP_DOWN);
+        
+        MenuBuilder builder = new MenuBuilder(menu);
+        
+        builder.item("Document Search", SWT.MOD1 + 'F', new Runnable() {
+            public void run() {
+                activeWindow.switchFocusToSearch();
+            }
+        });
+        builder.separator();
+        builder.item("Find Next", SWT.MOD1 + 'G', new Runnable() {
+            public void run() {
+                activeWindow.findNext();
+            }
+        });
+        builder.item("Find Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
+            public void run() {
+                activeWindow.findPrevious();
+            }
+        });
+        return menu;
+    }
+    
+    Menu createFileMenu(final Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
@@ -197,7 +201,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             }
         });
         builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
-            public void run() {            	
+            public void run() {
                 callback.openDocument();
             }
         });
@@ -224,9 +228,14 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             }
         });
         
+        builder.item("Update...", new Runnable() {
+            public void run() {
+                callback.updateApplication();
+            }
+        });
+        
         return menu;
     }
-    
     
     Menu createEntryMenu(final Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
@@ -248,7 +257,8 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                             String lineText = document.get(lineOffset, lineLength);
                             Matcher matcher = Pattern.compile(" @done\\b").matcher(lineText);
                             if (matcher.find()) {
-                                text.replaceTextRange(lineOffset + matcher.start(), matcher.end() - matcher.start(), "");
+                                text.replaceTextRange(lineOffset + matcher.start(), matcher.end()
+                                        - matcher.start(), "");
                             } else {
                                 String delimiter = document.getLineDelimiter(line);
                                 int lineBodyEnd = lineOffset + lineLength
@@ -287,11 +297,12 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     void setActiveWindow(SwtCocoaWindow window) {
         this.activeWindow = window;
         if (!fileClose.isDisposed())
-        	fileClose.setEnabled(activeWindow != null);
+            fileClose.setEnabled(activeWindow != null);
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
-        DialogSettingsProvider dsp = new DialogSettingsProvider(new SubPreferenceStore(preferenceStore, "documentWindows"));
+        DialogSettingsProvider dsp = new DialogSettingsProvider(new SubPreferenceStore(preferenceStore,
+                "documentWindows"));
         InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
                 : InitialShellPosition.SYSTEM_DEFAULT);
         final SwtCocoaWindow window = new SwtCocoaWindow(display, dsp, callback, pos);
@@ -301,7 +312,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             
             public void widgetDisposed(DisposeEvent e) {
                 documentWindows.remove(window);
-                if (activeWindow == window)	
+                if (activeWindow == window)
                     setActiveWindow(null);
             }
             
@@ -347,12 +358,23 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         alert.setInformativeText(String.format("Could not read from file “%s”.", file.getPath()));
         alert.openModal();
     }
-
+    
     public void displayFailedToCreateEmptyDocumentError() {
         BasicAlert alert = new GotItAlert(null);
         alert.setMessageText("Failed to create a document");
         alert.setInformativeText("You've just triggered a disk I/O error #-4982063, you bastard!");
         alert.openModal();
+    }
+    
+    public void displayFailedToUpdate(AutoupdaterException e) {
+        BasicAlert alert = new GotItAlert(hiddenShell);
+        alert.setMessageText("Failed to update");
+        alert.setInformativeText(e.getMessage());
+        alert.open();
+    }
+    
+    public void openUpdater(Suite suite, LocalRepository localRepository) {
+        VersionsView.show(suite, localRepository);
     }
     
 }

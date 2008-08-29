@@ -13,6 +13,7 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  com.google.collections;bundle-version="1.0.0",
  com.yoursway.utils;bundle-version="1.0.0",
  com.kalugin.plugins.sync.api;bundle-version="1.0.0",
- com.mkalugin.swthell;bundle-version="1.0.0"
+ com.mkalugin.swthell;bundle-version="1.0.0",
+ com.yoursway.autoupdater.gui;bundle-version="1.0.0"
 Bundle-Activator: com.mkalugin.corchy.ui.core.CorchyUIPlugin
 Bundle-ActivationPolicy: lazy

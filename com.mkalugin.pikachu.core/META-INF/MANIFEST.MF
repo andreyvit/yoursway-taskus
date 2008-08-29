@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.4.0",
  com.google.collections;bundle-version="1.0.0",
  com.yoursway.utils;bundle-version="1.0.0",
  com.kalugin.plugins.sync.api;bundle-version="1.0.0",
- com.mkalugin.keychain;bundle-version="1.0.0"
+ com.mkalugin.keychain;bundle-version="1.0.0",
+ com.yoursway.autoupdater;bundle-version="1.0.0"
 Export-Package: com.mkalugin.pikachu.core,
  com.mkalugin.pikachu.core.ast,
  com.mkalugin.pikachu.core.controllers,
