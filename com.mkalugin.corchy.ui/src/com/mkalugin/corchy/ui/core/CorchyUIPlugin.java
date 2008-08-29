@@ -1,26 +1,29 @@
 package com.mkalugin.corchy.ui.core;
 
-import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-public class CorchyUIPlugin extends Plugin {
+public class CorchyUIPlugin implements BundleActivator {
 
 	private static CorchyUIPlugin instance;
+	private BundleContext context;
 
-	@Override
 	public void start(BundleContext context) throws Exception {
-	    super.start(context);
-	    instance = this;
+	    this.context = context;
+		instance = this;
 	}
 	
 	public static CorchyUIPlugin instance() {
 		return instance;
 	}
 
-	@Override
 	public void stop(BundleContext context) throws Exception {
 	    instance = null;
-	    super.stop(context);
+	}
+
+	public Bundle getBundle() {
+		return context.getBundle();
 	}
 
 }
