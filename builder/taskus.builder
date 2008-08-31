@@ -46,7 +46,7 @@ NEWFILE	taskus.dmg	featured	[release-file-prefix].dmg	[release-descr-prefix] for
 
 NEWDIR	taskus-win	temp	Taskus [ver]	Taskus [ver] for Windows
 NEWFILE	taskus-win.zip	featured	[release-file-prefix]-win.zip	Taskus [ver] for Windows (Zip)
-NEWFILE	taskus-winsetup.exe	temp	[release-file-prefix]-setup.exe	Taskus [ver] Setup for Windows
+NEWFILE	taskus-winsetup.exe	featured	[release-file-prefix]-setup.exe	Taskus [ver] Setup for Windows
 
 UNZIP	[eclipse-mac.zip]	[eclipse-mac]
 	INTO	/	eclipse
@@ -118,6 +118,24 @@ FIXPLIST	[taskus-mac.app<alter>]/Contents/Info.plist
 	FIX	CFBundleShortVersionString	[CFBundleShortVersionString]
 	FIX	CFBundleVersion	[CFBundleVersion]
 
+GITREPOS	magicecabu
+	GIT	ys	0	ssh://yoursway.com/~andreyvit/magicecabu.git
+VERSION	magicecabu.cur	magicecabu	heads/master
+
+NEWDIR	mae	temp	taskus-mae-[ver]	-
+
+SET	MAE_DIR	[mae<mkdir>]
+SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
+INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/mac/[ver]	[taskus-mac.app]
+INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/win/[ver]	[taskus-win]
+INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus/mac/[ver]	taskus/win/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/mac/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/win/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	mac	[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	win	[ver]	continuous
+
 COPYTO	[dmg_temp_dir]
 	SYMLINK	Applications	/Applications
 	INTO	Taskus.app	[taskus-mac.app]
@@ -155,6 +173,7 @@ ZIP	[taskus-win.zip]
 PUT	megabox-builds	taskus.dmg
 PUT	megabox-builds	taskus-winsetup.exe
 PUT	megabox-builds	taskus-win.zip
+PUT	megabox-updates	mae
 
 PUT	s3-builds	taskus.dmg
 PUT	s3-builds	taskus-winsetup.exe
