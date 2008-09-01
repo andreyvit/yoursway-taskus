@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lighthouse Plug-in
+Bundle-SymbolicName: com.mkalugin.pikachu.sync.plugins.lighthouse;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: MKALUGIN
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.core.runtime,
+ org.apache.http.client;bundle-version="3.1.0",
+ com.google.collections;bundle-version="1.0.0",
+ com.kalugin.plugins.sync.api;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0",
+ org.apache.commons.lang;bundle-version="2.4.0"
