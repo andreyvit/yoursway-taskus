@@ -20,8 +20,8 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 		textFont = new Font(display, "Gill Sans", 14, 0);
 		taskFont = new Font(display, "Gill Sans", 14, 0);
 		tagFont = new Font(display, "Gill Sans", 14, 0);
-		tagColor = display.getSystemColor(SWT.COLOR_GRAY);
-		textColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+		tagColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+		textColor = new Color(display, 70, 70, 70);
 	}
 
 	public void styleProject(TextStyle style) {
@@ -57,6 +57,7 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 		tagFont.dispose();
 		taskFont.dispose();
 		textFont.dispose();
+		textColor.dispose();
 	}
 
 }
