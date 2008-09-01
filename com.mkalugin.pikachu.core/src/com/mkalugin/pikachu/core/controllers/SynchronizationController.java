@@ -99,12 +99,18 @@ public class SynchronizationController {
 	}
 
 	private void process(MProject project) {
-		// name intentionally inverted ;-)
-		File muflaFufla = new File(document.fuflaMufla(), sha1(project.getName()));
 
 		List<SynchronizationDefinition> synchronizationDefinitions = newArrayList();
 		collectSynchronizationDefinitions(project, synchronizationDefinitions);
 
+		StringBuilder projectIdentifier = new StringBuilder();
+		projectIdentifier.append(project.getName());
+		for (SynchronizationDefinition def : synchronizationDefinitions) 
+			projectIdentifier.append(def.getInstruction().getText());
+		
+		// name intentionally inverted ;-)
+		File muflaFufla = new File(document.fuflaMufla(), sha1(projectIdentifier.toString()));
+		
 		if (!synchronizationDefinitions.isEmpty())
 			synchronize(project, synchronizationDefinitions, muflaFufla);
 	}
