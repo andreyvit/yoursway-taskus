@@ -39,7 +39,7 @@ import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
 import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
-import com.yoursway.autoupdater.auxiliary.Suite;
+import com.yoursway.autoupdater.auxiliary.SuiteDefinition;
 import com.yoursway.autoupdater.gui.view.VersionsView;
 import com.yoursway.autoupdater.localrepository.LocalRepository;
 
@@ -373,7 +373,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         alert.open();
     }
     
-    public void openUpdater(Suite suite, LocalRepository localRepository) {
+    public void openUpdater(SuiteDefinition suite, LocalRepository localRepository) {
         VersionsView.show(suite, localRepository);
     }
     

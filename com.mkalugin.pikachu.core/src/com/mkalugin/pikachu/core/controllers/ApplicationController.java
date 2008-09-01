@@ -10,7 +10,7 @@ import com.mkalugin.pikachu.core.model.ApplicationModel;
 import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
 import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
-import com.yoursway.autoupdater.auxiliary.Suite;
+import com.yoursway.autoupdater.auxiliary.SuiteDefinition;
 import com.yoursway.autoupdater.localrepository.LocalRepository;
 
 public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
@@ -54,7 +54,7 @@ public class ApplicationController implements ApplicationPresentationCallback, A
     
     public void updateApplication() {
         try {
-            Suite suite = Suite.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
+            SuiteDefinition suite = SuiteDefinition.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
             LocalRepository localRepository = LocalRepository.createForGUI();
             applicationPresentation.openUpdater(suite, localRepository);
         } catch (AutoupdaterException e) {
