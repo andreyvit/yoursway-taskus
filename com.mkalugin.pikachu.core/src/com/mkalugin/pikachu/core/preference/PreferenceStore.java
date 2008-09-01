@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.eclipse.core.runtime.Assert;
-
 /**
  * A concrete preference store implementation based on an internal
  * <code>java.util.Properties</code> object, with support for persisting the
@@ -81,7 +79,9 @@ public class PreferenceStore extends EventManager implements
 	 */
 	public PreferenceStore(String filename) {
 		this();
-		Assert.isNotNull(filename);
+//		Assert.isNotNull(filename);
+		if (filename == null)
+			throw new AssertionError("filename is null");
 		this.filename = filename;
 	}
 
@@ -624,7 +624,8 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, double value) {
-		Assert.isTrue(p != null);
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
 		p.put(name, Double.toString(value));
 	}
 
@@ -636,7 +637,8 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, float value) {
-		Assert.isTrue(p != null);
+		if (p == null)
+			throw new IllegalArgumentException("p is null");
 		p.put(name, Float.toString(value));
 	}
 
@@ -648,7 +650,8 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, int value) {
-		Assert.isTrue(p != null);
+		if (p == null)
+			throw new IllegalArgumentException("p is null");
 		p.put(name, Integer.toString(value));
 	}
 
@@ -660,7 +663,8 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, long value) {
-		Assert.isTrue(p != null);
+		if (p == null)
+			throw new IllegalArgumentException("p is null");
 		p.put(name, Long.toString(value));
 	}
 
@@ -672,7 +676,10 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, String value) {
-		Assert.isTrue(p != null && value != null);
+		if (p == null)
+			throw new IllegalArgumentException("p is null");
+		if (value == null)
+			throw new IllegalArgumentException("value is null");
 		p.put(name, value);
 	}
 
@@ -684,7 +691,8 @@ public class PreferenceStore extends EventManager implements
 	 * @param value
 	 */
 	private void setValue(Properties p, String name, boolean value) {
-		Assert.isTrue(p != null);
+		if (p == null)
+			throw new IllegalArgumentException("p is null");
 		p.put(name, value == true ? IPreferenceStore.TRUE
 				: IPreferenceStore.FALSE);
 	}

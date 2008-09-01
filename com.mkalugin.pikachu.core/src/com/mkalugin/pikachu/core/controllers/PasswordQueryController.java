@@ -1,7 +1,5 @@
 package com.mkalugin.pikachu.core.controllers;
 
-import org.eclipse.core.runtime.OperationCanceledException;
-
 import com.kalugin.plugins.sync.api.SourceCallback;
 import com.mkalugin.keychain.KeyChain;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindow;
@@ -29,7 +27,7 @@ public class PasswordQueryController {
             }
         }
         if (password == null)
-            throw new OperationCanceledException();
+            throw new SyncronizationCancelledException();
         return password;
     }
     

@@ -1,7 +1,6 @@
 package com.mkalugin.pikachu.core.preference;
 
 import java.util.EventObject;
-import org.eclipse.core.runtime.Assert;
 
 /**
  * An event object describing a change to a named property.
@@ -56,7 +55,8 @@ public class PropertyChangeEvent extends EventObject {
     public PropertyChangeEvent(Object source, String property, Object oldValue,
             Object newValue) {
         super(source);
-        Assert.isNotNull(property);
+        if (property == null)
+			throw new IllegalArgumentException("property is null");
         this.propertyName = property;
         this.oldValue = oldValue;
         this.newValue = newValue;

@@ -16,8 +16,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.core.runtime.OperationCanceledException;
-
 import com.kalugin.plugins.sync.api.Source;
 import com.kalugin.plugins.sync.api.SourceCallback;
 import com.kalugin.plugins.sync.api.SourceQueryFailed;
@@ -116,7 +114,7 @@ public class SynchronizationController {
 		for (SynchronizationDefinition definition : definitions)
 			try {
 				synchronize(project, definition, muflaFufla);
-			} catch (OperationCanceledException e) {
+			} catch (SyncronizationCancelledException e) {
 			} catch (SourceQueryFailed e) {
 				Throwable initial = e;
 				while (true) {

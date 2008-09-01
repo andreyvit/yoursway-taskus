@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.RegistryFactory;
 
 public class SyncPluginsRegistry {
     
@@ -40,7 +40,7 @@ public class SyncPluginsRegistry {
 
     private static Collection<SourceFactory> readFactories() {
         Collection<SourceFactory> result = newArrayList();
-        IExtensionPoint ep = Platform.getExtensionRegistry().getExtensionPoint("com.kalugin.plugins.sync.api.sourceFactories");
+        IExtensionPoint ep = RegistryFactory.getRegistry().getExtensionPoint("com.kalugin.plugins.sync.api.sourceFactories");
         for(IConfigurationElement element : ep.getConfigurationElements())
             if ("sourceFactory".equals(element.getName()))
                 readFactory(element, result);

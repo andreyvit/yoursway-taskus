@@ -3,7 +3,8 @@ package com.mkalugin.pikachu.core;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.core.runtime.Plugin;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 import com.mkalugin.pikachu.core.model.ApplicationFolders;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
@@ -11,7 +12,7 @@ import com.mkalugin.pikachu.core.preference.IPropertyChangeListener;
 import com.mkalugin.pikachu.core.preference.PreferenceStore;
 import com.mkalugin.pikachu.core.preference.PropertyChangeEvent;
 
-public class PikachuCore extends Plugin {
+public class PikachuCore implements BundleActivator {
     
     private static PreferenceStore preferenceStore;
     
@@ -40,5 +41,11 @@ public class PikachuCore extends Plugin {
         } catch (IOException e) {
         }
     }
+
+	public void start(BundleContext context) throws Exception {
+	}
+
+	public void stop(BundleContext context) throws Exception {
+	}
     
 }
