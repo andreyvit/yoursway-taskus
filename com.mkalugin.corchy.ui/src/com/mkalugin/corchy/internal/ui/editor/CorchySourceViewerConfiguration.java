@@ -20,6 +20,8 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.internal.Platform;
+import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
@@ -44,8 +46,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 		Collection<StyleRange> highlight(String doc);
 	}
 
-	private static class SemanticDamagerRepairer implements IPresentationDamager,
-			IPresentationRepairer {
+	private static class SemanticDamagerRepairer implements
+			IPresentationDamager, IPresentationRepairer {
 
 		private IDocument document;
 		private final ISemanticHighlighter highlighter;
@@ -55,8 +57,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 			this.highlighter = highlighter;
 		}
 
-		public IRegion getDamageRegion(ITypedRegion partition, DocumentEvent event,
-				boolean documentPartitioningChanged) {
+		public IRegion getDamageRegion(ITypedRegion partition,
+				DocumentEvent event, boolean documentPartitioningChanged) {
 			String oldDoc = document.get();
 			ast = highlighter.highlight(oldDoc);
 
@@ -80,7 +82,7 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 
 			min = Math.max(min - 100, 0);
 			max = Math.min(oldDoc.length(), max + 100); // don't kill me! :)
-			
+
 			return new Region(min, max - min);
 		}
 
@@ -90,7 +92,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 			this.document = document;
 		}
 
-		public void createPresentation(TextPresentation presentation, ITypedRegion damage) {
+		public void createPresentation(TextPresentation presentation,
+				ITypedRegion damage) {
 			for (StyleRange r : ast) {
 				if (r.start > damage.getOffset() + damage.getLength())
 					continue;
@@ -102,29 +105,40 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 
 	}
 
+	private DocumentStylesheet createStylesheet(Display display) {
+		String os = System.getProperty("osgi.os");
+		if (os.equals("win32"))
+			return new WinDocumentStylesheet(display);
+		else
+			return new MacDocumentStylesheet(display);
+	}
+
 	@Override
-	public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
+	public IPresentationReconciler getPresentationReconciler(
+			final ISourceViewer sourceViewer) {
 		PresentationReconciler presentationReconciler = new PresentationReconciler();
 		SemanticDamagerRepairer semanticDamagerRepairer = new SemanticDamagerRepairer(
 				new ISemanticHighlighter() {
 					DocumentParser documentParser = new DocumentParser();
 
-					DocumentStylesheet stylesheet = new DefaultDocumentStylesheet(sourceViewer
+					DocumentStylesheet stylesheet = createStylesheet(sourceViewer
 							.getTextWidget().getDisplay());
 
 					public Collection<StyleRange> highlight(String doc) {
-						long tm =  System.currentTimeMillis();
+						long tm = System.currentTimeMillis();
 						List<StyleRange> ranges = new ArrayList<StyleRange>();
 
 						ADocument document = documentParser.parse(doc);
 
 						for (ADocumentLevelNode p : document.getChildren())
 							highlight(ranges, p);
-						System.out.println("hightlight end, time =  " + (System.currentTimeMillis() - tm));
+						System.out.println("hightlight end, time =  "
+								+ (System.currentTimeMillis() - tm));
 						return ranges;
 					}
 
-					private void highlight(final Collection<StyleRange> presentation,
+					private void highlight(
+							final Collection<StyleRange> presentation,
 							ADocumentLevelNode node) {
 						node.accept(new ADocumentLevelVisitor() {
 
@@ -147,7 +161,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						});
 					}
 
-					protected void highlightProject(Collection<StyleRange> presentation,
+					protected void highlightProject(
+							Collection<StyleRange> presentation,
 							AProjectLine project) {
 						StyleRange style = new StyleRange();
 						ARange range = project.range();
@@ -157,7 +172,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						presentation.add(style);
 					}
 
-					protected void highlightText(Collection<StyleRange> presentation, ANode node) {
+					protected void highlightText(
+							Collection<StyleRange> presentation, ANode node) {
 						StyleRange style = new StyleRange();
 						ARange range = node.range();
 						style.start = range.start();
@@ -166,17 +182,20 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						presentation.add(style);
 					}
 
-					protected void highlightTask(Collection<StyleRange> presentation, ATaskLine task) {
+					protected void highlightTask(
+							Collection<StyleRange> presentation, ATaskLine task) {
 						boolean isDone = task.isDone();
 						for (ATaskLevelNode node : task.getChildren())
 							highlight(presentation, node, isDone);
 					}
 
-					private void highlight(final Collection<StyleRange> presentation,
+					private void highlight(
+							final Collection<StyleRange> presentation,
 							ATaskLevelNode node, final boolean isDone) {
 						node.accept(new ATaskLevelVisitor() {
 
-							public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
+							public void visitDescriptionFragment(
+									ATaskDescriptionFragment fragment) {
 								highlightTaskText(presentation, fragment, false);
 							}
 
@@ -195,7 +214,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						});
 					}
 
-					protected void highlightTaskText(Collection<StyleRange> presentation,
+					protected void highlightTaskText(
+							Collection<StyleRange> presentation,
 							ATaskLevelNode tag, boolean isDone) {
 						StyleRange style = new StyleRange();
 						ARange range = tag.range();
@@ -208,7 +228,8 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						presentation.add(style);
 					}
 
-					protected void highlightTaskTag(Collection<StyleRange> presentation, ATag tag) {
+					protected void highlightTaskTag(
+							Collection<StyleRange> presentation, ATag tag) {
 						StyleRange style = new StyleRange();
 						ARange range = tag.range();
 						style.start = range.start();
@@ -218,13 +239,16 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 					}
 
 				});
-		presentationReconciler.setDamager(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
-		presentationReconciler.setRepairer(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
+		presentationReconciler.setDamager(semanticDamagerRepairer,
+				IDocument.DEFAULT_CONTENT_TYPE);
+		presentationReconciler.setRepairer(semanticDamagerRepairer,
+				IDocument.DEFAULT_CONTENT_TYPE);
 		return presentationReconciler;
 	}
 
 	@Override
-	public IAutoEditStrategy[] getAutoEditStrategies(ISourceViewer sourceViewer, String contentType) {
+	public IAutoEditStrategy[] getAutoEditStrategies(
+			ISourceViewer sourceViewer, String contentType) {
 		return new IAutoEditStrategy[] { new CorchyAutoEditStrategy() };
 	}
 
@@ -232,9 +256,12 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		final ContentAssistant assistant = new ContentAssistant();
 
-		assistant.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
-		assistant.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
-		assistant.setInformationControlCreator(getInformationControlCreator(sourceViewer));
+		assistant
+				.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
+		assistant
+				.setContextInformationPopupOrientation(IContentAssistant.CONTEXT_INFO_ABOVE);
+		assistant
+				.setInformationControlCreator(getInformationControlCreator(sourceViewer));
 		assistant.enableAutoActivation(true);
 		assistant.setAutoActivationDelay(0);
 

@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 
-public class DefaultDocumentStylesheet implements DocumentStylesheet {
+public class MacDocumentStylesheet implements DocumentStylesheet {
 
 	private Font projectFont;
 	private Font taskFont;
@@ -15,7 +15,7 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
     private Color tagColor;
     private Color textColor;
 
-	public DefaultDocumentStylesheet(Display display) {
+	public MacDocumentStylesheet(Display display) {
         projectFont = new Font(display, "Georgia", 19, SWT.NONE);
 		textFont = new Font(display, "Gill Sans", 14, 0);
 		taskFont = new Font(display, "Gill Sans", 14, 0);
@@ -25,7 +25,7 @@ public class DefaultDocumentStylesheet implements DocumentStylesheet {
 	}
 
 	public void styleProject(TextStyle style) {
-//		style.underline = true;
+//		style.underline = true;s
 		style.font = projectFont;
 	}
 
