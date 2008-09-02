@@ -11,8 +11,11 @@ SET	eclipse-ver	3.4
 
 GITREPOS	taskus
 	GIT	ys	0	ssh://yoursway.com/~andreyvit/pikachu.git
+GITREPOS	updater
+	GIT	ys	0	git://github.com/lliypik/yoursway-software-update.git
 
 VERSION	ecabu.cur	ecabu	heads/master
+VERSION	updater.cur	updater	heads/master
 VERSION	taskus.cur	taskus	heads/master
 VERSION	libraries.cur	libraries	heads/master
 VERSION	commons.cur	commons	heads/master
@@ -58,6 +61,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--binary	[eclipse-mac]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -89,6 +93,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--binary	[eclipse-mac]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -103,6 +108,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--binary	[eclipse-win]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -122,7 +128,12 @@ GITREPOS	magicecabu
 	GIT	ys	0	ssh://yoursway.com/~andreyvit/magicecabu.git
 VERSION	magicecabu.cur	magicecabu	heads/master
 
-NEWDIR	mae	temp	taskus-mae-[ver]	-
+NEWDIR	mae	temp	taskus-mae	-
+
+SYNC	mae	add,remove,update	megabox-updates	readonly
+	MAP	/	/
+
+SYNC	mae	readonly	megabox-updates	add
 
 SET	MAE_DIR	[mae<mkdir>]
 SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
