@@ -11,7 +11,9 @@ import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
 import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
 import com.yoursway.autoupdater.auxiliary.SuiteDefinition;
+import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
 import com.yoursway.autoupdater.localrepository.LocalRepository;
+import com.yoursway.autoupdater.localrepository.LocalRepositoryException;
 
 public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
     
@@ -53,13 +55,35 @@ public class ApplicationController implements ApplicationPresentationCallback, A
     }
     
     public void updateApplication() {
-        try {
-            SuiteDefinition suite = SuiteDefinition.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
-            LocalRepository localRepository = LocalRepository.createForGUI();
-            applicationPresentation.openUpdater(suite, localRepository);
-        } catch (AutoupdaterException e) {
-            applicationPresentation.displayFailedToUpdate(e);
-        }
+        final UpdatableApplication app = new UpdatableApplication() {
+            public SuiteDefinition suite() {
+                try {
+                    // return SuiteDefinition.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
+                    return SuiteDefinition.load("http://rus.yoursway.com:8888/updatesite/", "taskus");
+                } catch (AutoupdaterException e) {
+                    applicationPresentation.displayFailedToUpdate(e);
+                    return null;
+                }
+            }
+            
+            public LocalRepository localRepository() {
+                try {
+                    return LocalRepository.createForGUI(this);
+                } catch (LocalRepositoryException e) {
+                    applicationPresentation.displayFailedToUpdate(e);
+                    return null;
+                }
+            }
+            
+            public File rootFolder(String productName) throws IOException {
+                String path = System.getProperty("user.dir");
+                if (path.contains("Eclipse.app"))
+                    throw new AssertionError("OOPS!");
+                return new File(path); //!
+            }
+        };
+        
+        applicationPresentation.openUpdater(app);
     }
     
     public void documentClosed(Document document) {

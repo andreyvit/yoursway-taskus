@@ -4,8 +4,7 @@ import java.io.File;
 
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
-import com.yoursway.autoupdater.auxiliary.SuiteDefinition;
-import com.yoursway.autoupdater.localrepository.LocalRepository;
+import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
 
 public interface ApplicationPresentation extends DocumentWindowFactory {
     
@@ -17,8 +16,8 @@ public interface ApplicationPresentation extends DocumentWindowFactory {
     
     void displayFailedToCreateEmptyDocumentError();
     
-    void openUpdater(SuiteDefinition suite, LocalRepository localRepository);
-    
     void displayFailedToUpdate(AutoupdaterException e);
+    
+    void openUpdater(UpdatableApplication app);
     
 }
