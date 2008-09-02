@@ -142,8 +142,8 @@ INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/mac/[ver]
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/win/[ver]
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	continuous
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	mac	[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	win	[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	mac	[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	win	[ver]	continuous
 
 SYNC	mae	s3-updates
 	MAP	/	readonly	/	add
