@@ -130,10 +130,8 @@ VERSION	magicecabu.cur	magicecabu	heads/master
 
 NEWDIR	mae	temp	taskus-mae	-
 
-SYNC	mae	add,remove,update	megabox-updates	readonly
-	MAP	/	/
-
-SYNC	mae	readonly	megabox-updates	add
+SYNC	mae	s3-updates
+	MAP	catalog	add,remove	catalog	readonly
 
 SET	MAE_DIR	[mae<mkdir>]
 SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
@@ -146,6 +144,11 @@ INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	co
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
 INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	mac	[ver]	continuous
 INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	win	[ver]	continuous
+
+SYNC	mae	s3-updates
+	MAP	/	readonly	/	add
+	MAP	products	readonly	products	add,replace
+	MAP	suites	readonly	suites	add,replace
 
 COPYTO	[dmg_temp_dir]
 	SYMLINK	Applications	/Applications
