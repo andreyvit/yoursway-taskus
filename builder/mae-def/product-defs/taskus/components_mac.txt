@@ -1,1 +1,3 @@
 C	taskus	mac
+C	taskus-extinstaller	mac
+EXE	Contents/MacOS/eclipse

@@ -1,1 +1,2 @@
 C	taskus	win
+C	taskus-extinstaller	win
