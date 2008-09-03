@@ -79,7 +79,11 @@ public class ApplicationController implements ApplicationPresentationCallback, A
                 String path = System.getProperty("user.dir");
                 if (path.contains("Eclipse.app"))
                     throw new AssertionError("OOPS!");
-                return new File(path); //!
+                
+                File dir = new File(path);
+                while (!dir.getName().endsWith(".app"))
+                    dir = dir.getParentFile();
+                return dir;
             }
         };
         
