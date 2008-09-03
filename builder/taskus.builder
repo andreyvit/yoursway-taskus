@@ -11,8 +11,11 @@ SET	eclipse-ver	3.4
 
 GITREPOS	taskus
 	GIT	ys	0	ssh://yoursway.com/~andreyvit/pikachu.git
+GITREPOS	updater
+	GIT	ys	0	git://github.com/lliypik/yoursway-software-update.git
 
 VERSION	ecabu.cur	ecabu	heads/master
+VERSION	updater.cur	updater	heads/master
 VERSION	taskus.cur	taskus	heads/master
 VERSION	libraries.cur	libraries	heads/master
 VERSION	commons.cur	commons	heads/master
@@ -52,12 +55,48 @@ UNZIP	[eclipse-mac.zip]	[eclipse-mac]
 	INTO	/	eclipse
 UNZIP	[eclipse-win.zip]	[eclipse-win]
 	INTO	/	eclipse
+	
+##############################################################################################################
+# extinstaller
+##############################################################################################################
+	
+NEWDIR	extinstaller.bin	temp	taskus-[ver]-extinstaller-win	-
+NEWDIR	extinstaller.win	temp	taskus-[ver]-extinstaller-win	-
+NEWDIR	extinstaller.mac	temp	taskus-[ver]-extinstaller-mac	-
+
+INVOKERUBY	[ecabu.cur]/ecabu.rb
+	ARGS	--output	[extinstaller.bin]
+	ARGS	--binary	[eclipse-mac]/plugins
+	ARGS	--source	[libraries.cur]
+	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
+	ARGS	--include	com.yoursway.autoupdater.installer
+
+INVOKERUBY	[ecabu.cur]/ecabu.rb
+	ARGS	--output	[extinstaller.mac]
+	ARGS	--copy-binaries	--disable-building
+	ARGS	--binary	[eclipse-mac]/plugins
+	ARGS	--binary	[extinstaller.bin]
+	ARGS	--include	com.yoursway.autoupdater.installer
+
+INVOKERUBY	[ecabu.cur]/ecabu.rb
+	ARGS	--output	[extinstaller.win]
+	ARGS	--copy-binaries	--disable-building
+	ARGS	--binary	[eclipse-win]/plugins
+	ARGS	--binary	[extinstaller.bin]
+	ARGS	--include	com.yoursway.autoupdater.installer
+	
+	
+##############################################################################################################
+# build Taskus binaries
+##############################################################################################################
 
 INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--output	[taskus.bin]
 	ARGS	--binary	[eclipse-mac]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -65,6 +104,10 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--include	org.eclipse.update.configurator
 	ARGS	--include	org.eclipse.core.jobs
 	ARGS	--include	com.ibm.icu
+	
+##############################################################################################################
+# build mac & win applications
+##############################################################################################################
 
 UNZIP	[launcher-mac.zip]	[launcher-mac]
 	INTO	/	eclipse
@@ -89,6 +132,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--binary	[eclipse-mac]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -103,6 +147,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--binary	[eclipse-win]/plugins
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
+	ARGS	--source	[updater.cur]
 	ARGS	--include-following
 	ARGS	--source	[taskus.cur]
 	ARGS	--exclude	*tests*
@@ -117,24 +162,55 @@ FIXPLIST	[taskus-mac.app<alter>]/Contents/Info.plist
 	FIX	CFBundleName	[CFBundleName]
 	FIX	CFBundleShortVersionString	[CFBundleShortVersionString]
 	FIX	CFBundleVersion	[CFBundleVersion]
+	
+	
+##############################################################################################################
+# update site
+##############################################################################################################
 
 GITREPOS	magicecabu
 	GIT	ys	0	ssh://yoursway.com/~andreyvit/magicecabu.git
 VERSION	magicecabu.cur	magicecabu	heads/master
 
-NEWDIR	mae	temp	taskus-mae-[ver]	-
+NEWDIR	mae	temp	taskus-mae	-
+
+SYNC	mae	s3-updates
+	MAP	catalog	add,remove	catalog	readonly
 
 SET	MAE_DIR	[mae<mkdir>]
 SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
+
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/mac/[ver]	[taskus-mac.app]
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/win/[ver]	[taskus-win]
+INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/win/[ver]	[extinstaller.win]
+INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/mac/[ver]	[extinstaller.mac]
+
 INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus/mac/[ver]	taskus/win/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus-extinstaller/win/[ver]	taskus-extinstaller/mac/[ver]
+
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/mac/[ver]
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/win/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/win/[ver]
+INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/mac/[ver]
+
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	continuous
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	mac	[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	taskus	taskus	win	[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]	continuous
+
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	mac	[ver]	continuous
+INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	win	[ver]	continuous
+
+SYNC	mae	s3-updates
+	MAP	/	readonly	/	add
+	MAP	products	readonly	products	add,replace
+	MAP	suites	readonly	suites	add,replace
+
+	
+##############################################################################################################
+# Mac DMG
+##############################################################################################################
+
 
 COPYTO	[dmg_temp_dir]
 	SYMLINK	Applications	/Applications
@@ -149,6 +225,12 @@ INVOKE	[create-dmg.cur]/create-dmg
 	ARGS	--icon	Taskus	110	205
 	ARGS	[taskus.dmg]
 	ARGS	[dmg_temp_dir]
+
+	
+##############################################################################################################
+# Windows Setup
+##############################################################################################################
+
 	
 NEWDIR	setup-config	temp	taskus-[ver]-winsetup-config	-
 COPYTO	[setup-config]
@@ -166,6 +248,12 @@ UNZIP	[nsis.zip]	[nsis]
 	INTO	/	nsis-[nsis-ver]
 
 INVOKE	[nsis]/makensis	[setup-config]/setup.nsi
+
+	
+##############################################################################################################
+# Publish
+##############################################################################################################
+
 	
 ZIP	[taskus-win.zip]
 	INTO	/	[taskus-win]
