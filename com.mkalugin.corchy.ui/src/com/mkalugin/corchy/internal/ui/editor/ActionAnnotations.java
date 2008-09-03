@@ -163,7 +163,11 @@ public class ActionAnnotations {
 	public void resetAnnotations() {
 		synchronized (annotations) {
 			lastPaintRects.clear();
+			for (AnnotationBinding ann : annotations) {
+				ann.annotation.dispose();
+			}
 			annotations.clear();
+			
 		}
 	}
 

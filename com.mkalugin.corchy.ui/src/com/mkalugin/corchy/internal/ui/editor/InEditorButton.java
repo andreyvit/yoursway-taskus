@@ -1,6 +1,8 @@
 package com.mkalugin.corchy.internal.ui.editor;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
@@ -17,6 +19,13 @@ public class InEditorButton extends Canvas {
 	public InEditorButton(Composite parent) {
 		super(parent, SWT.NONE);
 		font = new Font(Display.getDefault(), "Gill Sans", 13, SWT.BOLD);
+		this.addDisposeListener(new DisposeListener() {
+
+			public void widgetDisposed(DisposeEvent e) {
+				font.dispose();
+			}
+			
+		});
 		this.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		this.addPaintListener(new PaintListener() {
 

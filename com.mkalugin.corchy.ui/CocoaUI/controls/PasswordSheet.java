@@ -3,6 +3,8 @@ package com.mkalugin.corchy.ui.controls;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -24,6 +26,7 @@ public class PasswordSheet extends SheetDialog {
     private final String domain;
     private final String login;
     private PasswordResult result;
+	private Font regularFont;
 
     public PasswordSheet(Shell parent, String domain, String login) {
         super(parent);
@@ -54,7 +57,12 @@ public class PasswordSheet extends SheetDialog {
         Composite inputComposite = new Composite(content, SWT.NONE);
         inputComposite.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).grab(true, true).create());
         
-        Font regularFont = new Font(dialog.getDisplay(), "Arial", 16, SWT.NONE);
+        regularFont = new Font(dialog.getDisplay(), "Arial", 16, SWT.NONE);
+        dialog.addDisposeListener(new DisposeListener() {
+        	public void widgetDisposed(DisposeEvent e) {
+        		regularFont.dispose();
+        	}
+        });
         
         Label nameLabel = new Label(inputComposite, SWT.NONE);
         nameLabel.setText("Name:");
