@@ -40,6 +40,9 @@ class AutoupdaterController {
         } catch (InstallerException e) {
             applicationPresentation.displayFailedToUpdate(e);
         }
+        
+        //!
+        preferences.setValue(INSTALLER_KEY, false);
     }
     
     void updateApplication() {
@@ -50,8 +53,7 @@ class AutoupdaterController {
         
         public SuiteDefinition suite() {
             try {
-                // return SuiteDefinition.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
-                return SuiteDefinition.load("http://rus.yoursway.com:8888/updatesite/", "taskus");
+                return SuiteDefinition.load("http://updates.yoursway.com/", "taskus");
             } catch (AutoupdaterException e) {
                 applicationPresentation.displayFailedToUpdate(e);
                 return null;
