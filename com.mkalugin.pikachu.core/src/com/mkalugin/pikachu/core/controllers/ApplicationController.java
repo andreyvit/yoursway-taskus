@@ -9,23 +9,22 @@ import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationFac
 import com.mkalugin.pikachu.core.model.ApplicationModel;
 import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
-import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
-import com.yoursway.autoupdater.auxiliary.SuiteDefinition;
-import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
-import com.yoursway.autoupdater.localrepository.LocalRepository;
-import com.yoursway.autoupdater.localrepository.LocalRepositoryException;
+import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 
 public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
     
     private final ApplicationPresentation applicationPresentation;
     private final ApplicationModel model;
+    private final AutoupdaterController autoupdaterController;
     
-    public ApplicationController(ApplicationModel model, ApplicationPresentationFactory presentationFactory) {
+    public ApplicationController(ApplicationModel model, IPreferenceStore preferences,
+            ApplicationPresentationFactory presentationFactory) {
         if (model == null)
             throw new NullPointerException("model is null");
         this.model = model;
         model.addListener(this);
         applicationPresentation = presentationFactory.createPresentation(this);
+        autoupdaterController = new AutoupdaterController(preferences, applicationPresentation);
     }
     
     public void run() {
@@ -55,39 +54,7 @@ public class ApplicationController implements ApplicationPresentationCallback, A
     }
     
     public void updateApplication() {
-        final UpdatableApplication app = new UpdatableApplication() {
-            public SuiteDefinition suite() {
-                try {
-                    // return SuiteDefinition.load("http://yoursway-updates.s3.amazonaws.com/", "taskus");
-                    return SuiteDefinition.load("http://rus.yoursway.com:8888/updatesite/", "taskus");
-                } catch (AutoupdaterException e) {
-                    applicationPresentation.displayFailedToUpdate(e);
-                    return null;
-                }
-            }
-            
-            public LocalRepository localRepository() {
-                try {
-                    return LocalRepository.createForGUI(this);
-                } catch (LocalRepositoryException e) {
-                    applicationPresentation.displayFailedToUpdate(e);
-                    return null;
-                }
-            }
-            
-            public File rootFolder(String productName) throws IOException {
-                String path = System.getProperty("user.dir");
-                if (path.contains("Eclipse.app"))
-                    throw new AssertionError("OOPS!");
-                
-                File dir = new File(path);
-                while (!dir.getName().endsWith(".app"))
-                    dir = dir.getParentFile();
-                return dir;
-            }
-        };
-        
-        applicationPresentation.openUpdater(app);
+        autoupdaterController.updateApplication();
     }
     
     public void documentClosed(Document document) {

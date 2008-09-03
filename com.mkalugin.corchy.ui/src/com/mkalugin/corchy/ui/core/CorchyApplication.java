@@ -17,7 +17,7 @@ public class CorchyApplication implements IApplication {
         IPreferenceStore preferences = PikachuCore.getPreferenceStore();
         ApplicationModel model = new ApplicationModel(ApplicationFolders.untitledDocumentsFolder());
         OpenDocumentListPersister persister = new OpenDocumentListPersister(model, preferences);
-        ApplicationController controller = new ApplicationController(model,
+        ApplicationController controller = new ApplicationController(model, preferences,
                 new SwtCocoaApplicationPresentationFactory(preferences));
         
         persister.openPreviouslyOpenedFiles();
