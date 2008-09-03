@@ -13,4 +13,6 @@ public interface IActionAnnotation extends MouseListener, MouseTrackListener{
 	
 	void doAction();
 	
+	void dispose();
+	
 }

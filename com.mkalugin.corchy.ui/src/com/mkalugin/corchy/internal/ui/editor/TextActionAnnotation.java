@@ -12,9 +12,11 @@ public abstract class TextActionAnnotation extends ActionAnnotation {
 
 	private boolean inside;
 	private final StyledText textWidget;
+	private Font font;
 
 	public TextActionAnnotation(StyledText styledText) {
 		this.textWidget = styledText;
+		font = new Font(Display.getDefault(), "Gill Sans", 11, 0);	
 	}
 	
 	@Override
@@ -32,7 +34,7 @@ public abstract class TextActionAnnotation extends ActionAnnotation {
 			gc.fillRoundRectangle(offset.x, offset.y, computeSize().x, computeSize().y, 10, 10);
 		}
 		gc.setAlpha(255);
-		gc.setFont(new Font(Display.getDefault(), "Gill Sans", 14, 0));
+		gc.setFont(font);
 		Point textExtent = gc.textExtent(getText());
 		gc
 				.drawText(
@@ -58,5 +60,11 @@ public abstract class TextActionAnnotation extends ActionAnnotation {
 	}
 	
 	protected abstract String getText();
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		font.dispose();
+	}
 	
 }

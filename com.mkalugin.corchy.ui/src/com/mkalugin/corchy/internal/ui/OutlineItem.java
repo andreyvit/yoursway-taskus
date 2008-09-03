@@ -1,6 +1,8 @@
 package com.mkalugin.corchy.internal.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
@@ -25,6 +27,14 @@ public class OutlineItem extends Canvas {
 		active = initActive;
 		font = new Font(Display.getDefault(), "Gill Sans", 14, 0);
 		activeFont = new Font(Display.getDefault(), "Gill Sans", 14, SWT.BOLD);
+		this.addDisposeListener(new DisposeListener() {
+
+			public void widgetDisposed(DisposeEvent e) {
+				font.dispose();
+				activeFont.dispose();
+			}
+			
+		});
 		this.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
 		this.addPaintListener(new PaintListener() {
 

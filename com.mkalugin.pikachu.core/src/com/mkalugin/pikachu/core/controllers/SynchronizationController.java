@@ -99,12 +99,18 @@ public class SynchronizationController {
 	}
 
 	private void process(MProject project) {
-		// name intentionally inverted ;-)
-		File muflaFufla = new File(document.fuflaMufla(), sha1(project.getName()));
 
 		List<SynchronizationDefinition> synchronizationDefinitions = newArrayList();
 		collectSynchronizationDefinitions(project, synchronizationDefinitions);
 
+		StringBuilder projectIdentifier = new StringBuilder();
+		projectIdentifier.append(project.getName());
+		for (SynchronizationDefinition def : synchronizationDefinitions) 
+			projectIdentifier.append(def.getInstruction().getText());
+		
+		// name intentionally inverted ;-)
+		File muflaFufla = new File(document.fuflaMufla(), sha1(projectIdentifier.toString()));
+		
 		if (!synchronizationDefinitions.isEmpty())
 			synchronize(project, synchronizationDefinitions, muflaFufla);
 	}
@@ -264,13 +270,13 @@ public class SynchronizationController {
 			tasksLoop: for (LocalTask task:  localTasks) {
 				if (!remoteTask.getName().equals(task.getName()))
 	        		continue;
-	        	Collection<SynchronizableTag> tags1 = remoteTask.tags();
-	        	Collection<SynchronizableTag> tags2 = task.tags();
-	        	if (tags1.size() != tags2.size())
+	        	Collection<SynchronizableTag> newerTags = remoteTask.tags();
+	        	Collection<SynchronizableTag> olderTags = task.tags();
+	        	if (newerTags.size() < olderTags.size())
 	        		continue;
 	        	HashSet<String> tagNames = newHashSet();
-	        	addAll(tagNames, transform(tags1, SynchronizableTaskUtils.TAG_TO_NAME));
-	        	for (String name : transform(tags2, SynchronizableTaskUtils.TAG_TO_NAME)) {
+	        	addAll(tagNames, transform(newerTags, SynchronizableTaskUtils.TAG_TO_NAME));
+	        	for (String name : transform(olderTags, SynchronizableTaskUtils.TAG_TO_NAME)) {
 	        		if (!tagNames.contains(name) && !name.equals(definition.source.idTagName())) {
 	        			continue tasksLoop;
 	        		}
