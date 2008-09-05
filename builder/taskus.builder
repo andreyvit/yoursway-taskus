@@ -120,6 +120,7 @@ COPYTO	[taskus-mac.app]
 	INTO	/	[launcher-mac.app]
 	INTO	Contents/Resources/Java/plugins	[taskus.bin]
 	INTO	Contents/Resources/Java/configuration/config.ini	[taskus.cur]/builder/config.ini
+	INTO	Contents/Resources/Eclipse.icns	[taskus.cur]/builder/Taskus.icns
 
 COPYTO	[taskus-win]
 	INTO	/	[launcher-win]
