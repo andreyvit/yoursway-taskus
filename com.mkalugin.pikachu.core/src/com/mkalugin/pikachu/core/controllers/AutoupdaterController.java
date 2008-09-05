@@ -53,7 +53,11 @@ class AutoupdaterController {
         
         public SuiteDefinition suite() {
             try {
-                return SuiteDefinition.load("http://updates.yoursway.com/", "taskus");
+                String updateSite = "http://updates.yoursway.com/";
+                String envUpdateSite = System.getenv("YS_UPDATE_SITE");
+                if (envUpdateSite != null && envUpdateSite.length() > 0)
+                    updateSite = envUpdateSite;
+                return SuiteDefinition.load(updateSite, "taskus");
             } catch (AutoupdaterException e) {
                 applicationPresentation.displayFailedToUpdate(e);
                 return null;
