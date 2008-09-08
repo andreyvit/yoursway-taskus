@@ -14,7 +14,8 @@ import com.yoursway.utils.YsFileUtils;
 
 class AutoupdaterController {
     
-    private static final String INSTALLING_KEY = "externalInstallerIsBeingUsed";
+    private static final String INSTALLING_KEY = "inInstallingState";
+    private static final String LOCAL_REPO_PLACE_KEY = "localRepositoryPlace";
     
     private final IPreferenceStore preferences;
     private final ApplicationPresentation applicationPresentation;
@@ -91,6 +92,19 @@ class AutoupdaterController {
         
         public UpdatableApplicationView view() {
             return applicationPresentation;
+        }
+        
+        public File localRepositoryPlace() throws IOException {
+            String path = preferences.getString(LOCAL_REPO_PLACE_KEY);
+            File place;
+            if (path != null && path.length() > 0) {
+                place = new File(path);
+            } else {
+                place = YsFileUtils.createTempFolder("taskus-local-repo-", null); //!
+                path = place.getCanonicalPath();
+                preferences.setValue(LOCAL_REPO_PLACE_KEY, path);
+            }
+            return place;
         }
     }
 }
