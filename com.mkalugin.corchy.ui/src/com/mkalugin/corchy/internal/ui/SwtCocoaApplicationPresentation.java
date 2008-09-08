@@ -363,9 +363,9 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         alert.openModal();
     }
     
-    public void displayFailedToUpdate(AutoupdaterException e) {
+    public void displayAutoupdaterErrorMessage(AutoupdaterException e) {
         BasicAlert alert = new GotItAlert(hiddenShell);
-        alert.setMessageText("Failed to update");
+        alert.setMessageText("Autoupdater error");
         alert.setInformativeText(e.getMessage());
         alert.open();
     }

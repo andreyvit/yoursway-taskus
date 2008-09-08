@@ -5,10 +5,10 @@ import java.io.IOException;
 
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
-import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
 import com.yoursway.autoupdater.auxiliary.ComponentStopper;
 import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
 import com.yoursway.autoupdater.auxiliary.UpdatableApplicationProductFeatures;
+import com.yoursway.autoupdater.auxiliary.UpdatableApplicationView;
 import com.yoursway.autoupdater.gui.controller.UpdaterController;
 import com.yoursway.utils.YsFileUtils;
 
@@ -28,20 +28,11 @@ class AutoupdaterController {
         preferences.setDefault(INSTALLING_KEY, false);
         
         updaterController = new UpdaterController(new UpdatableApplicationImpl());
-        try {
-            updaterController.onStart();
-        } catch (AutoupdaterException e) {
-            // cannot to communicate with external installer
-            applicationPresentation.displayFailedToUpdate(e); //? 
-        }
+        updaterController.onStart();
     }
     
     void updateApplication() {
-        try {
-            updaterController.updateApplication();
-        } catch (AutoupdaterException e) {
-            applicationPresentation.displayFailedToUpdate(e);
-        }
+        updaterController.updateApplication();
     }
     
     private final class UpdatableApplicationImpl implements UpdatableApplication {
@@ -83,7 +74,7 @@ class AutoupdaterController {
                         dir = dir.getParentFile();
                     return dir;
                 }
-
+                
                 public ComponentStopper componentStopper() {
                     return new ComponentStopper() {
                         public boolean stop() {
@@ -96,6 +87,10 @@ class AutoupdaterController {
                 }
                 
             };
+        }
+        
+        public UpdatableApplicationView view() {
+            return applicationPresentation;
         }
     }
 }
