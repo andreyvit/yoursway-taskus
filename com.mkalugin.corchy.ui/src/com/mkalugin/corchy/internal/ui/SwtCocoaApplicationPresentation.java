@@ -39,8 +39,6 @@ import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
 import com.yoursway.autoupdater.auxiliary.AutoupdaterException;
-import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
-import com.yoursway.autoupdater.gui.view.VersionsView;
 
 public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
@@ -370,10 +368,6 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         alert.setMessageText("Failed to update");
         alert.setInformativeText(e.getMessage());
         alert.open();
-    }
-    
-    public void openUpdater(UpdatableApplication app) {
-        VersionsView.show(app);
     }
     
 }
