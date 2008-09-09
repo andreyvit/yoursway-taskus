@@ -1,5 +1,7 @@
 package com.mkalugin.pikachu.core.controllers;
 
+import static com.yoursway.utils.os.YsOSUtils.isMacOSX;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -66,13 +68,13 @@ class AutoupdaterController {
                 
                 public File rootFolder() throws IOException {
                     String path = System.getProperty("user.dir");
-                    if (path.contains("Eclipse.app"))
-                        // throw new AssertionError("OOPS!");
+                    if (path.contains("Eclipse.app")) // oops!
                         return YsFileUtils.createTempFolder("taskus-root-", null);
                     
                     File dir = new File(path);
-                    while (!dir.getName().endsWith(".app"))
-                        dir = dir.getParentFile();
+                    if (isMacOSX())
+                        while (!dir.getName().endsWith(".app"))
+                            dir = dir.getParentFile();
                     return dir;
                 }
                 
