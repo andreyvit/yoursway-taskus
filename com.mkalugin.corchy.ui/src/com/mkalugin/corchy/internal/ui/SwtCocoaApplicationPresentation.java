@@ -224,8 +224,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                     activeWindow.fileSynchronizeNow();
             }
         });
-        
-        builder.item("Update...", new Runnable() {
+        builder.item("Update...", SWT.MOD1 + SWT.ALT + 'U', new Runnable() {
             public void run() {
                 callback.updateApplication();
             }
