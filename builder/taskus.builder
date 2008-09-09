@@ -9,10 +9,16 @@ SET	CFBundleGetInfoString	YourSway Taskus [ver]
 
 SET	eclipse-ver	3.4
 
-GITREPOS	taskus
-	GIT	ys	0	ssh://yoursway.com/~andreyvit/pikachu.git
-GITREPOS	updater
-	GIT	ys	0	git://github.com/lliypik/yoursway-software-update.git
+REPOS	taskus	-	Taskus
+	GIT	andreyvit-ys	-	ssh://yoursway.com/~andreyvit/pikachu.git
+	GIT	fourdman-ys	-	ssh://yoursway.com/~fourdman/pikachu.git
+	GIT	lliypik-ys	-	ssh://yoursway.com/~lliypik/pikachu.git
+REPOS	updater	-	Software Update
+	GIT	lliypik-ys	-	ssh://yoursway.com/~lliypik/autoupdate.git
+	GIT	lliypik-gh	-	git://github.com/lliypik/yoursway-software-update.git
+	GIT	andreyvit-gh	-	git://github.com/andreyvit/yoursway-software-update.git
+REPOS	magicecabu	-	Magic Ecabu
+	GIT	andreyvit-ys	-	ssh://yoursway.com/~andreyvit/magicecabu.git
 
 VERSION	ecabu.cur	ecabu	heads/master
 VERSION	updater.cur	updater	heads/master
@@ -27,7 +33,6 @@ FILE	nsis.zip	-	nsis-[nsis-ver].zip	megabox-eclipses
 NEWDIR	nsis	temp	nsis-[nsis-ver]	-
 
 NEWDIR	build.dir	temp	eclipse-osx-repackager-[ver]-build	-
-NEWFILE	build.log	log	eclipse-osx-repackager-[ver]-build.log	-
 
 NEWDIR	taskus.bin	temp	[release-file-prefix]-binaries	[release-descr-prefix] binaries
 
@@ -60,7 +65,7 @@ UNZIP	[eclipse-win.zip]	[eclipse-win]
 # extinstaller
 ##############################################################################################################
 	
-NEWDIR	extinstaller.bin	temp	taskus-[ver]-extinstaller-win	-
+NEWDIR	extinstaller.bin	temp	taskus-[ver]-extinstaller-bin	-
 NEWDIR	extinstaller.win	temp	taskus-[ver]-extinstaller-win	-
 NEWDIR	extinstaller.mac	temp	taskus-[ver]-extinstaller-mac	-
 
@@ -70,6 +75,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--source	[libraries.cur]
 	ARGS	--source	[commons.cur]
 	ARGS	--source	[updater.cur]
+	ARGS	--include	org.eclipse.swt.*
 	ARGS	--include	com.yoursway.autoupdater.installer
 
 INVOKERUBY	[ecabu.cur]/ecabu.rb
@@ -77,6 +83,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--copy-binaries	--disable-building
 	ARGS	--binary	[eclipse-mac]/plugins
 	ARGS	--binary	[extinstaller.bin]
+	ARGS	--include	org.eclipse.swt.*
 	ARGS	--include	com.yoursway.autoupdater.installer
 
 INVOKERUBY	[ecabu.cur]/ecabu.rb
@@ -84,6 +91,7 @@ INVOKERUBY	[ecabu.cur]/ecabu.rb
 	ARGS	--copy-binaries	--disable-building
 	ARGS	--binary	[eclipse-win]/plugins
 	ARGS	--binary	[extinstaller.bin]
+	ARGS	--include	org.eclipse.swt.*
 	ARGS	--include	com.yoursway.autoupdater.installer
 	
 	
@@ -120,6 +128,7 @@ COPYTO	[taskus-mac.app]
 	INTO	/	[launcher-mac.app]
 	INTO	Contents/Resources/Java/plugins	[taskus.bin]
 	INTO	Contents/Resources/Java/configuration/config.ini	[taskus.cur]/builder/config.ini
+	INTO	Contents/Resources/Eclipse.icns	[taskus.cur]/builder/Taskus.icns
 
 COPYTO	[taskus-win]
 	INTO	/	[launcher-win]
@@ -168,43 +177,57 @@ FIXPLIST	[taskus-mac.app<alter>]/Contents/Info.plist
 # update site
 ##############################################################################################################
 
-GITREPOS	magicecabu
-	GIT	ys	0	ssh://yoursway.com/~andreyvit/magicecabu.git
 VERSION	magicecabu.cur	magicecabu	heads/master
 
 NEWDIR	mae	temp	taskus-mae	-
 
+SET	MAE_DIR	[mae<mkdir,keep>]
+SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
+
 SYNC	mae	s3-updates
 	MAP	catalog	add,remove	catalog	readonly
 
-SET	MAE_DIR	[mae<mkdir>]
-SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
-
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/mac/[ver]	[taskus-mac.app]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/win/[ver]	[taskus-win]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/win/[ver]	[extinstaller.win]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/mac/[ver]	[extinstaller.mac]
+	DEP	[mae<alter>]
 
 INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus/mac/[ver]	taskus/win/[ver]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus-extinstaller/win/[ver]	taskus-extinstaller/mac/[ver]
+	DEP	[mae<alter>]
 
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/mac/[ver]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/win/[ver]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/win/[ver]
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/mac/[ver]
+	DEP	[mae<alter>]
 
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	continuous
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]	continuous
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]	continuous
+	DEP	[mae<alter>]
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]		continuous
+	DEP	[mae<alter>]
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]		continuous
+	DEP	[mae<alter>]
 
 INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	mac	[ver]	continuous
+	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	win	[ver]	continuous
+	DEP	[mae<alter>]
 
 SYNC	mae	s3-updates
 	MAP	/	readonly	/	add
-	MAP	products	readonly	products	add,replace
-	MAP	suites	readonly	suites	add,replace
+	MAP	products	readonly	products	add,append
+	MAP	suites	readonly	suites	add,append
 
 	
 ##############################################################################################################
@@ -239,7 +262,7 @@ COPYTO	[setup-config]
 	
 SUBSTVARS	[setup-config<alter>]/setup.nsi
 	SET	LicenseFile	[setup-config]/license.txt
-	SET	OutputFile	[taskus-winsetup.exe]
+	SET	OutputFile	[taskus-winsetup.exe<nodep>]
 	SET	WinVer	[ver].0
 
 NSIS-FILE-LIST	[taskus-win]	[setup-config<alter>]/setup-files.nsi	[setup-config<alter>]/setup-delete.nsi
@@ -248,7 +271,8 @@ UNZIP	[nsis.zip]	[nsis]
 	INTO	/	nsis-[nsis-ver]
 
 INVOKE	[nsis]/makensis	[setup-config]/setup.nsi
-
+	DEP	[taskus-win]	[setup-config]
+	DEP	[taskus-winsetup.exe]	
 	
 ##############################################################################################################
 # Publish
@@ -260,9 +284,10 @@ ZIP	[taskus-win.zip]
 	
 PUT	megabox-builds	taskus.dmg
 PUT	megabox-builds	taskus-winsetup.exe
-PUT	megabox-builds	taskus-win.zip
-PUT	megabox-updates	mae
 
 PUT	s3-builds	taskus.dmg
 PUT	s3-builds	taskus-winsetup.exe
-PUT	s3-builds	taskus-win.zip
+
+PUT	megabox-builds	build.log
+PUT	s3-builds	build.log
+
