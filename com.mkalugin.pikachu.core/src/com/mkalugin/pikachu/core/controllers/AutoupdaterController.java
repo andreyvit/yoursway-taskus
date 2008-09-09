@@ -87,6 +87,10 @@ class AutoupdaterController {
                     
                 }
                 
+                public String executablePath() {
+                    return "Contents/MacOS/eclipse";
+                }
+                
             };
         }
         
