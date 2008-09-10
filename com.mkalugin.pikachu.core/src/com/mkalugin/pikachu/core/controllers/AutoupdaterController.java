@@ -66,10 +66,15 @@ class AutoupdaterController {
             
             return new UpdatableApplicationProductFeatures() {
                 
+                private File tmpRoot;
+                
                 public File rootFolder() throws IOException {
                     String path = System.getProperty("user.dir");
-                    if (path.contains("Eclipse.app")) // oops!
-                        return YsFileUtils.createTempFolder("taskus-root-", null);
+                    if (runFromEclipse()) {
+                        if (tmpRoot == null)
+                            tmpRoot = YsFileUtils.createTempFolder("taskus-root-", null);
+                        return tmpRoot;
+                    }
                     
                     File dir = new File(path);
                     if (isMacOSX())
@@ -90,7 +95,32 @@ class AutoupdaterController {
                 }
                 
                 public String executablePath() {
-                    return "Contents/MacOS/eclipse";
+                    if (isMacOSX())
+                        return "Contents/MacOS/eclipse";
+                    else
+                        return "eclipse.exe";
+                }
+                
+                public String currentVersionDefinitionPath() throws IOException {
+                    if (runFromEclipse())
+                        return createCurrentVersionDefinition();
+                    
+                    String path = "updates/version.txt";
+                    if (isMacOSX())
+                        path = "Contents/Resources/" + path;
+                    return path;
+                }
+                
+                private boolean runFromEclipse() {
+                    String path = System.getProperty("user.dir");
+                    return path.toLowerCase().contains("eclipse");
+                }
+                
+                private String createCurrentVersionDefinition() throws IOException {
+                    String path = "version.txt";
+                    File file = new File(rootFolder(), path);
+                    YsFileUtils.writeString(file, "PV\ttaskus\tcurrent\tcurrent");
+                    return path;
                 }
                 
             };
