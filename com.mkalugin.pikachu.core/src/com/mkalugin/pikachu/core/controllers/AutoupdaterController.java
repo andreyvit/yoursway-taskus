@@ -72,7 +72,7 @@ class AutoupdaterController {
                     String path = System.getProperty("user.dir");
                     if (runFromEclipse()) {
                         if (tmpRoot == null)
-                            tmpRoot = YsFileUtils.createTempFolder("taskus-root-", null);
+                            tmpRoot = YsFileUtils.createTempFolder("taskus-root-", ".app");
                         return tmpRoot;
                     }
                     
