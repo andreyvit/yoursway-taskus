@@ -214,9 +214,9 @@ INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	co
 	DEP	[mae<alter>]
 INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
 	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]		continuous
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]	continuous
 	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]		continuous
+INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]	continuous
 	DEP	[mae<alter>]
 
 INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	mac	[ver]	continuous
