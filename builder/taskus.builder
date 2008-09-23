@@ -4,7 +4,7 @@ SET	release-descr-prefix	YourSway Taskus [ver]
 SET	CFBundleName	YourSway Taskus
 SET	CFBundleShortVersionString	[ver]
 SET	CFBundleVersion	[ver]
-SET	CFBundleIdentifier	com.yoursway.Tasksus
+SET	CFBundleIdentifier	com.yoursway.Taskus
 SET	CFBundleGetInfoString	YourSway Taskus [ver]
 
 SET	eclipse-ver	3.4
