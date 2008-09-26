@@ -41,13 +41,13 @@ public class CoolScrollBarStyledTextBinding {
             
             public void handleEvent(Event event) {
                 widgetHeight = styledText.getBounds().height;
-//                textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
+                //textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
                 int textLength = styledText.getText().length();
                 if (textLength == 0) {
-                	textLength = 0;
+                    textLength = 0;
                 } else {
-					Rectangle textBounds = styledText.getTextBounds(textLength - 1, textLength - 1);
-					textHeight = textBounds.y + textBounds.height;
+                    Rectangle textBounds = styledText.getTextBounds(textLength - 1, textLength - 1);
+                    textHeight = styledText.getTopPixel() + textBounds.y + textBounds.height;
                 }
                 topPixel = styledText.getTopPixel();
                 vScrollBar.setRunnerSize(textHeight, widgetHeight);
@@ -58,6 +58,7 @@ public class CoolScrollBarStyledTextBinding {
         styledText.addListener(SWT.Modify, updateListener);
         styledText.addListener(SWT.Traverse, updateListener);
         styledText.addListener(SWT.Resize, updateListener);
+        styledText.addListener(SWT.KeyDown, updateListener);
         new MouseEnterExitTracker(composite, new Listener() {
             
             public void handleEvent(Event event) {
