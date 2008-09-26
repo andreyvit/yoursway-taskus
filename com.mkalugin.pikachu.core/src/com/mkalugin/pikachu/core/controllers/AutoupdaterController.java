@@ -7,10 +7,10 @@ import java.io.IOException;
 
 import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentation;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
-import com.yoursway.autoupdater.auxiliary.ComponentStopper;
-import com.yoursway.autoupdater.auxiliary.UpdatableApplication;
-import com.yoursway.autoupdater.auxiliary.UpdatableApplicationProductFeatures;
-import com.yoursway.autoupdater.auxiliary.UpdatableApplicationView;
+import com.yoursway.autoupdater.core.auxiliary.ComponentStopper;
+import com.yoursway.autoupdater.core.auxiliary.UpdatableApplication;
+import com.yoursway.autoupdater.core.auxiliary.UpdatableApplicationProductFeatures;
+import com.yoursway.autoupdater.core.auxiliary.UpdatableApplicationView;
 import com.yoursway.autoupdater.gui.controller.UpdaterController;
 import com.yoursway.utils.YsFileUtils;
 
@@ -31,7 +31,7 @@ class AutoupdaterController {
         preferences.setDefault(INSTALLING_KEY, false);
         
         updaterController = new UpdaterController(new UpdatableApplicationImpl());
-        updaterController.onStart();
+        updaterController.atStartup();
     }
     
     void updateApplication() {
