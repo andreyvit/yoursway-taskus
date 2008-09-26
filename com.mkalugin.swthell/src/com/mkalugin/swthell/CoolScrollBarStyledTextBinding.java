@@ -40,18 +40,7 @@ public class CoolScrollBarStyledTextBinding {
         Listener updateListener = new Listener() {
             
             public void handleEvent(Event event) {
-                widgetHeight = styledText.getBounds().height;
-                //textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
-                int textLength = styledText.getText().length();
-                if (textLength == 0) {
-                    textLength = 0;
-                } else {
-                    Rectangle textBounds = styledText.getTextBounds(textLength - 1, textLength - 1);
-                    textHeight = styledText.getTopPixel() + textBounds.y + textBounds.height;
-                }
-                topPixel = styledText.getTopPixel();
-                vScrollBar.setRunnerSize(textHeight, widgetHeight);
-                vScrollBar.setPosition(topPixel);
+                updateScrollbarPosition();
             }
             
         };
@@ -95,6 +84,21 @@ public class CoolScrollBarStyledTextBinding {
         if (topPixel > textHeight - widgetHeight)
             topPixel = textHeight - widgetHeight;
         styledText.setTopPixel(topPixel);
+        vScrollBar.setPosition(topPixel);
+    }
+    
+    public void updateScrollbarPosition() {
+        widgetHeight = styledText.getBounds().height;
+        //textHeight = styledText.computeSize(styledText.getSize().x - 1, SWT.DEFAULT).y;
+        int textLength = styledText.getText().length();
+        if (textLength == 0) {
+            textLength = 0;
+        } else {
+            Rectangle textBounds = styledText.getTextBounds(textLength - 1, textLength - 1);
+            textHeight = styledText.getTopPixel() + textBounds.y + textBounds.height;
+        }
+        topPixel = styledText.getTopPixel();
+        vScrollBar.setRunnerSize(textHeight, widgetHeight);
         vScrollBar.setPosition(topPixel);
     }
     

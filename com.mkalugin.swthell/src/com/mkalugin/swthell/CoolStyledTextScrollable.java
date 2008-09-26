@@ -11,6 +11,7 @@ public class CoolStyledTextScrollable extends Composite {
     
     private final StyledText styledText;
     private CoolScrollBar vScrollBar;
+    private CoolScrollBarStyledTextBinding binding;
     
     public CoolStyledTextScrollable(Composite parent, StyledText styledText) {
         super(parent, SWT.NONE);
@@ -31,7 +32,7 @@ public class CoolStyledTextScrollable extends Composite {
         GridLayoutFactory.fillDefaults().numColumns(2).spacing(1, 0).generateLayout(this);
         this.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_WHITE));
         
-        new CoolScrollBarStyledTextBinding(styledText, vScrollBar, this);
+        binding = new CoolScrollBarStyledTextBinding(styledText, vScrollBar, this);
     }
     
     public CoolStyledTextScrollable(Composite parent, int style) {
@@ -42,6 +43,10 @@ public class CoolStyledTextScrollable extends Composite {
     
     public StyledText styledText() {
         return styledText;
+    }
+    
+    public void updateScrollbarPosition() {
+        binding.updateScrollbarPosition();
     }
     
 }
