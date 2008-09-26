@@ -71,7 +71,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public void run() {
-        while (!display.isDisposed())
+        while (!hiddenShell.isDisposed())
             if (!display.readAndDispatch())
                 display.sleep();
     }
