@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 
+import com.yoursway.utils.annotations.SynchronizedWithMonitorOfField;
+
 public class CoolScrollBar extends Canvas {
     
     private float whole;
@@ -31,7 +33,9 @@ public class CoolScrollBar extends Canvas {
     
     private boolean vertical = true;
     
+    @SynchronizedWithMonitorOfField("animationLock")
     private boolean runningAnimation = false;
+    
     private Thread animationThread;
     private final AnimationRunnable animationRunnable;
     private final Object animationLock = new Object();
@@ -143,7 +147,7 @@ public class CoolScrollBar extends Canvas {
     }
     
     public CoolScrollBar(Composite parent, int style, boolean vertical, Color color) {
-        super(parent, style);
+        super(parent, style | SWT.DOUBLE_BUFFERED);
         this.vertical = vertical;
         alpha = 0;
         beginMargin = 6;
@@ -232,24 +236,33 @@ public class CoolScrollBar extends Canvas {
     
     private class AnimationRunnable implements Runnable {
         
+        @SynchronizedWithMonitorOfField("animationLock")
         private boolean show;
+        
         private final float time;
         
         public AnimationRunnable(boolean show, float time) {
-            this.show = show;
+            synchronized (animationLock) {
+                this.show = show;
+            }
             this.time = time;
         }
         
         public void run() {
-            runningAnimation = true;
+            synchronized (animationLock) {
+                runningAnimation = true;
+            }
             
             long delay = 5;
             float step = delay / time;
             
-            while (((show && alpha < 1) || (!show && alpha > 0))) {
+            while (true) {
                 synchronized (animationLock) {
-                    if (!runningAnimation)
+                    if (((show && alpha >= 1) || (!show && alpha <= 0)) || !runningAnimation) {
+                        runningAnimation = false;
                         break;
+                    }
+                    
                     Display.getDefault().syncExec(new Runnable() {
                         
                         public void run() {
@@ -270,21 +283,29 @@ public class CoolScrollBar extends Canvas {
                         alpha -= step;
                 }
             }
-            if (show && alpha > 1)
-                alpha = 1;
-            if (!show && alpha < 0)
-                alpha = 0;
-            runningAnimation = false;
+            
+            synchronized (animationLock) {
+                runningAnimation = false;
+                if (show && alpha > 1)
+                    alpha = 1;
+                if (!show && alpha < 0)
+                    alpha = 0;
+            }
         }
         
     }
     
+    private boolean show_ = false;
+    
     private synchronized void animateAlpha(final boolean show) {
+        show_ = show;
+        
         new Thread(new Runnable() {
             
             public void run() {
                 synchronized (animationLock) {
-                    animationRunnable.show = show;
+                    animationRunnable.show = show_;
+                    
                     if (!runningAnimation) {
                         animationThread = new Thread(animationRunnable);
                         animationThread.start();
