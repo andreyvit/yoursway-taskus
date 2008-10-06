@@ -1,5 +1,7 @@
 package com.mkalugin.corchy.internal.ui;
 
+import static com.mkalugin.pikachu.core.PlatformSpecific.isWindows;
+
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.internal.ui.editor.DocumentStylesheet;
@@ -10,11 +12,6 @@ import com.mkalugin.pikachu.core.controllers.viewglue.ApplicationPresentationCal
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 
 public class PlatformSpecific {
-    
-    private static boolean isWindows() {
-        String os = System.getProperty("osgi.os");
-        return os.equals("win32");
-    }
     
     public static ApplicationPresentation createApplicationPresentation(
             ApplicationPresentationCallback callback, IPreferenceStore preferenceStore) {

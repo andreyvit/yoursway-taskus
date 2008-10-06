@@ -124,7 +124,8 @@ public class SynchronizationController {
                     initial = cause;
                 }
                 callback.abortWithMessage(initial.getMessage());
-            } catch (Exception e) {
+            } catch (Throwable e) {
+                e.printStackTrace();
                 callback.abortWithMessage("Totally unexpected exception: " + e.getMessage());
             }
     }

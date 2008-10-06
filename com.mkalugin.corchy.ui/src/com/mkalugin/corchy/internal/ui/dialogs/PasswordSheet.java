@@ -21,9 +21,11 @@ public class PasswordSheet extends SheetDialog {
     
     private final String domain;
     private final String login;
+    private final boolean canStore;
+    
     private PasswordResult result;
-
-    public PasswordSheet(Shell parent, String domain, String login) {
+    
+    public PasswordSheet(Shell parent, String domain, String login, boolean canStore) {
         super(parent);
         if (domain == null)
             throw new NullPointerException("domain is null");
@@ -31,8 +33,9 @@ public class PasswordSheet extends SheetDialog {
             throw new NullPointerException("login is null");
         this.domain = domain;
         this.login = login;
+        this.canStore = canStore;
     }
-
+    
     @Override
     protected Shell createShell() {
         final Shell dialog = new Shell((Shell) null);
@@ -73,6 +76,7 @@ public class PasswordSheet extends SheetDialog {
         final Button storeInKeyChainCheckbox = new Button(content, SWT.CHECK);
         storeInKeyChainCheckbox.setText("Remember this password in my keychain");
         storeInKeyChainCheckbox.setLayoutData(GridDataFactory.fillDefaults().indent(0, 12).create());
+        storeInKeyChainCheckbox.setEnabled(canStore);
         
         Composite buttons = new Composite(content, SWT.NONE);
         buttons.setLayoutData(GridDataFactory.fillDefaults().indent(0, 4).grab(true, false).align(SWT.TRAIL,
@@ -98,6 +102,7 @@ public class PasswordSheet extends SheetDialog {
         
         cancelButton.addSelectionListener(new SelectionAdapter() {
             
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 dismiss();
             }
@@ -105,6 +110,7 @@ public class PasswordSheet extends SheetDialog {
         });
         loginButton.addSelectionListener(new SelectionAdapter() {
             
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 result = new PasswordResult(passwordValue.getText(), storeInKeyChainCheckbox.getSelection());
                 dismiss();
