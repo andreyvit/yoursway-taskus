@@ -19,11 +19,11 @@ public class WindowLocationManager {
     private IPreferenceStore preferenceStore;
     private final Shell shell;
     
-    private InitialShellPosition initialPosition;
-    private Point defaultSize;
-    private ShellPositionConstraint positionConstraint;
-    private boolean persistLocation;
-    private boolean persistSize;
+    private final InitialShellPosition initialPosition;
+    private final Point defaultSize;
+    private final ShellPositionConstraint positionConstraint;
+    private final boolean persistLocation;
+    private final boolean persistSize;
     private boolean boundsInitialized;
     
     public WindowLocationManager(Shell shell, WindowLocationConfiguration configuration) {
@@ -39,7 +39,8 @@ public class WindowLocationManager {
         this.persistSize = configuration.shouldPersistSize();
         Listener saveStateListener = new Listener() {
             public void handleEvent(Event event) {
-                saveState();
+                if (boundsInitialized)
+                    saveState();
             }
         };
         shell.addListener(SWT.Resize, saveStateListener);
