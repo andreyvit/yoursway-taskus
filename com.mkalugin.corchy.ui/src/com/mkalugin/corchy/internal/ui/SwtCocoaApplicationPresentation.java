@@ -1,7 +1,6 @@
 package com.mkalugin.corchy.internal.ui;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.mkalugin.corchy.ui.controls.PlatformStuff.setApplicationMenuBar;
 
 import java.io.File;
 import java.util.List;
@@ -40,14 +39,14 @@ import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
 import com.yoursway.autoupdater.core.auxiliary.AutoupdaterException;
 
-public class SwtCocoaApplicationPresentation implements ApplicationPresentation {
+public abstract class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
-    private final Display display;
-    private final Shell hiddenShell;
+    protected final Display display;
+    
     private final ApplicationPresentationCallback callback;
     private final IPreferenceStore preferenceStore;
     
-    private final List<SwtCocoaWindow> documentWindows = newArrayList();
+    protected final List<SwtCocoaWindow> documentWindows = newArrayList();
     private MenuItem fileClose;
     SwtCocoaWindow activeWindow;
     
@@ -60,28 +59,25 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         this.callback = callback;
         this.preferenceStore = preferenceStore;
         
-        Display.setAppName("Corchy");
+        Display.setAppName("Taskus");
         display = new Display();
         
-        hiddenShell = new Shell();
-        
-        setApplicationMenuBar(display, createMenuBar(hiddenShell));
-        
-        //        display.setApplicationMenuName("Corchy");
     }
     
     public void run() {
-        while (!hiddenShell.isDisposed())
+        while (!windowsDisposed())
             if (!display.readAndDispatch())
                 display.sleep();
     }
+    
+    protected abstract boolean windowsDisposed();
     
     Menu createEditMenu(Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
         
-        builder.item("Undo", SWT.MOD1 + 'Z', new Runnable() {
+        builder.item("&Undo", SWT.MOD1 + 'Z', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -91,7 +87,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 }
             }
         });
-        builder.item("Redo", SWT.MOD1 + SWT.SHIFT + 'Y', new Runnable() {
+        builder.item("&Redo", SWT.MOD1 + SWT.SHIFT + 'Y', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -102,7 +98,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
             }
         });
         builder.separator();
-        builder.item("Cut", SWT.MOD1 + 'X', new Runnable() {
+        builder.item("Cu&t", SWT.MOD1 + 'X', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -112,7 +108,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 }
             }
         });
-        builder.item("Copy", SWT.MOD1 + 'C', new Runnable() {
+        builder.item("&Copy", SWT.MOD1 + 'C', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -122,7 +118,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 }
             }
         });
-        builder.item("Paste", SWT.MOD1 + 'V', new Runnable() {
+        builder.item("&Paste", SWT.MOD1 + 'V', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -132,7 +128,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
                 }
             }
         });
-        builder.item("Select All", SWT.MOD1 + 'A', new Runnable() {
+        builder.item("Select &All", SWT.MOD1 + 'A', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -146,11 +142,11 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         
         builder.separator();
         
-        builder.cascade("Find", -1, createFindMenu(shell));
+        builder.cascade("&Find", -1, createFindMenu(shell));
         
         builder.separator();
         
-        builder.item("Complete word", SWT.CTRL + ' ', new Runnable() {
+        builder.item("Complete &word", SWT.CTRL + ' ', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
@@ -192,24 +188,24 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
-        builder.item("New", SWT.MOD1 + 'N', new Runnable() {
+        builder.item("&New", SWT.MOD1 + 'N', new Runnable() {
             public void run() {
                 callback.openNewDocument();
             }
         });
-        builder.item("Open...", SWT.MOD1 + 'O', new Runnable() {
+        builder.item("&Open...", SWT.MOD1 + 'O', new Runnable() {
             public void run() {
                 callback.openDocument();
             }
         });
         builder.separator();
-        fileClose = builder.item("Close", SWT.MOD1 + 'W', new Runnable() {
+        fileClose = builder.item("&Close", SWT.MOD1 + 'W', new Runnable() {
             public void run() {
                 if (activeWindow != null)
                     activeWindow.fileClose();
             }
         });
-        builder.item("Save As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
+        builder.item("Save &As...", SWT.MOD1 + SWT.SHIFT + 'S', new Runnable() {
             public void run() {
                 if (activeWindow != null)
                     activeWindow.fileSaveAs();
@@ -218,13 +214,13 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         
         builder.separator();
         
-        builder.item("Synchronize Now", SWT.MOD1 + SWT.ALT + 'S', new Runnable() {
+        builder.item("Synchronize &Now", SWT.MOD1 + SWT.ALT + 'S', new Runnable() {
             public void run() {
                 if (activeWindow != null)
                     activeWindow.fileSynchronizeNow();
             }
         });
-        builder.item("Update...", SWT.MOD1 + SWT.ALT + 'U', new Runnable() {
+        builder.item("&Update...", SWT.MOD1 + SWT.ALT + 'U', new Runnable() {
             public void run() {
                 callback.updateApplication();
             }
@@ -272,19 +268,19 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
         return menu;
     }
     
-    Menu createMenuBar(Shell shell) {
+    protected Menu createMenuBar(Shell shell) {
         Menu bar = new Menu(shell, SWT.BAR);
         
         MenuItem fileItem = new MenuItem(bar, SWT.CASCADE);
-        fileItem.setText("File");
+        fileItem.setText("&File");
         fileItem.setMenu(createFileMenu(shell));
         
         MenuItem editItem = new MenuItem(bar, SWT.CASCADE);
-        editItem.setText("Edit");
+        editItem.setText("&Edit");
         editItem.setMenu(createEditMenu(shell));
         
         MenuItem entryItem = new MenuItem(bar, SWT.CASCADE);
-        entryItem.setText("Entry");
+        entryItem.setText("E&ntry");
         entryItem.setMenu(createEntryMenu(shell));
         
         return bar;
@@ -297,6 +293,10 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public DocumentWindow createDocumentWindow(DocumentWindowCallback callback) {
+        return createSwtCocoaWindow(callback);
+    }
+    
+    protected SwtCocoaWindow createSwtCocoaWindow(DocumentWindowCallback callback) {
         DialogSettingsProvider dsp = new DialogSettingsProvider(new SubPreferenceStore(preferenceStore,
                 "documentWindows"));
         InitialShellPosition pos = (documentWindows.isEmpty() ? InitialShellPosition.CENTERED
@@ -363,7 +363,7 @@ public class SwtCocoaApplicationPresentation implements ApplicationPresentation 
     }
     
     public void displayAutoupdaterErrorMessage(AutoupdaterException e) {
-        BasicAlert alert = new GotItAlert(hiddenShell);
+        BasicAlert alert = new GotItAlert(null);
         alert.setMessageText("Autoupdater error");
         alert.setInformativeText(e.getMessage());
         alert.open();
