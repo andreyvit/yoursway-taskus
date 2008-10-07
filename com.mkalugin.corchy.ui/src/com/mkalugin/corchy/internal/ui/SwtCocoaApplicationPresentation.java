@@ -72,7 +72,7 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
     
     protected abstract boolean windowsDisposed();
     
-    Menu createEditMenu(Shell shell) {
+    protected Menu createEditMenu(Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
@@ -160,23 +160,23 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
         return menu;
     }
     
-    private Menu createFindMenu(Shell shell) {
+    protected Menu createFindMenu(Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
         
-        builder.item("Document Search", SWT.MOD1 + 'F', new Runnable() {
+        builder.item("Document Se&arch", SWT.MOD1 + 'F', new Runnable() {
             public void run() {
                 activeWindow.switchFocusToSearch();
             }
         });
         builder.separator();
-        builder.item("Find Next", SWT.MOD1 + 'G', new Runnable() {
+        builder.item("&Find Next", SWT.MOD1 + 'G', new Runnable() {
             public void run() {
                 activeWindow.findNext();
             }
         });
-        builder.item("Find Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
+        builder.item("Find &Previous", SWT.MOD1 + SWT.SHIFT + 'G', new Runnable() {
             public void run() {
                 activeWindow.findPrevious();
             }
@@ -184,7 +184,7 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
         return menu;
     }
     
-    Menu createFileMenu(final Shell shell) {
+    protected Menu createFileMenu(final Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
@@ -229,11 +229,11 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
         return menu;
     }
     
-    Menu createEntryMenu(final Shell shell) {
+    protected Menu createEntryMenu(final Shell shell) {
         Menu menu = new Menu(shell, SWT.DROP_DOWN);
         
         MenuBuilder builder = new MenuBuilder(menu);
-        builder.item("Tag with Done", SWT.MOD1 + 'D', new Runnable() {
+        builder.item("Tag with &Done", SWT.MOD1 + 'D', new Runnable() {
             public void run() {
                 Control focusControl = Display.getCurrent().getFocusControl();
                 if (focusControl instanceof StyledText) {
