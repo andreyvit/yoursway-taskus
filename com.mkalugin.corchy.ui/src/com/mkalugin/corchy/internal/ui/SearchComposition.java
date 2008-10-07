@@ -107,7 +107,7 @@ public class SearchComposition {
     private void createSearchNavigationControls(Composite composite) {
         matchesCountLabel2 = new MatchesCountLabel(composite, SWT.TRANSPARENT);
         matchesCountLabel2.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).grab(true,
-                false).hint(100, 12).minSize(100, 12).create());
+                false).hint(100, 14).minSize(100, 14).create());
         
         Button prevButton = new Button(composite, SWT.ARROW | SWT.LEFT);
         // prevButton.setImage(IMG_LEFT_ARROW.get());

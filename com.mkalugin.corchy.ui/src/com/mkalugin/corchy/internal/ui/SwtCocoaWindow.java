@@ -166,7 +166,7 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
         
         searchComposition = new SearchComposition(bottomBar);
         searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true,
-                true).indent(0, -3).create());
+                true).indent(0, -5).create());
         
         Composite endSpace = new Composite(bottomBar, SWT.TRANSPARENT);
         endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).indent(0, 0).hint(15,
