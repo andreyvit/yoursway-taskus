@@ -92,7 +92,6 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
         
         BottomBarComposition composition = new BottomBarComposition(shell);
         createControls(composition.body());
-        
         fillBottomBar(composition.bottomBar());
         
         locationManager = new WindowLocationManager(shell, new WindowLocationConfiguration().initialPosition(
@@ -166,12 +165,12 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
         //		});
         
         searchComposition = new SearchComposition(bottomBar);
-        searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BEGINNING).grab(
-                true, false).indent(0, 0).create());
+        searchComposition.setLayoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.CENTER).grab(true,
+                true).indent(0, -3).create());
         
         Composite endSpace = new Composite(bottomBar, SWT.TRANSPARENT);
-        endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.BEGINNING).indent(0, 0).hint(
-                15, SWT.DEFAULT).create());
+        endSpace.setLayoutData(GridDataFactory.swtDefaults().align(SWT.END, SWT.CENTER).indent(0, 0).hint(15,
+                15).create());
         
         GridLayoutFactory.fillDefaults().numColumns(3).extendedMargins(8, 8, 4, 0).margins(0, 0)
                 .spacing(0, 0).generateLayout(bottomBar);
