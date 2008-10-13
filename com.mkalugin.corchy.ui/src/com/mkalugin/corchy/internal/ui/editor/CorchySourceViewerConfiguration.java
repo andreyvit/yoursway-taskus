@@ -128,7 +128,7 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
 						long tm = System.currentTimeMillis();
 						List<StyleRange> ranges = new ArrayList<StyleRange>();
 
-						ADocument document = documentParser.parse(doc);
+						ADocument document = documentParser.parse_old(doc);
 
 						for (ADocumentLevelNode p : document.getChildren())
 							highlight(ranges, p);

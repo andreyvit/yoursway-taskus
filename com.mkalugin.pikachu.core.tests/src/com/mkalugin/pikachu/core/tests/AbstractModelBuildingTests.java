@@ -30,7 +30,7 @@ public class AbstractModelBuildingTests {
         URL resultEntry = requiredEntry(joinPath(path, "result.txt"));
         String data = read(dataEntry);
         DocumentParser parser = new DocumentParser();
-        ADocument documentNode = parser.parse(data);
+        ADocument documentNode = parser.parse_old(data);
         MDocument document = new StructuredModelBuilder().buildStructure(documentNode);
         
         String expected = read(resultEntry);
