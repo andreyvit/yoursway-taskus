@@ -18,12 +18,18 @@ import com.mkalugin.pikachu.core.ast.ATaskLeader;
 import com.mkalugin.pikachu.core.ast.ATaskLine;
 import com.mkalugin.pikachu.core.ast.ATaskName;
 import com.mkalugin.pikachu.core.ast.ATextLine;
+import com.mkalugin.pikachu.core.model.document.DocumentContent;
 
 public class DocumentParser {
     
     private static final Pattern TAG = compile("\\s@([^:(\\s@]*)(?::([^\\s]+)|\\(([^\\)]*)\\))?");
     
-    public ADocument parse(String source) {
+    public static DocumentContent parse(String source) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Deprecated
+    public ADocument parse_old(String source) {
         int documentEnd = source.length();
         ADocument document = new ADocument(0, documentEnd);
         int lineStart = 0;
@@ -40,7 +46,8 @@ public class DocumentParser {
         return document;
     }
     
-    private ADocumentLevelNode parseLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
+    private ADocumentLevelNode parseLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd,
+            CharSequence source) {
         if (bodyStart == bodyEnd)
             return new AEmptyLine(lineStart, lineEnd);
         else {
@@ -63,7 +70,8 @@ public class DocumentParser {
         return new AProjectLine(lineStart, lineEnd, AProjectName.extract(bodyStart, bodyEnd - 1, source));
     }
     
-    private ATaskLine parseTaskLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd, CharSequence source) {
+    private ATaskLine parseTaskLine(int lineStart, int lineEnd, int bodyStart, int bodyEnd,
+            CharSequence source) {
         ATaskLine task = new ATaskLine(lineStart, lineEnd);
         task.addChild(new ATaskLeader(bodyStart, bodyStart + 1));
         
@@ -85,8 +93,9 @@ public class DocumentParser {
                     if (value != null)
                         valueRange = new ARange(matcher.start(3), matcher.end(3));
                 }
-                ATagValue valueNode = (value == null ? null : ATagValue.extract(valueRange.start(), valueRange.end(), source));
-                int tagStart = matcher.start() + 1 /* compensate for a space */; 
+                ATagValue valueNode = (value == null ? null : ATagValue.extract(valueRange.start(),
+                        valueRange.end(), source));
+                int tagStart = matcher.start() + 1 /* compensate for a space */;
                 task.addChild(new ATag(tagStart, matcher.end(), nameNode, valueNode));
             } while (matcher.find());
         return task;

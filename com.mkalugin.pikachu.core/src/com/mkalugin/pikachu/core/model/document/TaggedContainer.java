@@ -1,4 +1,4 @@
-package com.mkalugin.pikachu.core.model.document.structure;
+package com.mkalugin.pikachu.core.model.document;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.mkalugin.pikachu.core.workspace.TestingUtils.containerToString;
@@ -6,23 +6,31 @@ import static java.util.Collections.unmodifiableList;
 
 import java.util.List;
 
-public abstract class MHernyaContainer extends MElement {
+public class TaggedContainer extends TaggedElement implements Container {
     
-    private final List<MElement> children = newArrayList();
+    List<Element> children = newArrayList();
     
-    public void addChild(MElement child) {
+    public TaggedContainer(int start, int end) {
+        super(start, end);
+    }
+    
+    public void addChild(Element child) {
         if (child == null)
             throw new NullPointerException("child is null");
+        
         children.add(child);
+        changed();
     }
     
-    public void removeChild(MElement child) {
+    public void removeChild(Element child) {
         if (child == null)
             throw new NullPointerException("child is null");
+        
         children.remove(child);
+        changed();
     }
     
-    public List<MElement> getChildren() {
+    public List<Element> getChildren() {
         return unmodifiableList(children);
     }
     
@@ -32,7 +40,7 @@ public abstract class MHernyaContainer extends MElement {
     }
     
     protected String containerDescription() {
-        return getClass().getSimpleName();
+        return super.toString();
     }
     
 }

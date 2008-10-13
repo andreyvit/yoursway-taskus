@@ -12,13 +12,17 @@ import java.io.IOException;
 import com.mkalugin.pikachu.core.DocumentListener;
 import com.mkalugin.pikachu.core.ast.ADocument;
 import com.mkalugin.pikachu.core.controllers.viewglue.DocumentBinding;
+import com.mkalugin.pikachu.core.model.document.DocumentContent;
 import com.mkalugin.pikachu.core.workspace.DocumentParser;
 import com.yoursway.utils.Listeners;
-import com.yoursway.utils.YsDigest;
 
 public class Document {
     
     private String content;
+    private DocumentContent contentModel;
+    @Deprecated
+    private ADocument ast;
+    
     private File file;
     private boolean isEmpty;
     private boolean isUntitled;
@@ -35,8 +39,7 @@ public class Document {
         loadContent();
     }
     
-    private transient Listeners<DocumentListener> listeners = newListenersByIdentity();
-    private ADocument ast;
+    private transient final Listeners<DocumentListener> listeners = newListenersByIdentity();
     
     public synchronized void addListener(DocumentListener listener) {
         listeners.add(listener);
@@ -50,6 +53,11 @@ public class Document {
         return content;
     }
     
+    public synchronized DocumentContent getContentModel() {
+        return contentModel;
+    }
+    
+    @Deprecated
     public synchronized ADocument getDocumentNode() {
         return ast;
     }
@@ -60,7 +68,8 @@ public class Document {
         if (content.equals(this.content))
             return;
         this.content = content;
-        this.ast = new DocumentParser().parse(content);
+        this.contentModel = DocumentParser.parse(content);
+        this.ast = new DocumentParser().parse_old(content);
         for (DocumentListener listener : listeners)
             listener.contentChanged(sender);
         boolean isEmpty = calculateIsEmpty();

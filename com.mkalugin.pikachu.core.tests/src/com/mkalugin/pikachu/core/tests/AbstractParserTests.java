@@ -28,7 +28,7 @@ public class AbstractParserTests {
         URL resultEntry = requiredEntry(YsFileUtils.joinPath(path, "result.txt"));
         String data = read(dataEntry);
         DocumentParser parser = new DocumentParser();
-        ADocument document = parser.parse(data);
+        ADocument document = parser.parse_old(data);
         
         String expected = read(resultEntry);
         String actual = document.toString();
