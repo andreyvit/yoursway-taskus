@@ -6,7 +6,7 @@ import static java.util.Collections.unmodifiableList;
 
 import java.util.List;
 
-public class TaggedContainer extends TaggedElement implements Container {
+public abstract class TaggedContainer extends TaggedElement implements Container {
     
     List<Element> children = newArrayList();
     
@@ -17,10 +17,13 @@ public class TaggedContainer extends TaggedElement implements Container {
     public void addChild(Element child) {
         if (child == null)
             throw new NullPointerException("child is null");
-        
-        children.add(child);
+        if (!doesChildMatch(child))
+            
+            children.add(child);
         changed();
     }
+    
+    protected abstract boolean doesChildMatch(Element child);
     
     public void removeChild(Element child) {
         if (child == null)

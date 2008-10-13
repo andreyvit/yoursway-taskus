@@ -6,4 +6,9 @@ public class Chapter extends NamedContainer {
         super(start, end);
     }
     
+    @Override
+    protected boolean doesChildMatch(Element child) {
+        return !(child instanceof Chapter);
+    }
+    
 }

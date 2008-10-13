@@ -1,6 +1,6 @@
 package com.mkalugin.pikachu.core.model.document;
 
-public class NamedContainer extends TaggedContainer implements Named {
+public abstract class NamedContainer extends TaggedContainer implements Named {
     
     Token name;
     

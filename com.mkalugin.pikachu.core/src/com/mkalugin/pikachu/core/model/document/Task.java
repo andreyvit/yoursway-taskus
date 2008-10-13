@@ -6,4 +6,9 @@ public class Task extends NamedContainer {
         super(start, end);
     }
     
+    @Override
+    protected boolean doesChildMatch(Element child) {
+        return child instanceof Task || child instanceof Text;
+    }
+    
 }
