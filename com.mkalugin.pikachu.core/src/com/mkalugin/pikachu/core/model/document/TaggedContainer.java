@@ -18,8 +18,9 @@ public abstract class TaggedContainer extends TaggedElement implements Container
         if (child == null)
             throw new NullPointerException("child is null");
         if (!doesChildMatch(child))
-            
-            children.add(child);
+            throw new IllegalArgumentException("child doesn't match");
+        
+        children.add(child);
         changed();
     }
     
