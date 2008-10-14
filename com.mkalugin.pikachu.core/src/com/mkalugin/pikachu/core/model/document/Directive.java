@@ -2,11 +2,16 @@ package com.mkalugin.pikachu.core.model.document;
 
 public class Directive extends SimpleElement {
     
-    public Directive(int start, int end) {
-        super(start, end);
-    }
-    
     private String commandText;
+    
+    public Directive(String command, int start, int end) {
+        super(start, end);
+        
+        if (command == null)
+            throw new NullPointerException("command is null");
+        
+        commandText = command;
+    }
     
     public String getCommandText() {
         return commandText;

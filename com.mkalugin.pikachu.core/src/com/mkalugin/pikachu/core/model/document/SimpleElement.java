@@ -6,7 +6,7 @@ import com.yoursway.utils.broadcaster.BroadcasterFactory;
 
 public abstract class SimpleElement implements Element {
     
-    private final Range range;
+    protected Range range;
     Broadcaster<DocumentModelListener> broadcaster = BroadcasterFactory
             .newBroadcaster(DocumentModelListener.class);
     
@@ -16,7 +16,7 @@ public abstract class SimpleElement implements Element {
     
     @Override
     public String toString() {
-        return getClass().getSimpleName();
+        return getClass().getSimpleName() + range;
     }
     
     public Range range() {

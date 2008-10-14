@@ -1,20 +1,13 @@
 package com.mkalugin.pikachu.core.model.document;
 
-public class Text extends TaggedElement {
-    
-    private String text;
+public class Text extends TaggedContainer {
     
     public Text(int start, int end) {
         super(start, end);
     }
     
-    public String getText() {
-        return text;
-    }
-    
-    public void setText(String newText) {
-        text = newText;
-        changed();
+    public boolean doesChildMatch(Element child) {
+        return child instanceof TextLine;
     }
     
 }

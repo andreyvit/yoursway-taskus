@@ -6,6 +6,4 @@ public interface Named {
     
     public Token getNameToken();
     
-    public void setName(String newName);
-    
 }

@@ -22,4 +22,9 @@ public class Range {
         return end - start;
     }
     
+    @Override
+    public String toString() {
+        return "(" + start + ".." + end + ")";
+    }
+    
 }

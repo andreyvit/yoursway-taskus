@@ -4,14 +4,20 @@ import com.yoursway.utils.annotations.Nullable;
 
 public class Tag extends SimpleElement implements Named {
     
-    public Tag(int start, int end) {
-        super(start, end);
-    }
-    
-    private Token name;
+    private final Token name;
     
     @Nullable
     private Token value;
+    
+    public Tag(Token name, @Nullable Token value, int start, int end) {
+        super(start, end);
+        
+        if (name == null)
+            throw new NullPointerException("name is null");
+        
+        this.name = name;
+        this.value = value;
+    }
     
     public String getName() {
         return name.getText();
@@ -19,10 +25,6 @@ public class Tag extends SimpleElement implements Named {
     
     public Token getNameToken() {
         return name;
-    }
-    
-    public void setName(String newName) {
-        name.setText(newName);
     }
     
     public String getValue() {

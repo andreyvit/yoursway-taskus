@@ -6,8 +6,7 @@ public class DocumentContent extends TaggedContainer {
         super(start, end);
     }
     
-    @Override
-    protected boolean doesChildMatch(Element child) {
+    public boolean doesChildMatch(Element child) {
         return true;
     }
     

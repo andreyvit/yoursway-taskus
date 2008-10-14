@@ -2,12 +2,11 @@ package com.mkalugin.pikachu.core.model.document;
 
 public class Task extends NamedContainer {
     
-    public Task(int start, int end) {
-        super(start, end);
+    public Task(Token name, int start, int end) {
+        super(name, start, end);
     }
     
-    @Override
-    protected boolean doesChildMatch(Element child) {
+    public boolean doesChildMatch(Element child) {
         return child instanceof Task || child instanceof Text;
     }
     

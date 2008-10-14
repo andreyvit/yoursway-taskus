@@ -1,10 +1,10 @@
 package com.mkalugin.pikachu.core.model.document;
 
-public class Token extends SimpleElement {
+public class TextLine extends SimpleElement {
     
     private final String text;
     
-    public Token(String text, int start, int end) {
+    public TextLine(String text, int start, int end) {
         super(start, end);
         
         if (text == null)
@@ -15,11 +15,6 @@ public class Token extends SimpleElement {
     
     public String getText() {
         return text;
-    }
-    
-    @Override
-    public String toString() {
-        return super.toString() + " " + text;
     }
     
 }

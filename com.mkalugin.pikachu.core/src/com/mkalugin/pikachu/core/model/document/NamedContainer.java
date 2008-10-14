@@ -4,8 +4,13 @@ public abstract class NamedContainer extends TaggedContainer implements Named {
     
     Token name;
     
-    public NamedContainer(int start, int end) {
+    public NamedContainer(Token name, int start, int end) {
         super(start, end);
+        
+        if (name == null)
+            throw new NullPointerException("name is null");
+        
+        this.name = name;
     }
     
     public String getName() {
@@ -16,13 +21,9 @@ public abstract class NamedContainer extends TaggedContainer implements Named {
         return name;
     }
     
-    public void setName(String newName) {
-        name.setText(newName);
-    }
-    
     @Override
     protected String containerDescription() {
-        return super.containerDescription() + " " + name;
+        return super.containerDescription() + " [" + name + "]";
     }
     
 }

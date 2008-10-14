@@ -2,12 +2,11 @@ package com.mkalugin.pikachu.core.model.document;
 
 public class Group extends NamedContainer {
     
-    public Group(int start, int end) {
-        super(start, end);
+    public Group(Token name, int start, int end) {
+        super(name, start, end);
     }
     
-    @Override
-    protected boolean doesChildMatch(Element child) {
+    public boolean doesChildMatch(Element child) {
         return !(child instanceof Chapter || child instanceof Section);
     }
     
