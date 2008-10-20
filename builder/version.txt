@@ -1,0 +1,6 @@
+[Version]
+[ApplicationName]
+[Platform]
+[ReleaseType]
+[Link]
+

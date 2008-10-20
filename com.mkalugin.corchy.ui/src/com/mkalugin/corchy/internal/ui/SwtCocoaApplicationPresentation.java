@@ -37,7 +37,6 @@ import com.mkalugin.pikachu.core.controllers.viewglue.DocumentWindowCallback;
 import com.mkalugin.pikachu.core.model.DocumentTypeDefinition;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
 import com.mkalugin.pikachu.core.preference.SubPreferenceStore;
-import com.yoursway.autoupdater.core.auxiliary.AutoupdaterException;
 
 public abstract class SwtCocoaApplicationPresentation implements ApplicationPresentation {
     
@@ -220,9 +219,9 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
                     activeWindow.fileSynchronizeNow();
             }
         });
-        builder.item("&Update...", SWT.MOD1 + SWT.ALT + 'U', new Runnable() {
+        builder.item("Check for &Updates...", SWT.MOD1 + SWT.ALT + 'U', new Runnable() {
             public void run() {
-                callback.updateApplication();
+                callback.checkUpdate();
             }
         });
         
@@ -360,13 +359,6 @@ public abstract class SwtCocoaApplicationPresentation implements ApplicationPres
         alert.setMessageText("Failed to create a document");
         alert.setInformativeText("You've just triggered a disk I/O error #-4982063, you bastard!");
         alert.openModal();
-    }
-    
-    public void displayAutoupdaterErrorMessage(AutoupdaterException e) {
-        BasicAlert alert = new GotItAlert(null);
-        alert.setMessageText("Autoupdater error");
-        alert.setInformativeText(e.getMessage());
-        alert.open();
     }
     
 }

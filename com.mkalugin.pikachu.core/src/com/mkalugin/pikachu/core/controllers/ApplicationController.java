@@ -10,12 +10,12 @@ import com.mkalugin.pikachu.core.model.ApplicationModel;
 import com.mkalugin.pikachu.core.model.ApplicationModelListener;
 import com.mkalugin.pikachu.core.model.Document;
 import com.mkalugin.pikachu.core.preference.IPreferenceStore;
+import com.yoursway.tinyupdater.TinyUpdater;
 
 public class ApplicationController implements ApplicationPresentationCallback, ApplicationModelListener {
     
     private final ApplicationPresentation applicationPresentation;
     private final ApplicationModel model;
-    private final AutoupdaterController autoupdaterController;
     
     public ApplicationController(ApplicationModel model, IPreferenceStore preferences,
             ApplicationPresentationFactory presentationFactory) {
@@ -24,13 +24,15 @@ public class ApplicationController implements ApplicationPresentationCallback, A
         this.model = model;
         model.addListener(this);
         applicationPresentation = presentationFactory.createPresentation(this);
-        autoupdaterController = new AutoupdaterController(preferences, applicationPresentation);
     }
     
     public void run() {
         model.openAllUntitledDocuments();
         if (model.areNoDocumentsOpen())
             openNewDocument();
+        
+        TinyUpdater.instance().checkUpdate(false);
+        
         applicationPresentation.run();
     }
     
@@ -53,8 +55,8 @@ public class ApplicationController implements ApplicationPresentationCallback, A
         }
     }
     
-    public void updateApplication() {
-        autoupdaterController.updateApplication();
+    public void checkUpdate() {
+        TinyUpdater.instance().checkUpdate(true);
     }
     
     public void documentClosed(Document document) {

@@ -61,40 +61,7 @@ UNZIP	[eclipse-mac.zip]	[eclipse-mac]
 UNZIP	[eclipse-win.zip]	[eclipse-win]
 	INTO	/	eclipse
 	
-##############################################################################################################
-# extinstaller
-##############################################################################################################
-	
-NEWDIR	extinstaller.bin	temp	taskus-[ver]-extinstaller-bin	-
-NEWDIR	extinstaller.win	temp	taskus-[ver]-extinstaller-win	-
-NEWDIR	extinstaller.mac	temp	taskus-[ver]-extinstaller-mac	-
 
-INVOKERUBY	[ecabu.cur]/ecabu.rb
-	ARGS	--output	[extinstaller.bin]
-	ARGS	--binary	[eclipse-mac]/plugins
-	ARGS	--source	[libraries.cur]
-	ARGS	--source	[commons.cur]
-	ARGS	--source	[updater.cur]
-	ARGS	--include	org.eclipse.swt.*
-	ARGS	--include	com.yoursway.autoupdater.installer
-
-INVOKERUBY	[ecabu.cur]/ecabu.rb
-	ARGS	--output	[extinstaller.mac]
-	ARGS	--copy-binaries	--disable-building
-	ARGS	--binary	[eclipse-mac]/plugins
-	ARGS	--binary	[extinstaller.bin]
-	ARGS	--include	org.eclipse.swt.*
-	ARGS	--include	com.yoursway.autoupdater.installer
-
-INVOKERUBY	[ecabu.cur]/ecabu.rb
-	ARGS	--output	[extinstaller.win]
-	ARGS	--copy-binaries	--disable-building
-	ARGS	--binary	[eclipse-win]/plugins
-	ARGS	--binary	[extinstaller.bin]
-	ARGS	--include	org.eclipse.swt.*
-	ARGS	--include	com.yoursway.autoupdater.installer
-	
-	
 ##############################################################################################################
 # build Taskus binaries
 ##############################################################################################################
@@ -228,6 +195,29 @@ SYNC	mae	s3-updates
 	MAP	/	readonly	/	add
 	MAP	products	readonly	products	add,append
 	MAP	suites	readonly	suites	add,append
+
+
+##############################################################################################################
+# tiny updater
+##############################################################################################################
+
+
+UNZIP	[taskus-mac.app]
+
+
+COPYTO	[]
+
+[taskus.cur]/builder/setup.nsi
+
+
+SUBSTVARS	[taskus.cur]/builder/setup.nsi
+	SET	Version	[ver]
+	SET	ApplicationName	taskus
+	SET	Platform	mac
+	SET	ReleaseType	continuous
+	SET	Link	http://updates.yoursway.com/
+
+
 
 	
 ##############################################################################################################

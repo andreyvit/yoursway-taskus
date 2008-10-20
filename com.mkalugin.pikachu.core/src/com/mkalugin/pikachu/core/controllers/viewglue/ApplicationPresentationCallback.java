@@ -6,6 +6,6 @@ public interface ApplicationPresentationCallback {
     
     void openDocument();
     
-    void updateApplication();
+    void checkUpdate();
     
 }
