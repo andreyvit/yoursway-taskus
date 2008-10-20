@@ -10,4 +10,14 @@ public class Task extends NamedContainer {
         return child instanceof Task || child instanceof Text;
     }
     
+    public boolean isDone() {
+        return hasTag("done");
+    }
+    
+    @Override
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+        super.accept(visitor);
+    }
+    
 }

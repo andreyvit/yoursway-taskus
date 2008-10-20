@@ -22,4 +22,8 @@ public class Token extends SimpleElement {
         return super.toString() + " " + text;
     }
     
+    public void accept(DocumentModelVisitor visitor) {
+        // not visit it
+    }
+    
 }

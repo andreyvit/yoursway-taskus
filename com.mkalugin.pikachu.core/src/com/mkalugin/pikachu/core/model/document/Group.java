@@ -7,7 +7,13 @@ public class Group extends NamedContainer {
     }
     
     public boolean doesChildMatch(Element child) {
-        return !(child instanceof Chapter || child instanceof Section);
+        return !(child instanceof Chapter || child instanceof Section || child instanceof Group);
+    }
+    
+    @Override
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+        super.accept(visitor);
     }
     
 }

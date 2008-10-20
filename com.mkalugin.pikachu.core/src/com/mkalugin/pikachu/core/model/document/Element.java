@@ -10,4 +10,6 @@ public interface Element {
     
     public EventSource<DocumentModelListener> events();
     
+    public void accept(DocumentModelVisitor visitor);
+    
 }

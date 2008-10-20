@@ -2,7 +2,6 @@ package com.mkalugin.corchy.internal.ui.editor;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IAutoEditStrategy;
@@ -23,27 +22,125 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Display;
 
 import com.mkalugin.corchy.internal.ui.PlatformSpecific;
-import com.mkalugin.pikachu.core.ast.ADocument;
-import com.mkalugin.pikachu.core.ast.ADocumentLevelNode;
-import com.mkalugin.pikachu.core.ast.ADocumentLevelVisitor;
-import com.mkalugin.pikachu.core.ast.AEmptyLine;
-import com.mkalugin.pikachu.core.ast.ANode;
-import com.mkalugin.pikachu.core.ast.AProjectLine;
-import com.mkalugin.pikachu.core.ast.ARange;
-import com.mkalugin.pikachu.core.ast.ATag;
-import com.mkalugin.pikachu.core.ast.ATaskDescriptionFragment;
-import com.mkalugin.pikachu.core.ast.ATaskLeader;
-import com.mkalugin.pikachu.core.ast.ATaskLevelNode;
-import com.mkalugin.pikachu.core.ast.ATaskLevelVisitor;
-import com.mkalugin.pikachu.core.ast.ATaskLine;
-import com.mkalugin.pikachu.core.ast.ATaskName;
-import com.mkalugin.pikachu.core.ast.ATextLine;
+import com.mkalugin.pikachu.core.model.document.Chapter;
+import com.mkalugin.pikachu.core.model.document.Directive;
+import com.mkalugin.pikachu.core.model.document.DocumentModelVisitor;
+import com.mkalugin.pikachu.core.model.document.Group;
+import com.mkalugin.pikachu.core.model.document.Range;
+import com.mkalugin.pikachu.core.model.document.Section;
+import com.mkalugin.pikachu.core.model.document.Tag;
+import com.mkalugin.pikachu.core.model.document.TaggedContainer;
+import com.mkalugin.pikachu.core.model.document.Task;
+import com.mkalugin.pikachu.core.model.document.TextLine;
 import com.mkalugin.pikachu.core.workspace.DocumentParser;
 
 public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
     
     private static interface ISemanticHighlighter {
         Collection<StyleRange> highlight(String doc);
+    }
+
+    private final class SemanticHighlighter implements ISemanticHighlighter {
+        DocumentStylesheet stylesheet;
+        
+        private SemanticHighlighter(ISourceViewer sourceViewer) {
+            stylesheet = createStylesheet(sourceViewer.getTextWidget().getDisplay());
+        }
+        
+        public Collection<StyleRange> highlight(String doc) {
+            long tm = System.currentTimeMillis();
+            
+            final Collection<StyleRange> ranges = new ArrayList<StyleRange>();
+            
+            TaggedContainer contentModel = DocumentParser.parse(doc);
+            
+            contentModel.accept(new DocumentModelVisitor() {
+                
+                public void visit(Chapter chapter) {
+                    highlightChapter(ranges, chapter);
+                }
+                
+                public void visit(Section section) {
+                    highlightSection(ranges, section);
+                }
+                
+                public void visit(Group group) {
+                    highlightGroup(ranges, group);
+                }
+                
+                public void visit(Task task) {
+                    highlightTask(ranges, task);
+                }
+                
+                public void visit(TextLine line) {
+                    highlightTextLine(ranges, line);
+                }
+                
+                public void visit(Tag tag) {
+                    highlightTag(ranges, tag);
+                }
+                
+                public void visit(Directive directive) {
+                    highlightDirective(ranges, directive);
+                }
+                
+            });
+            
+            System.out.println("hightlight end, time =  " + (System.currentTimeMillis() - tm));
+            
+            return ranges;
+        }
+        
+        private StyleRange createStyle(Range range) {
+            StyleRange style = new StyleRange();
+            style.start = range.start();
+            style.length = range.length();
+            return style;
+        }
+        
+        private void highlightChapter(Collection<StyleRange> presentation, Chapter chapter) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        private void highlightSection(Collection<StyleRange> presentation, Section section) {
+            // TODO Auto-generated method stub
+            
+        }
+        
+        private void highlightGroup(Collection<StyleRange> presentation, Group group) {
+            StyleRange style = createStyle(group.getNameToken().range());
+            stylesheet.styleGroup(style);
+            presentation.add(style);
+        }
+        
+        private void highlightTask(Collection<StyleRange> presentation, Task task) {
+            StyleRange style = createStyle(task.getNameToken().range());
+            
+            if (task.isDone())
+                stylesheet.styleDoneTask(style);
+            else
+                stylesheet.styleTask(style);
+            
+            presentation.add(style);
+        }
+        
+        private void highlightTag(Collection<StyleRange> presentation, Tag tag) {
+            StyleRange style = createStyle(tag.range());
+            stylesheet.styleTag(style);
+            presentation.add(style);
+        }
+        
+        private void highlightTextLine(Collection<StyleRange> presentation, TextLine line) {
+            StyleRange style = createStyle(line.range());
+            stylesheet.styleText(style);
+            presentation.add(style);
+        }
+        
+        private void highlightDirective(Collection<StyleRange> presentation, Directive directive) {
+            // TODO Auto-generated method stub
+            
+        }
     }
     
     private static class SemanticDamagerRepairer implements IPresentationDamager, IPresentationRepairer {
@@ -111,116 +208,7 @@ public class CorchySourceViewerConfiguration extends SourceViewerConfiguration {
     public IPresentationReconciler getPresentationReconciler(final ISourceViewer sourceViewer) {
         PresentationReconciler presentationReconciler = new PresentationReconciler();
         SemanticDamagerRepairer semanticDamagerRepairer = new SemanticDamagerRepairer(
-                new ISemanticHighlighter() {
-                    DocumentParser documentParser = new DocumentParser();
-                    
-                    DocumentStylesheet stylesheet = createStylesheet(sourceViewer.getTextWidget()
-                            .getDisplay());
-                    
-                    public Collection<StyleRange> highlight(String doc) {
-                        long tm = System.currentTimeMillis();
-                        List<StyleRange> ranges = new ArrayList<StyleRange>();
-                        
-                        ADocument document = documentParser.parse_old(doc);
-                        
-                        for (ADocumentLevelNode p : document.getChildren())
-                            highlight(ranges, p);
-                        System.out.println("hightlight end, time =  " + (System.currentTimeMillis() - tm));
-                        return ranges;
-                    }
-                    
-                    private void highlight(final Collection<StyleRange> presentation, ADocumentLevelNode node) {
-                        node.accept(new ADocumentLevelVisitor() {
-                            
-                            public void visitEmptyLine(AEmptyLine line) {
-                                highlightText(presentation, line);
-                            }
-                            
-                            public void visitProjectLine(AProjectLine line) {
-                                highlightProject(presentation, line);
-                            }
-                            
-                            public void visitTaskLine(ATaskLine line) {
-                                highlightTask(presentation, line);
-                            }
-                            
-                            public void visitTextLine(ATextLine line) {
-                                highlightText(presentation, line);
-                            }
-                            
-                        });
-                    }
-                    
-                    protected void highlightProject(Collection<StyleRange> presentation, AProjectLine project) {
-                        StyleRange style = new StyleRange();
-                        ARange range = project.range();
-                        style.start = range.start();
-                        style.length = range.length();
-                        stylesheet.styleProject(style);
-                        presentation.add(style);
-                    }
-                    
-                    protected void highlightText(Collection<StyleRange> presentation, ANode node) {
-                        StyleRange style = new StyleRange();
-                        ARange range = node.range();
-                        style.start = range.start();
-                        style.length = range.length();
-                        stylesheet.styleText(style);
-                        presentation.add(style);
-                    }
-                    
-                    protected void highlightTask(Collection<StyleRange> presentation, ATaskLine task) {
-                        boolean isDone = task.isDone();
-                        for (ATaskLevelNode node : task.getChildren())
-                            highlight(presentation, node, isDone);
-                    }
-                    
-                    private void highlight(final Collection<StyleRange> presentation, ATaskLevelNode node,
-                            final boolean isDone) {
-                        node.accept(new ATaskLevelVisitor() {
-                            
-                            public void visitDescriptionFragment(ATaskDescriptionFragment fragment) {
-                                highlightTaskText(presentation, fragment, false);
-                            }
-                            
-                            public void visitLeader(ATaskLeader leader) {
-                                highlightTaskText(presentation, leader, false);
-                            }
-                            
-                            public void visitName(ATaskName name) {
-                                highlightTaskText(presentation, name, isDone);
-                            }
-                            
-                            public void visitTag(ATag tag) {
-                                highlightTaskTag(presentation, tag);
-                            }
-                            
-                        });
-                    }
-                    
-                    protected void highlightTaskText(Collection<StyleRange> presentation, ATaskLevelNode tag,
-                            boolean isDone) {
-                        StyleRange style = new StyleRange();
-                        ARange range = tag.range();
-                        style.start = range.start();
-                        style.length = range.length();
-                        if (isDone)
-                            stylesheet.styleDoneTask(style);
-                        else
-                            stylesheet.styleTask(style);
-                        presentation.add(style);
-                    }
-                    
-                    protected void highlightTaskTag(Collection<StyleRange> presentation, ATag tag) {
-                        StyleRange style = new StyleRange();
-                        ARange range = tag.range();
-                        style.start = range.start();
-                        style.length = range.length();
-                        stylesheet.styleTag(style);
-                        presentation.add(style);
-                    }
-                    
-                });
+                new SemanticHighlighter(sourceViewer));
         presentationReconciler.setDamager(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
         presentationReconciler.setRepairer(semanticDamagerRepairer, IDocument.DEFAULT_CONTENT_TYPE);
         return presentationReconciler;

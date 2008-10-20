@@ -1,9 +1,9 @@
 package com.mkalugin.pikachu.core.controllers.viewglue;
 
-import com.mkalugin.pikachu.core.ast.AProjectName;
+import com.mkalugin.pikachu.core.model.document.Element;
 
 public interface OutlineViewCallback {
-
-	void projectSelected(AProjectName name);
+    
+    void elementSelected(Element element);
     
 }

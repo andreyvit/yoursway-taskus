@@ -24,7 +24,7 @@ public class MacDocumentStylesheet implements DocumentStylesheet {
 		textColor = new Color(display, 70, 70, 70);
 	}
 
-	public void styleProject(TextStyle style) {
+	public void styleGroup(TextStyle style) {
 //		style.underline = true;s
 		style.font = projectFont;
 	}

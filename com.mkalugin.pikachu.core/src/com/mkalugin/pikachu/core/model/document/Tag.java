@@ -52,4 +52,8 @@ public class Tag extends SimpleElement implements Named {
         return s;
     }
     
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

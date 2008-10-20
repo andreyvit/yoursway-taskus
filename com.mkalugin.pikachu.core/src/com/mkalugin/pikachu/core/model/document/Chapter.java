@@ -10,4 +10,10 @@ public class Chapter extends NamedContainer {
         return !(child instanceof Chapter);
     }
     
+    @Override
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+        super.accept(visitor);
+    }
+    
 }

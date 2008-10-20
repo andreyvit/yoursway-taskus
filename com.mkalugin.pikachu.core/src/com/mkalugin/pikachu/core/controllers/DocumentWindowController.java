@@ -21,7 +21,7 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
     
     private final DocumentSavingAgent savingAgent;
     
-    private final ProjectSelection projectSelection;
+    private final Selection selection;
     
     private final SynchronizationCallback synchCallback;
     
@@ -30,11 +30,11 @@ public class DocumentWindowController implements DocumentWindowCallback, Documen
             throw new NullPointerException("model is null");
         this.document = document;
         this.window = factory.createDocumentWindow(this);
-        this.projectSelection = new ProjectSelection();
+        this.selection = new Selection();
         setBindingToWindow();
         document.addListener(this);
-        new OutlineViewController(document, projectSelection, window);
-        new SourceViewController(document, projectSelection, window, this);
+        new OutlineViewController(document, selection, window);
+        new SourceViewController(document, selection, window, this);
         new SearchController(document, window);
         savingAgent = new DocumentSavingAgent(document);
         synchCallback = new SynchronizationCallback(window);

@@ -22,4 +22,8 @@ public class Directive extends SimpleElement {
         changed();
     }
     
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

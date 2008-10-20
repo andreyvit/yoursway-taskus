@@ -17,4 +17,8 @@ public class TextLine extends SimpleElement {
         return text;
     }
     
+    public void accept(DocumentModelVisitor visitor) {
+        visitor.visit(this);
+    }
+    
 }

@@ -43,6 +43,13 @@ public abstract class TaggedContainer extends SimpleElement implements Tagged, C
         return tags;
     }
     
+    public boolean hasTag(String name) {
+        for (Tag tag : tags)
+            if (tag.getName().equals(name))
+                return true;
+        return false;
+    }
+    
     public void addTag(Tag tag) {
         tags.add(tag);
         changed();
@@ -81,5 +88,10 @@ public abstract class TaggedContainer extends SimpleElement implements Tagged, C
         int lastChildEnd = lastChild.range().end();
         if (range.end() < lastChildEnd)
             range = new Range(range.start(), lastChildEnd);
+    }
+
+    public void accept(DocumentModelVisitor visitor) {
+        for (Element child : getChildren())
+            child.accept(visitor);
     }
 }
