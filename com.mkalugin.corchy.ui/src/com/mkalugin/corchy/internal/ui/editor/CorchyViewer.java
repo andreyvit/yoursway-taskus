@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Layout;
 
 import com.mkalugin.pikachu.core.controllers.search.SearchMatch;
 import com.mkalugin.pikachu.core.controllers.search.SearchResult;
-import com.mkalugin.swthell.CoolStyledTextScrollable;
+import com.yoursway.swt.scrollbar.CoolStyledTextScrollable;
 
 public class CorchyViewer extends SourceViewer {
     
