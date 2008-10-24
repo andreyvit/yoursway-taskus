@@ -13,16 +13,10 @@ REPOS	taskus	-	Taskus
 	GIT	andreyvit-ys	-	ssh://yoursway.com/~andreyvit/pikachu.git
 	GIT	fourdman-ys	-	ssh://yoursway.com/~fourdman/pikachu.git
 	GIT	lliypik-ys	-	ssh://yoursway.com/~lliypik/pikachu.git
-REPOS	updater	-	Software Update
-	GIT	lliypik-ys	-	ssh://yoursway.com/~lliypik/autoupdate.git
-	GIT	lliypik-gh	-	git://github.com/lliypik/yoursway-software-update.git
-	GIT	andreyvit-gh	-	git://github.com/andreyvit/yoursway-software-update.git
-REPOS	magicecabu	-	Magic Ecabu
-	GIT	andreyvit-ys	-	ssh://yoursway.com/~andreyvit/magicecabu.git
 
 VERSION	ecabu.cur	ecabu	heads/master
 VERSION	updater.cur	updater	heads/master
-VERSION	taskus.cur	taskus	heads/master
+VERSION	taskus.cur	taskus	heads/tinyupdater
 VERSION	libraries.cur	libraries	heads/master
 VERSION	commons.cur	commons	heads/master
 VERSION	create-dmg.cur	create-dmg	heads/master
@@ -139,62 +133,6 @@ FIXPLIST	[taskus-mac.app<alter>]/Contents/Info.plist
 	FIX	CFBundleShortVersionString	[CFBundleShortVersionString]
 	FIX	CFBundleVersion	[CFBundleVersion]
 	
-	
-##############################################################################################################
-# update site
-##############################################################################################################
-
-VERSION	magicecabu.cur	magicecabu	heads/master
-
-NEWDIR	mae	temp	taskus-mae	-
-
-SET	MAE_DIR	[mae<mkdir,keep>]
-SET	MAE_DEF_DIR	[taskus.cur]/builder/mae-def
-
-SYNC	mae	s3-updates
-	MAP	catalog	add,remove	catalog	readonly
-
-INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/mac/[ver]	[taskus-mac.app]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus/win/[ver]	[taskus-win]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/win/[ver]	[extinstaller.win]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-tree	taskus-extinstaller/mac/[ver]	[extinstaller.mac]
-	DEP	[mae<alter>]
-
-INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus/mac/[ver]	taskus/win/[ver]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-pack-tree	taskus-extinstaller/win/[ver]	taskus-extinstaller/mac/[ver]
-	DEP	[mae<alter>]
-
-INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/mac/[ver]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus/win/[ver]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/win/[ver]
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-create-version	taskus-extinstaller/mac/[ver]
-	DEP	[mae<alter>]
-
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus/mac/[ver]	continuous
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus/win/[ver]	continuous
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	mac	taskus-extinstaller/mac/[ver]	continuous
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-promote-component	taskus	win	taskus-extinstaller/win/[ver]	continuous
-	DEP	[mae<alter>]
-
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	mac	[ver]	continuous
-	DEP	[mae<alter>]
-INVOKE	[magicecabu.cur]/bin/mae-release-product-version	-f	taskus	taskus	win	[ver]	continuous
-	DEP	[mae<alter>]
-
-SYNC	mae	s3-updates
-	MAP	/	readonly	/	add
-	MAP	products	readonly	products	add,append
-	MAP	suites	readonly	suites	add,append
 
 
 ##############################################################################################################
@@ -202,24 +140,54 @@ SYNC	mae	s3-updates
 ##############################################################################################################
 
 
-UNZIP	[taskus-mac.app]
+NEWDIR	tinyupdater	temp	tinyupdater-[ver]	-
+
+COPYTO	[tinyupdater]
+	INTO	tinyupdater.zip	[taskus.bin]/com.yoursway.tinyupdater_1.0.0.jar
+
+# mac ########################################################################################################
+
+NEWDIR	mac-tu-unzipped	temp	tinyupdater-[ver]-mac-unzipped	-
+
+UNZIP	[tinyupdater]/tinyupdater.zip	[mac-tu-unzipped]
+	INTO	/	/
+
+SUBSTVARS	[mac-tu-unzipped<alter>]/version.txt
+	SET	version	[ver]
+	SET	applicationName	Taskus
+	SET	platform	mac
+	SET	releaseType	continuous
+	SET	updateSite	http://updates.yoursway.com/
+
+ZIP	[tinyupdater]/mac.zip
+	INTO	/	[mac-tu-unzipped]
+
+COPYTO	[taskus-mac.app]
+	INTO	Contents/Resources/Java/plugins/com.yoursway.tinyupdater_1.0.0.jar	[tinyupdater]/mac.zip
 
 
-COPYTO	[]
+# win ########################################################################################################
 
-[taskus.cur]/builder/setup.nsi
+NEWDIR	win-tu-unzipped	temp	tinyupdater-[ver]-win-unzipped	-
+
+UNZIP	[tinyupdater]/tinyupdater.zip	[win-tu-unzipped]
+	INTO	/	/
+
+SUBSTVARS	[win-tu-unzipped<alter>]/version.txt
+	SET	version	[ver]
+	SET	applicationName	Taskus
+	SET	platform	win
+	SET	releaseType	continuous
+	SET	updateSite	http://updates.yoursway.com/
+
+ZIP	[tinyupdater]/win.zip
+	INTO	/	[win-tu-unzipped]
+
+COPYTO	[taskus-win]
+	INTO	plugins/com.yoursway.tinyupdater_1.0.0.jar	[tinyupdater]/win.zip
 
 
-SUBSTVARS	[taskus.cur]/builder/setup.nsi
-	SET	Version	[ver]
-	SET	ApplicationName	taskus
-	SET	Platform	mac
-	SET	ReleaseType	continuous
-	SET	Link	http://updates.yoursway.com/
 
-
-
-	
 ##############################################################################################################
 # Mac DMG
 ##############################################################################################################
