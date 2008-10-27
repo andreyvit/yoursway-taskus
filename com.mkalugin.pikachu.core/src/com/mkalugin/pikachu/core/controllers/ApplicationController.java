@@ -31,7 +31,9 @@ public class ApplicationController implements ApplicationPresentationCallback, A
         if (model.areNoDocumentsOpen())
             openNewDocument();
         
-        TinyUpdater.instance().checkUpdate(false);
+        TinyUpdater updater = TinyUpdater.instance();
+        if (updater != null)
+            updater.checkUpdate(false);
         
         applicationPresentation.run();
     }

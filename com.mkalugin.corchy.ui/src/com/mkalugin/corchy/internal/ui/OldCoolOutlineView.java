@@ -16,9 +16,10 @@ import org.eclipse.swt.widgets.Display;
 
 import com.google.common.collect.Lists;
 import com.mkalugin.pikachu.core.model.document.Element;
-import com.mkalugin.swthell.CoolScrolledComposite;
+import com.yoursway.swt.scrollbar.CoolScrolledComposite;
 
-public class CoolOutlineView {
+@Deprecated
+public class OldCoolOutlineView {
     
     private final List<OutlineItem> items = Lists.newArrayList();
     private ILabelProvider labelProvider;
@@ -27,7 +28,7 @@ public class CoolOutlineView {
     private final OutlineItem titleItem;
     private final List<MouseListener> mouseListeners = Lists.newArrayList();
     
-    public CoolOutlineView(Composite parent) {
+    public OldCoolOutlineView(Composite parent) {
         scrolledComposite = new CoolScrolledComposite(parent, SWT.NONE);
         scrolledComposite.setExpandHorizontal(true);
         scrolledComposite.setExpandVertical(true);

@@ -9,6 +9,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -118,18 +119,23 @@ public class SwtCocoaWindow implements DocumentWindow, SearchControls, PasswordQ
     private void createEditorAndOutline(final Composite parent) {
         
         outlineView = new SwtCocoaOutlineView(parent);
+        
         final Sash sash = new Sash(parent, SWT.VERTICAL);
+        final Color sashColor = new Color(sash.getDisplay(), 139, 139, 139);
         sash.addPaintListener(new PaintListener() {
             
             public void paintControl(PaintEvent e) {
                 Rectangle sashRect = sash.getBounds();
-                e.gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
-                e.gc.setLineStyle(SWT.LINE_DOT);
+                e.gc.setForeground(sashColor);
                 e.gc.drawLine(0, 0, 0, sashRect.height);
             }
             
         });
+        sash.setEnabled(false); //! don't work anyway
+        
         sourceView = new SwtCocoaSourceView(parent);
+        
+        ///
         
         outlineView.setLayoutData(GridDataFactory.fillDefaults().grab(false, true).minSize(150, SWT.DEFAULT)
                 .hint(150, SWT.DEFAULT).create());

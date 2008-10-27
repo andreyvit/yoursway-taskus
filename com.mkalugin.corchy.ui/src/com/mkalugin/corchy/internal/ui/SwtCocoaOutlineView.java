@@ -1,31 +1,35 @@
 package com.mkalugin.corchy.internal.ui;
 
+import static com.google.common.collect.Lists.newLinkedList;
+
 import java.util.List;
 
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+import com.mkalugin.corchy.internal.ui.sidebar.OutlineSection;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineView;
 import com.mkalugin.pikachu.core.controllers.viewglue.OutlineViewCallback;
 import com.mkalugin.pikachu.core.model.document.Element;
-import com.mkalugin.pikachu.core.model.document.Named;
 import com.mkalugin.pikachu.core.model.document.TaggedContainer;
+import com.yoursway.swt.coolsidebar.CoolSidebar;
+import com.yoursway.swt.coolsidebar.viewmodel.SidebarModel;
+import com.yoursway.swt.coolsidebar.viewmodel.SidebarSection;
 
 public class SwtCocoaOutlineView implements OutlineView {
     
     private OutlineViewCallback callback;
     
-    private CoolOutlineView coolOutlineView;
+    private CoolSidebar sidebar;
     
     public SwtCocoaOutlineView(Composite parent) {
         createControl(parent);
     }
     
     private void createControl(Composite parent) {
-        coolOutlineView = new CoolOutlineView(parent);
+        sidebar = new CoolSidebar(parent);
+        
+        /*
         coolOutlineView.setTitle("Projects:");
         coolOutlineView.setLabelProvider(new LabelProvider() {
             @Override
@@ -51,10 +55,11 @@ public class SwtCocoaOutlineView implements OutlineView {
             }
             
         });
+        */
     }
     
     public void setLayoutData(Object outlineData) {
-        coolOutlineView.setLayoutData(outlineData);
+        sidebar.setLayoutData(outlineData);
     }
     
     public OutlineView bind(OutlineViewCallback callback) {
@@ -70,9 +75,15 @@ public class SwtCocoaOutlineView implements OutlineView {
         Display.getDefault().asyncExec(new Runnable() {
             
             public void run() {
-                List<Element> children = contentModel.getChildren();
-                coolOutlineView.setElements(children);
-                coolOutlineView.redraw();
+                SidebarModel model = new SidebarModel() {
+                    
+                    public List<SidebarSection> sections() {
+                        return newLinkedList((SidebarSection) new OutlineSection(contentModel));
+                    }
+                    
+                };
+                
+                sidebar.setModel(model);
             }
             
         });
@@ -82,11 +93,13 @@ public class SwtCocoaOutlineView implements OutlineView {
         Display.getDefault().asyncExec(new Runnable() {
             
             public void run() {
+                /*
                 for (OutlineItem item : coolOutlineView.items()) {
                     Element element = (Element) item.getData();
                     item.setActive(element.equals(selectedElement));
                 }
                 coolOutlineView.redraw();
+                */
             }
             
         });
