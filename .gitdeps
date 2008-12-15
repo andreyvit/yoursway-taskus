@@ -1,0 +1,14 @@
+[repos]
+	name = taskus
+[dep "yscommons"]
+	commitid = ffd711a9c8de0c613c25d12dc62061223e348e60
+	url = git://github.com/andreyvit/yoursway-commons.git
+	branch = master
+[dep "yslibraries"]
+	commitid = bb61a516fb42b976800cdb7811cd418242d9089a
+	url = git://github.com/andreyvit/yoursway-libraries.git
+	branch = master
+[dep "updater"]
+	commitid = ed9185d276e2575f53bb12ef05873ab2a834eebb
+	url = git@github.com:andreyvit/yoursway-software-update.git
+	branch = master
